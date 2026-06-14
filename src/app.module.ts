@@ -17,6 +17,12 @@ import { TransactionInterceptor } from './shared/infrastructure/interceptors/tra
 import { SecurityModule } from './modules/security/security.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { IdentityAccessManagementModule } from './modules/identity-access-management/identity-access-management.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { ReservationsModule } from './modules/reservations/reservations.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { BillingModule } from './modules/billing/billing.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { JwtPassportAuthGuard } from './modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from './modules/security/infrastructure/guards/permissions.guard';
 import { validate } from './shared/infrastructure/config/env.validation';
@@ -62,6 +68,12 @@ import { ExpressAdapter } from '@bull-board/express';
     SecurityModule,
     AuthModule,
     IdentityAccessManagementModule,
+    InventoryModule,
+    CustomersModule,
+    ReservationsModule,
+    PaymentsModule,
+    BillingModule,
+    ReportsModule,
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

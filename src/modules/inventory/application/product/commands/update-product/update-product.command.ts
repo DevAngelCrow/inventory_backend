@@ -1,0 +1,18 @@
+export class UpdateProductCommand {
+  constructor(
+    public readonly id: string,
+    public readonly sku: string,
+    public readonly name: string,
+    public readonly rental_price: number,
+    public readonly total_stock: number,
+    public readonly category_id: string,
+    public readonly description?: string,
+    public readonly replacement_cost?: number,
+    public readonly min_stock_alert?: number,
+    public readonly color?: string,
+    public readonly dimensions?: string,
+    public readonly weight_lbs?: number,
+    public readonly image_url?: string,
+    public readonly notes?: string,
+  ) {}
+}

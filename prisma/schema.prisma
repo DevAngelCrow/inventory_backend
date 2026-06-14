@@ -448,3 +448,340 @@ model ctl_geographic_division_type {
   @@unique([id_country, level], name: "ctl_geographic_division_type_country_level_unique")
   @@index([id_country])
 }
+
+// ──────────────────────────────────────────────
+// CATÁLOGOS DEL SISTEMA DE INVENTARIO
+// ──────────────────────────────────────────────
+
+model ctl_product_category {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique @db.VarChar(150)
+  description String?   @db.VarChar(255)
+  icon        String?   @db.VarChar(100)
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+
+  mnt_product mnt_product[]
+}
+
+model ctl_product_condition {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique @db.VarChar(100)
+  description String?   @db.VarChar(255)
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
+
+model ctl_currency {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String    @unique @db.VarChar(100)
+  code       String    @unique @db.VarChar(3)
+  symbol     String    @db.VarChar(5)
+  is_default Boolean   @default(false)
+  active     Boolean   @default(true)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+
+  mnt_reservation mnt_reservation[]
+  mnt_invoice     mnt_invoice[]
+}
+
+model mnt_product {
+  id                   String               @id @default(uuid()) @db.Uuid
+  name                 String               @db.VarChar(200)
+  description          String?              @db.VarChar(500)
+  sku                  String               @unique @db.VarChar(50)
+  rental_price         Decimal              @db.Decimal(10, 2)
+  replacement_cost     Decimal?             @db.Decimal(10, 2)
+  total_stock          Int
+  min_stock_alert      Int                  @default(0)
+  color                String?              @db.VarChar(50)
+  dimensions           String?              @db.VarChar(100)
+  weight_lbs           Decimal?             @db.Decimal(8, 2)
+  image_url            String?              @db.VarChar(500)
+  notes                String?              @db.Text
+  active               Boolean              @default(true)
+  created_at           DateTime?            @db.Timestamp(0)
+  updated_at           DateTime?            @db.Timestamp(0)
+  deleted_at           DateTime?            @db.Timestamp(0)
+
+  id_category          String               @db.Uuid
+  ctl_product_category ctl_product_category @relation(fields: [id_category], references: [id])
+
+  mnt_reservation_item    mnt_reservation_item[]
+  mnt_product_maintenance mnt_product_maintenance[]
+
+  @@index([id_category])
+  @@index([sku])
+  @@index([active])
+}
+
+model mnt_product_maintenance {
+  id          String    @id @default(uuid()) @db.Uuid
+  description String    @db.VarChar(500)
+  cost        Decimal?  @db.Decimal(10, 2)
+  quantity    Int       @default(1)
+  date_start  DateTime  @db.Date
+  date_end    DateTime? @db.Date
+  resolved    Boolean   @default(false)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+
+  id_product  String      @db.Uuid
+  mnt_product mnt_product @relation(fields: [id_product], references: [id])
+
+  @@index([id_product])
+  @@index([resolved])
+  @@index([id_product, resolved])
+}
+
+model mnt_customer {
+  id              String    @id @default(uuid()) @db.Uuid
+  first_name      String    @db.VarChar(150)
+  last_name       String    @db.VarChar(150)
+  email           String?   @db.VarChar(150)
+  phone           String    @db.VarChar(20)
+  phone_secondary String?   @db.VarChar(20)
+  company_name    String?   @db.VarChar(200)
+  tax_id          String?   @db.VarChar(50)
+  address_line1   String?   @db.VarChar(255)
+  address_line2   String?   @db.VarChar(255)
+  city            String?   @db.VarChar(100)
+  state           String?   @db.VarChar(100)
+  zip_code        String?   @db.VarChar(20)
+  notes           String?   @db.Text
+  active          Boolean   @default(true)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+  id_user         String?   @unique @db.Uuid
+
+  mnt_reservation mnt_reservation[]
+  mnt_invoice     mnt_invoice[]
+
+  @@index([phone])
+  @@index([email])
+  @@index([last_name])
+  @@index([active])
+}
+
+model mnt_reservation {
+  id                     String    @id @default(uuid()) @db.Uuid
+  reservation_number     String    @unique @db.VarChar(20)
+
+  event_start            DateTime  @db.Timestamptz(0)
+  event_end              DateTime  @db.Timestamptz(0)
+
+  delivery_datetime      DateTime? @db.Timestamptz(0)
+  pickup_datetime        DateTime? @db.Timestamptz(0)
+  transit_time_minutes   Int       @default(0)
+  delivery_address       String?   @db.VarChar(500)
+  delivery_city          String?   @db.VarChar(100)
+  delivery_state         String?   @db.VarChar(100)
+  delivery_zip           String?   @db.VarChar(20)
+  delivery_notes         String?   @db.Text
+  delivery_contact_name  String?   @db.VarChar(200)
+  delivery_contact_phone String?   @db.VarChar(20)
+
+  event_type             String?   @db.VarChar(100)
+  venue_name             String?   @db.VarChar(200)
+
+  subtotal               Decimal   @db.Decimal(10, 2)
+  tax_rate               Decimal   @default(0) @db.Decimal(5, 4)
+  tax_amount             Decimal   @default(0) @db.Decimal(10, 2)
+  discount_amount        Decimal   @default(0) @db.Decimal(10, 2)
+  discount_reason        String?   @db.VarChar(255)
+  delivery_fee           Decimal   @default(0) @db.Decimal(10, 2)
+  total                  Decimal   @db.Decimal(10, 2)
+  deposit_amount         Decimal   @default(0) @db.Decimal(10, 2)
+  balance_due            Decimal   @db.Decimal(10, 2)
+
+  notes                  String?   @db.Text
+  internal_notes         String?   @db.Text
+
+  status                 String    @db.VarChar(30)
+
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+  deleted_at             DateTime? @db.Timestamp(0)
+  confirmed_at           DateTime? @db.Timestamp(0)
+  cancelled_at           DateTime? @db.Timestamp(0)
+  cancellation_reason    String?   @db.VarChar(500)
+
+  id_customer            String    @db.Uuid
+  id_currency            String    @db.Uuid
+  id_created_by          String?   @db.Uuid
+
+  mnt_customer           mnt_customer @relation(fields: [id_customer], references: [id])
+  ctl_currency           ctl_currency @relation(fields: [id_currency], references: [id])
+
+  mnt_reservation_item       mnt_reservation_item[]
+  mnt_payment                mnt_payment[]
+  mnt_reservation_inspection mnt_reservation_inspection[]
+
+  @@index([id_customer])
+  @@index([event_start])
+  @@index([event_end])
+  @@index([status])
+  @@index([reservation_number])
+  @@index([event_start, event_end, status])
+  @@index([delivery_datetime])
+  @@index([pickup_datetime])
+}
+
+model mnt_reservation_item {
+  id             String    @id @default(uuid()) @db.Uuid
+  quantity       Int
+  unit_price     Decimal   @db.Decimal(10, 2)
+  subtotal       Decimal   @db.Decimal(10, 2)
+  notes          String?   @db.VarChar(255)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  id_reservation String          @db.Uuid
+  id_product     String          @db.Uuid
+  mnt_reservation mnt_reservation @relation(fields: [id_reservation], references: [id], onDelete: Cascade)
+  mnt_product    mnt_product     @relation(fields: [id_product], references: [id])
+
+  @@index([id_reservation])
+  @@index([id_product])
+  @@unique([id_reservation, id_product])
+}
+
+model ctl_payment_method {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique @db.VarChar(100)
+  code        String    @unique @db.VarChar(20)
+  active      Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+
+  mnt_payment mnt_payment[]
+}
+
+model mnt_payment {
+  id                String    @id @default(uuid()) @db.Uuid
+  payment_number    String    @unique @db.VarChar(20)
+  amount            Decimal   @db.Decimal(10, 2)
+  payment_date      DateTime  @db.Timestamptz(0)
+  reference_number  String?   @db.VarChar(100)
+  notes             String?   @db.VarChar(500)
+  status            String    @db.VarChar(20)
+  gateway_provider  String?   @db.VarChar(50)
+  gateway_tx_id     String?   @db.VarChar(200)
+  gateway_response  Json?
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+
+  id_reservation    String    @db.Uuid
+  id_payment_method String    @db.Uuid
+  id_received_by    String?   @db.Uuid
+
+  mnt_reservation    mnt_reservation    @relation(fields: [id_reservation], references: [id])
+  ctl_payment_method ctl_payment_method @relation(fields: [id_payment_method], references: [id])
+
+  @@index([id_reservation])
+  @@index([payment_date])
+  @@index([status])
+}
+
+model mnt_reservation_inspection {
+  id                String    @id @default(uuid()) @db.Uuid
+  inspection_date   DateTime  @db.Timestamptz(0)
+  general_notes     String?   @db.Text
+  overall_condition String    @db.VarChar(50)
+  total_charges     Decimal   @default(0) @db.Decimal(10, 2)
+  status            String    @db.VarChar(20)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+
+  id_reservation    String    @db.Uuid
+  id_inspected_by   String?   @db.Uuid
+
+  mnt_reservation   mnt_reservation @relation(fields: [id_reservation], references: [id])
+
+  mnt_damage_item   mnt_damage_item[]
+
+  @@index([id_reservation])
+  @@index([status])
+}
+
+model mnt_damage_item {
+  id                     String    @id @default(uuid()) @db.Uuid
+  damage_type            String    @db.VarChar(50)
+  description            String    @db.VarChar(500)
+  quantity_affected      Int       @default(1)
+  charge_amount          Decimal   @db.Decimal(10, 2)
+  photo_url              String?   @db.VarChar(500)
+  created_at             DateTime? @db.Timestamp(0)
+
+  id_inspection          String    @db.Uuid
+  id_product             String    @db.Uuid
+
+  mnt_reservation_inspection mnt_reservation_inspection @relation(fields: [id_inspection], references: [id], onDelete: Cascade)
+
+  @@index([id_inspection])
+  @@index([id_product])
+}
+
+model mnt_invoice {
+  id               String    @id @default(uuid()) @db.Uuid
+  invoice_number   String    @unique @db.VarChar(20)
+  issue_date       DateTime  @db.Date
+  due_date         DateTime? @db.Date
+  subtotal         Decimal   @db.Decimal(10, 2)
+  tax_rate         Decimal   @db.Decimal(5, 4)
+  tax_amount       Decimal   @db.Decimal(10, 2)
+  discount_amount  Decimal   @default(0) @db.Decimal(10, 2)
+  delivery_fee     Decimal   @default(0) @db.Decimal(10, 2)
+  damage_charges   Decimal   @default(0) @db.Decimal(10, 2)
+  total            Decimal   @db.Decimal(10, 2)
+  status           String    @db.VarChar(20)
+  notes            String?   @db.Text
+
+  fiscal_provider  String?   @db.VarChar(50)
+  fiscal_id        String?   @db.VarChar(100)
+  fiscal_status    String?   @db.VarChar(50)
+  fiscal_response  Json?
+  pdf_path         String?   @db.VarChar(500)
+
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+
+  id_reservation   String    @db.Uuid @unique
+  id_customer      String    @db.Uuid
+  id_currency      String    @db.Uuid
+  id_created_by    String?   @db.Uuid
+
+  mnt_customer     mnt_customer @relation(fields: [id_customer], references: [id])
+  ctl_currency     ctl_currency @relation(fields: [id_currency], references: [id])
+
+  mnt_invoice_line mnt_invoice_line[]
+
+  @@index([invoice_number])
+  @@index([id_reservation])
+  @@index([id_customer])
+  @@index([issue_date])
+  @@index([status])
+}
+
+model mnt_invoice_line {
+  id          String   @id @default(uuid()) @db.Uuid
+  description String   @db.VarChar(300)
+  quantity    Int
+  unit_price  Decimal  @db.Decimal(10, 2)
+  subtotal    Decimal  @db.Decimal(10, 2)
+  sort_order  Int      @default(0)
+
+  id_invoice  String      @db.Uuid
+  id_product  String?     @db.Uuid
+  mnt_invoice mnt_invoice @relation(fields: [id_invoice], references: [id], onDelete: Cascade)
+
+  @@index([id_invoice])
+}

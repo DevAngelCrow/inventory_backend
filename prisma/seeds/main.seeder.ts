@@ -16,6 +16,10 @@ import { seedMntUserRol } from './mnt-user-rol.seeder';
 import { seedMntRoute } from './mnt-route.seeder';
 import { seedMntRoutePermissions } from './mnt-route-permissions.seeder';
 import { seedMntAddress } from './mnt-address.seeder';
+import { seedCtlProductCategory } from './ctl-product-category.seeder';
+import { seedCtlProductCondition } from './ctl-product-condition.seeder';
+import { seedCtlCurrency } from './ctl-currency.seeder';
+import { seedCtlPaymentMethod } from './ctl-payment-method.seeder';
 import { PrismaClient } from 'generated/prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -38,6 +42,20 @@ const mainSeeder = async () => {
     // Truncate all tables in reverse order of dependencies
     console.log('Truncating all tables...');
     const tables = [
+      'mnt_invoice_line',
+      'mnt_invoice',
+      'mnt_damage_item',
+      'mnt_reservation_inspection',
+      'mnt_payment',
+      'ctl_payment_method',
+      'mnt_reservation_item',
+      'mnt_reservation',
+      'mnt_customer',
+      'mnt_product_maintenance',
+      'mnt_product',
+      'ctl_currency',
+      'ctl_product_condition',
+      'ctl_product_category',
       'mnt_address',
       'mnt_route_permissions',
       'mnt_route',
@@ -112,6 +130,14 @@ const mainSeeder = async () => {
     await seedMntRoutePermissions(prisma);
     console.log('Seeding addresses...');
     await seedMntAddress(prisma);
+    console.log('Seeding product categories...');
+    await seedCtlProductCategory(prisma);
+    console.log('Seeding product conditions...');
+    await seedCtlProductCondition(prisma);
+    console.log('Seeding currencies...');
+    await seedCtlCurrency(prisma);
+    console.log('Seeding payment methods...');
+    await seedCtlPaymentMethod(prisma);
     console.log('Main seeder completed successfully.');
   } catch (error) {
     console.error('Error during main seeder execution:', error);

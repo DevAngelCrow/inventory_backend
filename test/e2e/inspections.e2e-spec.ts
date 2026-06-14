@@ -1,0 +1,111 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import request from 'supertest';
+import { AppModule } from '../../src/app.module';
+import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
+import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
+import { PermissionsGuard } from '@/modules/security/infrastructure/guards/permissions.guard';
+import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../mocks/prisma.mock';
+
+describe('Inspections (e2e)', () => {
+  let app: INestApplication;
+  let mockPrismaClient: MockPrismaClient;
+
+  beforeAll(async () => {
+    mockPrismaClient = createPrismaMock();
+    const mockPrismaService = createPrismaServiceMock(mockPrismaClient);
+
+    jest
+      .spyOn(JwtPassportAuthGuard.prototype, 'canActivate')
+      .mockReturnValue(true);
+
+    jest
+      .spyOn(PermissionsGuard.prototype, 'canActivate')
+      .mockReturnValue(true);
+
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(PrismaService)
+      .useValue(mockPrismaService)
+      .compile();
+
+    app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('/inspections (POST) - should record an inspection', () => {
+    mockPrismaClient.mnt_reservation_inspection.create.mockResolvedValue({} as any);
+
+    return request(app.getHttpServer())
+      .post('/inspections')
+      .send({
+        id_reservation: '123e4567-e89b-12d3-a456-426614174000',
+        inspection_date: new Date().toISOString(),
+        overall_condition: 'GOOD',
+        status: 'COMPLETED',
+        damage_items: [
+          {
+            id_product: '123e4567-e89b-12d3-a456-426614174001',
+            damage_type: 'NONE',
+            description: 'test',
+            quantity_affected: 1,
+            charge_amount: 0,
+          }
+        ],
+        general_notes: 'Looks fine',
+        total_charges: 0,
+        id_inspected_by: '123e4567-e89b-12d3-a456-426614174002'
+      })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.statusCode).toBe(201);
+        expect(res.body.message).toBe('Inspection recorded successfully');
+      });
+  });
+
+  it('/inspections (GET) - should return inspections list', () => {
+    mockPrismaClient.mnt_reservation_inspection.findMany.mockResolvedValue([
+      {
+        id: 'insp-1',
+        id_reservation: '123e4567-e89b-12d3-a456-426614174000',
+        inspection_date: new Date(),
+        overall_condition: 'GOOD',
+        status: 'COMPLETED',
+        general_notes: null,
+        total_charges: 0,
+        id_inspected_by: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+      },
+    ] as any);
+    
+    mockPrismaClient.mnt_reservation_inspection.count.mockResolvedValue(1);
+
+    return request(app.getHttpServer())
+      .get('/inspections?page=1&per_page=10')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.statusCode).toBe(200);
+        expect(res.body.data.data).toBeInstanceOf(Array);
+        expect(res.body.data.data.length).toBe(1);
+        expect(res.body.data.data[0].id_reservation).toBe('123e4567-e89b-12d3-a456-426614174000');
+      });
+  });
+});
