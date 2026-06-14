@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    name: Lint, build, validate schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+      - name: Lint
+        run: npm run lint -- --max-warnings=0
+
+      - name: Prisma schema validate
+        run: npx prisma validate
+
+      - name: Type-check & build
+        run: npm run build
+
+      - name: Production dependency audit
+        # Fails the job on HIGH or CRITICAL CVEs in runtime deps only.
+        run: npm audit --omit=dev --audit-level=high
+
+  docker:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build production image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          target: runner
+          tags: backend-template-nest:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+  

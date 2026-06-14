@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar dirección de correo electrónico</title>
+</head>
+
+<body style="margin:0; padding:0; background-color: {{COLOR_SURFACE}}; font-family: Arial, Helvetica, sans-serif;">
+    <!-- Contenedor principal que centra todo (Reemplazo de Flexbox para compatibilidad) -->
+    <div style="width: 100%; table-layout: fixed; background-color: {{COLOR_SURFACE}}; padding-bottom: 40px;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px; text-align: center;">
+
+            <!-- Logo -->
+            <div style="padding: 20px 0;">
+                <img src="{{APP_URL}}/public/img/LogoFacturacion.png" alt="Logo"
+                    style="width: 120px; height: auto; display: block; margin: 0 auto;" />
+            </div>
+
+            <!-- Tarjeta Blanca (Cuerpo del mensaje) -->
+            <div
+                style="width: 100%; background-color: {{COLOR_CARD}}; border: 2px solid {{COLOR_BORDER}}; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: left;">
+                <div style="padding: 30px;">
+                    <h1
+                        style="font-size: 24px; font-weight: bold; margin: 0 0 20px 0; text-align: center; color: {{COLOR_TEXT}};">
+                        Hola {{USER_NAME}}
+                    </h1>
+
+                    <p
+                        style="font-size: 16px; color: {{COLOR_TEXT}}; line-height: 1.5; margin-bottom: 30px; text-align: center;">
+                        Por favor haz clic en el botón de abajo para verificar tu dirección de correo electrónico y
+                        activar tu cuenta.
+                    </p>
+
+                    <!-- Botón centrado -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <a href="{{VERIFICATION_URL}}"
+                            style="background-color: {{COLOR_PRIMARY}}; color: {{COLOR_SURFACE}}; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 16px; font-weight: bold; display: inline-block;">
+                            Verificar correo
+                        </a>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid {{COLOR_BORDER}}; margin: 30px 0;">
+
+                    <p style="font-size: 14px; color: {{COLOR_TEXT_MUTED}}; margin-bottom: 20px;">
+                        Si tienes problemas para hacer clic en el botón <b>"Verificar correo"</b>, copia y pega la
+                        siguiente URL en tu navegador web:
+                    </p>
+
+                    <p style="font-size: 14px; word-break: break-all; margin-bottom: 30px; text-align: center;">
+                        <a href="{{VERIFICATION_URL}}" style="color: {{COLOR_PRIMARY}}; text-decoration: underline;">
+                            {{VERIFICATION_URL}}
+                        </a>
+                    </p>
+
+                    <p style="font-size: 14px; color: {{COLOR_TEXT_MUTED}}; text-align: center; margin-bottom: 10px;">
+                        Si no solicitaste este correo, simplemente ignóralo.
+                    </p>
+                    <p style="font-size: 12px; color: {{COLOR_TEXT_MUTED}}; text-align: center;">
+                        Este es un correo electrónico generado automáticamente.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

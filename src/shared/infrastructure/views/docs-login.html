@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Docs — Acceso</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: {{COLOR_SURFACE}};
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .card {
+      background-color: {{COLOR_CARD}};
+      border: 2px solid {{COLOR_BORDER}};
+      border-radius: 12px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: .25rem; color: {{COLOR_TEXT}}; }
+    .sub  { font-size: .85rem; color: {{COLOR_TEXT_MUTED}}; margin-bottom: 2rem; }
+    label { display: block; font-size: .8rem; color: {{COLOR_TEXT_MUTED}}; margin-bottom: .35rem; }
+    input {
+      width: 100%; padding: .65rem .9rem;
+      background-color: {{COLOR_SURFACE}}; border: 1px solid {{COLOR_BORDER}};
+      border-radius: 8px; color: {{COLOR_TEXT}}; font-size: .95rem;
+      outline: none; transition: border-color .2s;
+      margin-bottom: 1.1rem;
+    }
+    input:focus { border-color: {{COLOR_PRIMARY}}; }
+    button {
+      width: 100%; padding: .7rem;
+      background-color: {{COLOR_PRIMARY}}; color: {{COLOR_CARD}};
+      border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: opacity .2s;
+    }
+    button:hover:not(:disabled) { opacity: .85; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .error {
+      margin-top: 1rem; padding: .65rem .9rem;
+      background: #450a0a; border: 1px solid #991b1b;
+      border-radius: 8px; font-size: .85rem; color: #fca5a5;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">📚 API Docs</div>
+    <div class="sub">Inicia sesión con tu cuenta del sistema</div>
+    <form id="form">
+      <label for="user">Usuario</label>
+      <input id="user" type="text" autocomplete="username" required />
+      <label for="pass">Contraseña</label>
+      <input id="pass" type="password" autocomplete="current-password" required />
+      <button type="submit" id="btn">Iniciar sesión</button>
+    </form>
+    <div class="error" id="err"></div>
+  </div>
+  <script>
+    const form = document.getElementById('form');
+    const btn  = document.getElementById('btn');
+    const err  = document.getElementById('err');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+      err.style.display = 'none';
+      const user_name = document.getElementById('user').value.trim();
+      const password  = document.getElementById('pass').value;
+      try {
+        const loginRes = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_name, password }),
+        });
+        if (!loginRes.ok) {
+          const data = await loginRes.json().catch(() => ({}));
+          throw new Error(data?.message ?? 'Credenciales incorrectas');
+        }
+        const { data } = await loginRes.json();
+        const accessToken = data?.token ?? data?.access_token;
+        const docsRes = await fetch('/api/v1/auth/docs-access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: accessToken }),
+        });
+        if (!docsRes.ok) {
+          const data2 = await docsRes.json().catch(() => ({}));
+          throw new Error(data2?.message ?? 'No posee permiso para acceder a la documentación');
+        }
+        const rawRedirect = new URLSearchParams(window.location.search).get('redirect') || '/api/docs';
+        // SEC-02: prevent open redirect — only allow same-origin relative paths (must start with / but not //)
+        const isRelative = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//');
+        const redirect = isRelative ? rawRedirect : '/api/docs';
+        window.location.href = redirect;
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Iniciar sesión';
+      }
+    });
+  </script>
+</body>
+</html>
