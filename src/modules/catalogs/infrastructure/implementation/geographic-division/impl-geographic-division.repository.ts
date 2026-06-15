@@ -29,7 +29,7 @@ export class ImplGeographicDivisionRepository
 
   async create(division: GeographicDivision): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division.create({
+      await this.prisma.client.ctl_geographic_division.create({
         data: {
           name: division.getName().value(),
           description: division.getDescription().value() ?? null,
@@ -52,7 +52,7 @@ export class ImplGeographicDivisionRepository
 
   async update(division: GeographicDivision): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division.update({
+      await this.prisma.client.ctl_geographic_division.update({
         where: { id: division.getId()?.value() },
         data: {
           name: division.getName().value(),
@@ -92,7 +92,7 @@ export class ImplGeographicDivisionRepository
       };
 
       const [items, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division.findMany({
+        this.prisma.client.ctl_geographic_division.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -108,7 +108,7 @@ export class ImplGeographicDivisionRepository
             ctl_geographic_division: true,
           },
         }),
-        this.prisma.ctl_geographic_division.count({ where }),
+        this.prisma.client.ctl_geographic_division.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -165,7 +165,7 @@ export class ImplGeographicDivisionRepository
       };
 
       const [items, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division.findMany({
+        this.prisma.client.ctl_geographic_division.findMany({
           take: limit + 1,
           skip: decodedCursor ? 1 : 0,
           cursor: decodedCursor ? { id: decodedCursor } : undefined,
@@ -209,7 +209,7 @@ export class ImplGeographicDivisionRepository
   async getOneById(id: string): Promise<GeographicDivisionDto | null> {
     try {
       const [item, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division.findFirst({
+        this.prisma.client.ctl_geographic_division.findFirst({
           where: { id },
           include: {
             ctl_country: true,
@@ -238,7 +238,7 @@ export class ImplGeographicDivisionRepository
       if (!existing) {
         throw new NotFoundException('GeographicDivision', id.value());
       }
-      const updated = await this.prisma.ctl_geographic_division.update({
+      const updated = await this.prisma.client.ctl_geographic_division.update({
         where: { id: id.value() },
         data: { active: !existing.active },
       });

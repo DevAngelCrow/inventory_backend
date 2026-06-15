@@ -26,7 +26,7 @@ export class ImplCategoryStatusRepository
   constructor(private readonly prisma: PrismaService) {}
   async create(categoryStatus: CategoryStatus): Promise<void> {
     try {
-      await this.prisma.ctl_category_status.create({
+      await this.prisma.client.ctl_category_status.create({
         data: {
           name: categoryStatus.getName().value(),
           code: categoryStatus.getCode().value(),
@@ -49,7 +49,7 @@ export class ImplCategoryStatusRepository
   }
   async update(categoryStatus: CategoryStatus): Promise<void> {
     try {
-      await this.prisma.ctl_category_status.update({
+      await this.prisma.client.ctl_category_status.update({
         where: {
           id: categoryStatus.getId()?.value(),
         },
@@ -87,7 +87,7 @@ export class ImplCategoryStatusRepository
         active,
       };
       const [categoriesStatusDb, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_category_status.findMany({
+        this.prisma.client.ctl_category_status.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -100,7 +100,7 @@ export class ImplCategoryStatusRepository
             name: 'asc',
           },
         }),
-        this.prisma.ctl_category_status.count({ where }),
+        this.prisma.client.ctl_category_status.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -141,7 +141,7 @@ export class ImplCategoryStatusRepository
   async getOneById(id: string): Promise<CategoryStatusDto | null> {
     try {
       const categoryStatusDb: ctl_category_status | null =
-        await this.prisma.ctl_category_status.findFirst({
+        await this.prisma.client.ctl_category_status.findFirst({
           where: {
             id: id,
           },
@@ -164,7 +164,7 @@ export class ImplCategoryStatusRepository
       if (!categoryStatus) {
         throw new NotFoundException('CategoryStatus', id.value().toString());
       }
-      const categoryStatusDb = await this.prisma.ctl_category_status.update({
+      const categoryStatusDb = await this.prisma.client.ctl_category_status.update({
         where: {
           id: id.value(),
         },

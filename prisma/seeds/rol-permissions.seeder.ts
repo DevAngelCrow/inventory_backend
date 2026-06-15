@@ -346,6 +346,68 @@ export const seedRolPermissions = async (tx: PrismaClient) => {
     ],
   };
 
+  // Extender los permisos para el nuevo rol de inventario usando los del supervisor + los nuevos
+  (permissionsByRole as any)['operador_inventario'] = [
+    ...permissionsByRole['supervisor'],
+    // Catálogos - Producto
+    'crear-categoria-producto',
+    'listar-categorias-producto',
+    'editar-categoria-producto',
+    'ver-categoria-producto',
+    'eliminar-categoria-producto',
+    // Productos
+    'crear-producto',
+    'listar-productos',
+    'editar-producto',
+    'ver-producto',
+    'eliminar-producto',
+    'verificar-disponibilidad-producto',
+    // Mantenimiento
+    'crear-mantenimiento-producto',
+    'listar-mantenimientos-producto',
+    'resolver-mantenimiento-producto',
+    // Clientes
+    'crear-cliente',
+    'listar-clientes',
+    'editar-cliente',
+    'ver-cliente',
+    'eliminar-cliente',
+    'ver-historial-cliente',
+    // Reservas
+    'crear-reserva',
+    'listar-reservas',
+    'editar-reserva',
+    'ver-reserva',
+    'confirmar-reserva',
+    'cancelar-reserva',
+    'cambiar-estado-reserva',
+    'ver-calendario-reservas',
+    // Pagos
+    'registrar-pago',
+    'listar-pagos',
+    'anular-pago',
+    'reembolsar-pago',
+    // Inspecciones
+    'crear-inspeccion',
+    'ver-inspeccion',
+    'editar-inspeccion',
+    'cobrar-inspeccion',
+    'exonerar-inspeccion',
+    // Facturación
+    'generar-factura',
+    'listar-facturas',
+    'ver-factura',
+    'emitir-factura',
+    'anular-factura',
+    'descargar-factura-pdf',
+    // Reportes
+    'ver-dashboard-inventario',
+    'ver-reporte-ingresos',
+    'ver-reporte-utilizacion-inventario',
+    'ver-reporte-clientes',
+    'ver-reporte-productos-top',
+  ];
+
   // Asignar permisos a cada rol
   for (const role of roles) {
     const permissionNames =

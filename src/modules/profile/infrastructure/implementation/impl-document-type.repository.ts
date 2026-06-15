@@ -26,7 +26,7 @@ export class ImplDocumentTypeRepository
   constructor(private readonly prisma: PrismaService) {}
   async create(documentType: DocumentType): Promise<void> {
     try {
-      await this.prisma.ctl_document_type.create({
+      await this.prisma.client.ctl_document_type.create({
         data: {
           name: documentType.getName().value(),
           description: documentType.getDescription().value(),
@@ -43,7 +43,7 @@ export class ImplDocumentTypeRepository
   }
   async update(documentType: DocumentType): Promise<void> {
     try {
-      await this.prisma.ctl_document_type.update({
+      await this.prisma.client.ctl_document_type.update({
         where: {
           id: documentType.getId()?.value(),
         },
@@ -75,7 +75,7 @@ export class ImplDocumentTypeRepository
         active: active,
       };
       const [documentTypesDb, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_document_type.findMany({
+        this.prisma.client.ctl_document_type.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -88,7 +88,7 @@ export class ImplDocumentTypeRepository
             name: 'asc',
           },
         }),
-        this.prisma.ctl_document_type.count({ where }),
+        this.prisma.client.ctl_document_type.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -129,7 +129,7 @@ export class ImplDocumentTypeRepository
   async getOneById(id: string): Promise<DocumentTypeDto | null> {
     try {
       const documentTypeDb: ctl_document_type | null =
-        await this.prisma.ctl_document_type.findFirst({
+        await this.prisma.client.ctl_document_type.findFirst({
           where: {
             id: id,
           },
@@ -152,7 +152,7 @@ export class ImplDocumentTypeRepository
       if (!documentTypeDb) {
         throw new NotFoundException('DocumentType', id.value().toString());
       }
-      const documentType = await this.prisma.ctl_document_type.update({
+      const documentType = await this.prisma.client.ctl_document_type.update({
         where: {
           id: id.value(),
         },

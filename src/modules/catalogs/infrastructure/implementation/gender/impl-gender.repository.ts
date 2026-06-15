@@ -27,7 +27,7 @@ export class ImplGenderRepository implements GenderQueriesRepository {
         },
       };
       const [gendersDb, total] = await Promise.all([
-        this.prisma.ctl_gender.findMany({
+        this.prisma.client.ctl_gender.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -40,7 +40,7 @@ export class ImplGenderRepository implements GenderQueriesRepository {
             name: 'asc',
           },
         }),
-        this.prisma.ctl_gender.count({ where }),
+        this.prisma.client.ctl_gender.count({ where }),
       ]);
 
       const genders = gendersDb.map((genderDb) =>

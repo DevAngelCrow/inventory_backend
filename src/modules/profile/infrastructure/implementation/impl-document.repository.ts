@@ -25,7 +25,7 @@ export class ImplDocumentRepository
   ) {}
 
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(document: Document): Promise<Document> {
     try {

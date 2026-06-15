@@ -18,6 +18,7 @@ import { SuccessResponseDto } from '@/shared/infrastructure/http/dtos/http-succe
 import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http-paginated-response.dto';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { Pagination } from '@/shared/domain/value-object/pagination';
+import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 
 import { CreateProductDto } from '../dtos/validators/product/create-product.dto';
 import { UpdateProductDto } from '../dtos/validators/product/update-product.dto';
@@ -119,7 +120,7 @@ export class ProductController {
       query.filter_name,
       query.filter_sku,
       query.filter_category,
-      query.status,
+      query.active,
     );
     const result = await this.queryBus.execute<
       GetProductsQuery,

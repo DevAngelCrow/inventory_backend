@@ -22,7 +22,7 @@ export class ImplProductCategoryRepository
 
   async create(productCategory: ProductCategory): Promise<void> {
     try {
-      await this.prisma.ctl_product_category.create({
+      await this.prisma.client.ctl_product_category.create({
         data: {
           name: productCategory.getName().value(),
           description: productCategory.getDescription().value() ?? null,
@@ -44,7 +44,7 @@ export class ImplProductCategoryRepository
 
   async update(productCategory: ProductCategory): Promise<void> {
     try {
-      await this.prisma.ctl_product_category.update({
+      await this.prisma.client.ctl_product_category.update({
         where: { id: productCategory.getId()?.value() },
         data: {
           name: productCategory.getName().value(),
@@ -66,13 +66,13 @@ export class ImplProductCategoryRepository
 
   async toggleStatus(id: ProductCategoryId): Promise<ProductCategory> {
     try {
-      const existing = await this.prisma.ctl_product_category.findUnique({
+      const existing = await this.prisma.client.ctl_product_category.findUnique({
         where: { id: id.value() },
       });
       if (!existing) {
         throw new NotFoundException('ProductCategory', id.value());
       }
-      const updated = await this.prisma.ctl_product_category.update({
+      const updated = await this.prisma.client.ctl_product_category.update({
         where: { id: id.value() },
         data: {
           active: !existing.active,
@@ -101,7 +101,7 @@ export class ImplProductCategoryRepository
         deleted_at: null,
       };
       const [categoriesDb, total] = await Promise.all([
-        this.prisma.ctl_product_category.findMany({
+        this.prisma.client.ctl_product_category.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -112,7 +112,7 @@ export class ImplProductCategoryRepository
           where,
           orderBy: { name: 'asc' },
         }),
-        this.prisma.ctl_product_category.count({ where }),
+        this.prisma.client.ctl_product_category.count({ where }),
       ]);
 
       const categories = categoriesDb.map((cat) => this.mapToDto(cat));
@@ -141,7 +141,7 @@ export class ImplProductCategoryRepository
 
   async findById(id: string): Promise<ProductCategoryDto | null> {
     try {
-      const cat = await this.prisma.ctl_product_category.findUnique({
+      const cat = await this.prisma.client.ctl_product_category.findUnique({
         where: { id },
       });
       if (!cat) return null;

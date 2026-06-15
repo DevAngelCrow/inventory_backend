@@ -31,7 +31,7 @@ export class ImplRouteRepository
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(route: Route): Promise<Route> {
     try {

@@ -30,7 +30,7 @@ export class ImplGeographicDivisionTypeRepository
 
   async create(divisionType: GeographicDivisionType): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division_type.create({
+      await this.prisma.client.ctl_geographic_division_type.create({
         data: {
           name: divisionType.getName().value(),
           level: divisionType.getLevel().value(),
@@ -53,7 +53,7 @@ export class ImplGeographicDivisionTypeRepository
 
   async update(divisionType: GeographicDivisionType): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division_type.update({
+      await this.prisma.client.ctl_geographic_division_type.update({
         where: { id: divisionType.getId()?.value() },
         data: {
           name: divisionType.getName().value(),
@@ -91,7 +91,7 @@ export class ImplGeographicDivisionTypeRepository
       };
 
       const [items, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division_type.findMany({
+        this.prisma.client.ctl_geographic_division_type.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -103,7 +103,7 @@ export class ImplGeographicDivisionTypeRepository
           orderBy: [{ level: 'asc' }, { name: 'asc' }],
           include: { ctl_country: true },
         }),
-        this.prisma.ctl_geographic_division_type.count({ where }),
+        this.prisma.client.ctl_geographic_division_type.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -140,7 +140,7 @@ export class ImplGeographicDivisionTypeRepository
   async getOneById(id: string): Promise<GeographicDivisionTypeDto | null> {
     try {
       const [item, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division_type.findFirst({
+        this.prisma.client.ctl_geographic_division_type.findFirst({
           where: { id },
           include: { ctl_country: true },
         }),
@@ -169,7 +169,7 @@ export class ImplGeographicDivisionTypeRepository
       if (!existing) {
         throw new NotFoundException('GeographicDivisionType', id.value());
       }
-      const updated = await this.prisma.ctl_geographic_division_type.update({
+      const updated = await this.prisma.client.ctl_geographic_division_type.update({
         where: { id: id.value() },
         data: { active: !existing.active },
       });

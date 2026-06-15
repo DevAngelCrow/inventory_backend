@@ -22,5 +22,5 @@ export class GetProductsQueryDto extends PaginationParamsDto {
     if (value === 'false') return false;
     return value;
   })
-  status?: boolean;
+  active?: boolean;
 }

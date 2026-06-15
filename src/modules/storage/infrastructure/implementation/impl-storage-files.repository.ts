@@ -24,7 +24,7 @@ export class ImplStorageFilesRepository implements StorageFilesRepository {
   ) {}
 
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async upload<T>(storage_file_content: StorageFilesContentFile<T>): Promise<{
     content_file: StorageFilesContentFile<T>;

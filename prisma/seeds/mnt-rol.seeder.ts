@@ -51,6 +51,14 @@ export const seedMntRol = async (tx: PrismaClient) => {
         id_status: status.id,
         created_at: new Date(),
       },
+      {
+        id: "00000000-0000-4000-8000-000000000006",
+        name: 'operador_inventario',
+        description: 'Rol para el operador del sistema de inventario y reservas',
+        code: 'INVENTORY_OP',
+        id_status: status.id,
+        created_at: new Date(),
+      },
     ],
     skipDuplicates: true,
   });

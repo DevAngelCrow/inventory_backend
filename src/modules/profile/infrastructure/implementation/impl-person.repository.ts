@@ -31,7 +31,7 @@ export class ImplPersonRepository
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async getAll(
     pagination_params?: PaginationParams,

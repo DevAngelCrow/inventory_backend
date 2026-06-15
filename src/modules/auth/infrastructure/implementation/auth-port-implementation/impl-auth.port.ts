@@ -40,7 +40,7 @@ export class ImplAuthPort
     this.resend = new Resend(configService.get<string>('EMAIL_API_KEY'));
   }
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async sendForgottenPasswordEmail(
     email: PersonEmail,
@@ -158,7 +158,7 @@ export class ImplAuthPort
   async getLockoutStatus(
     userId: string,
   ): Promise<{ locked_until: Date | null; login_attempts: number }> {
-    const user = await this.prisma.mnt_user.findFirst({
+    const user = await this.prisma.client.mnt_user.findFirst({
       where: { id: userId },
       select: { locked_until: true, login_attempts: true },
     });
@@ -174,7 +174,7 @@ export class ImplAuthPort
     const LOCKOUT_MINUTES =
       Number(this.configService.get<string>('AUTH_LOCKOUT_MINUTES')) || 15;
 
-    const updated = await this.prisma.mnt_user.update({
+    const updated = await this.prisma.client.mnt_user.update({
       where: { id: userId },
       data: { login_attempts: { increment: 1 } },
       select: { login_attempts: true },
@@ -182,7 +182,7 @@ export class ImplAuthPort
 
     if (updated.login_attempts >= MAX_ATTEMPTS) {
       const locked_until = new Date(Date.now() + LOCKOUT_MINUTES * 60_000);
-      await this.prisma.mnt_user.update({
+      await this.prisma.client.mnt_user.update({
         where: { id: userId },
         data: { locked_until },
       });
@@ -190,7 +190,7 @@ export class ImplAuthPort
   }
 
   async resetLoginFailures(userId: string): Promise<void> {
-    await this.prisma.mnt_user.update({
+    await this.prisma.client.mnt_user.update({
       where: { id: userId },
       data: { login_attempts: 0, locked_until: null },
     });

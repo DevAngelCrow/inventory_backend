@@ -32,7 +32,7 @@ import { GetReservationQuery } from '../../application/queries/get-reservation/g
 import { ReservationDto } from '../../application/dtos/reservation.dto';
 
 @ApiTags('Reservations')
-@Controller('reservations')
+@Controller()
 @ApiBearerAuth('JWT-auth')
 export class ReservationController {
   constructor(

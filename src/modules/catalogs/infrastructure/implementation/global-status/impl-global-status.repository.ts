@@ -283,6 +283,6 @@ export class ImplGlobalStatusRepository
     );
   }
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
 }

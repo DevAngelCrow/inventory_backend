@@ -28,7 +28,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
         },
       };
       const [providerStoragesDb, total] = await Promise.all([
-        this.prisma.ctl_provider_storage.findMany({
+        this.prisma.client.ctl_provider_storage.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -41,7 +41,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
             id: 'asc',
           },
         }),
-        this.prisma.ctl_provider_storage.count({ where }),
+        this.prisma.client.ctl_provider_storage.count({ where }),
       ]);
 
       const providerStorages = providerStoragesDb.map((providerStorageDb) =>
@@ -77,7 +77,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
   async getOneById(id: ProviderStorageId): Promise<ProviderStorage | null> {
     try {
       const providerStorageDb =
-        await this.prisma.ctl_provider_storage.findFirst({
+        await this.prisma.client.ctl_provider_storage.findFirst({
           where: {
             id: id.value(),
           },
@@ -102,7 +102,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
   ): Promise<ProviderStorage | null> {
     try {
       const providerStorageDb =
-        await this.prisma.ctl_provider_storage.findFirst({
+        await this.prisma.client.ctl_provider_storage.findFirst({
           where: {
             code: code.value(),
           },

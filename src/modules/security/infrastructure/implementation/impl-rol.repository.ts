@@ -69,7 +69,7 @@ export class ImplRolRepository implements RolRepository, RolReadRepository {
     }
   }
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(rol: Rol): Promise<void> {
     try {

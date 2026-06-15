@@ -22,7 +22,7 @@ export class ImplProviderStorageRepository implements ProviderStorageRepository 
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(providerStorage: ProviderStorage): Promise<void> {
     try {

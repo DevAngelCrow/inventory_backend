@@ -29,7 +29,7 @@ export class ImplCategoryPermissionsRepository
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(category_permissions: CategoryPermissions): Promise<void> {
     try {
@@ -93,7 +93,7 @@ export class ImplCategoryPermissionsRepository
         active: active,
       };
       const categoryPermissionsDb =
-        await this.prisma.ctl_category_permissions.findMany({
+        await this.prisma.client.ctl_category_permissions.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -106,7 +106,7 @@ export class ImplCategoryPermissionsRepository
             name: 'asc',
           },
         });
-      const total = await this.prisma.ctl_category_permissions.count({ where });
+      const total = await this.prisma.client.ctl_category_permissions.count({ where });
       const catalog_status = await GetBooleanStatusCatalogService.getStatus(
         this.prisma,
       );
@@ -148,7 +148,7 @@ export class ImplCategoryPermissionsRepository
   async getOneById(id: string): Promise<CategoryPermissionsDto | null> {
     try {
       const categoryPermissionDb: ctl_category_permissions | null =
-        await this.prisma.ctl_category_permissions.findFirst({
+        await this.prisma.client.ctl_category_permissions.findFirst({
           where: {
             id: id,
           },
@@ -175,7 +175,7 @@ export class ImplCategoryPermissionsRepository
         );
       }
       const categoryPermission =
-        await this.prisma.ctl_category_permissions.update({
+        await this.prisma.client.ctl_category_permissions.update({
           where: {
             id: id.value(),
           },

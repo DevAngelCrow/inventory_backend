@@ -163,6 +163,7 @@ export class ImplCustomerRepository
         new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
       );
     } catch (error) {
+      console.error('Prisma error in getAll Customers:', error);
       throw new DatabaseException('Error getting customers', 'getAll');
     }
   }

@@ -27,7 +27,7 @@ import { PaymentDto } from '../../application/dtos/payment.dto';
 import { Payment } from '../../domain/entities/payment';
 
 @ApiTags('Payments')
-@Controller('payments')
+@Controller()
 @ApiBearerAuth('JWT-auth')
 export class PaymentController {
   constructor(

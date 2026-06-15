@@ -163,6 +163,7 @@ export class ImplProductRepository
         new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
       );
     } catch (error) {
+      console.error('Prisma Error in Products:', error);
       throw new DatabaseException('Error getting products', 'getAll');
     }
   }

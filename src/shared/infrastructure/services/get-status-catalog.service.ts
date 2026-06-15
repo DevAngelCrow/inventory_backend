@@ -7,7 +7,8 @@ import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
 import { PrismaService } from '../persistence/prisma/prisma.service';
 export class GetBooleanStatusCatalogService {
   static async getStatus(tx: TransactionClient | PrismaService) {
-    const statuses = await tx.ctl_status.findMany({
+    const prismaTx = 'client' in tx ? tx.client : tx;
+    const statuses = await prismaTx.ctl_status.findMany({
       where: {
         ctl_category_status: {
           name: CategoryStatus.NAME,
@@ -36,7 +37,7 @@ export class GetBooleanStatusCatalogService {
     });
 
     const mapStatus = new Map<string, BooleanStatusData>();
-    statuses.forEach((status) => {
+    statuses.forEach((status: any) => {
       const key = status.code.toLocaleLowerCase().toString();
       if (
         status.code.toLowerCase() === BooleanStatus.ACTIVE.toLowerCase() ||

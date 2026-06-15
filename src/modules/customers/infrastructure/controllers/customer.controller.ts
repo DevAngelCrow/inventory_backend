@@ -33,7 +33,7 @@ import { CustomerDto } from '../../application/dtos/customer.dto';
 import { Customer } from '../../domain/entities/customer';
 
 @ApiTags('Customers')
-@Controller('customers')
+@Controller()
 @ApiBearerAuth('JWT-auth')
 export class CustomerController {
   constructor(
