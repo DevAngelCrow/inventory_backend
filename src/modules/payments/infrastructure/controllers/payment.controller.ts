@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -25,6 +26,8 @@ import { ProcessPaymentCommand } from '../../application/commands/process-paymen
 import { GetPaymentsQuery } from '../../application/queries/get-payments/get-payments.query';
 import { PaymentDto } from '../../application/dtos/payment.dto';
 import { Payment } from '../../domain/entities/payment';
+import { GetPaymentMethodsQuery } from '../../application/queries/get-payment-methods/get-payment-methods.query';
+import { VoidPaymentCommand } from '../../application/commands/void-payment/void-payment.command';
 
 @ApiTags('Payments')
 @Controller()
@@ -114,6 +117,30 @@ export class PaymentController {
       response,
       HttpStatus.OK,
       'Payments retrieved successfully',
+    );
+  }
+
+  @Permissions('listar-pagos')
+  @Get('methods')
+  @HttpCode(HttpStatus.OK)
+  async getMethods() {
+    const methods = await this.queryBus.execute(new GetPaymentMethodsQuery());
+    return new SuccessResponseDto(
+      methods,
+      HttpStatus.OK,
+      'Payment methods retrieved successfully',
+    );
+  }
+
+  @Permissions('anular-pago')
+  @Patch(':id/void')
+  @HttpCode(HttpStatus.OK)
+  async voidPayment(@Param('id', ParseUUIDPipe) id: string) {
+    await this.commandBus.execute(new VoidPaymentCommand(id));
+    return new SuccessResponseDto(
+      null,
+      HttpStatus.OK,
+      'Payment voided successfully',
     );
   }
 }

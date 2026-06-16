@@ -122,6 +122,8 @@ export class ImplCustomerRepository
         where.OR = [
           { first_name: { contains: filter_name, mode: 'insensitive' } },
           { last_name: { contains: filter_name, mode: 'insensitive' } },
+          { email: { contains: filter_name, mode: 'insensitive' } },
+          { phone: { contains: filter_name, mode: 'insensitive' } },
         ];
       }
       if (filter_email) {

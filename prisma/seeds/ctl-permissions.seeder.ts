@@ -874,6 +874,7 @@ export const seedCtlPermissions = async (tx: PrismaClient) => {
       },
       // PERMISOS DE MANTENIMIENTO DE PRODUCTOS
       {
+        id: '20000000-0000-4000-8000-000000000010',
         name: 'crear-mantenimiento-producto',
         description: 'Permite registrar un mantenimiento de producto',
         id_category_permissions: categories[32].id,
@@ -881,6 +882,7 @@ export const seedCtlPermissions = async (tx: PrismaClient) => {
         active: true,
       },
       {
+        id: '20000000-0000-4000-8000-000000000011',
         name: 'listar-mantenimientos-producto',
         description: 'Permite listar los mantenimientos de un producto',
         id_category_permissions: categories[32].id,
@@ -888,8 +890,25 @@ export const seedCtlPermissions = async (tx: PrismaClient) => {
         active: true,
       },
       {
+        id: '20000000-0000-4000-8000-000000000012',
         name: 'resolver-mantenimiento-producto',
         description: 'Permite marcar como resuelto un mantenimiento de producto',
+        id_category_permissions: categories[32].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        id: '20000000-0000-4000-8000-000000000013',
+        name: 'editar-mantenimiento-producto',
+        description: 'Permite editar un mantenimiento de producto',
+        id_category_permissions: categories[32].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        id: '20000000-0000-4000-8000-000000000014',
+        name: 'ver-mantenimiento-producto',
+        description: 'Permite ver el detalle de un mantenimiento de producto',
         id_category_permissions: categories[32].id,
         created_at: new Date(),
         active: true,
@@ -988,16 +1007,34 @@ export const seedCtlPermissions = async (tx: PrismaClient) => {
         active: true,
       },
       {
+        id: '40000000-0000-4000-8000-000000000007',
         name: 'ver-calendario-reservas',
         description: 'Permite ver el calendario de reservas',
         id_category_permissions: categories[34].id,
         created_at: new Date(),
         active: true,
       },
+      {
+        id: '40000000-0000-4000-8000-000000000008',
+        name: 'eliminar-reserva',
+        description: 'Permite eliminar una reserva',
+        id_category_permissions: categories[34].id,
+        created_at: new Date(),
+        active: true,
+      },
       // PERMISOS DE PAGOS
       {
+        id: '50000000-0000-4000-8000-000000000001',
         name: 'registrar-pago',
         description: 'Permite registrar un pago contra una reserva',
+        id_category_permissions: categories[35].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        id: '50000000-0000-4000-8000-000000000005',
+        name: 'procesar-pago',
+        description: 'Permite procesar un pago contra una reserva',
         id_category_permissions: categories[35].id,
         created_at: new Date(),
         active: true,
@@ -1025,8 +1062,25 @@ export const seedCtlPermissions = async (tx: PrismaClient) => {
       },
       // PERMISOS DE INSPECCIONES
       {
+        id: '60000000-0000-4000-8000-000000000001',
         name: 'crear-inspeccion',
-        description: 'Permite crear una inspección post-evento',
+        description: 'Permite registrar una inspeccion post-evento',
+        id_category_permissions: categories[36].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        id: '60000000-0000-4000-8000-000000000006',
+        name: 'registrar-inspeccion',
+        description: 'Permite registrar una inspeccion post-evento',
+        id_category_permissions: categories[36].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        id: '60000000-0000-4000-8000-000000000007',
+        name: 'listar-inspecciones',
+        description: 'Permite listar inspecciones',
         id_category_permissions: categories[36].id,
         created_at: new Date(),
         active: true,

@@ -18,7 +18,7 @@ export class Payment {
     private readonly gateway_response?: any,
     private readonly id_received_by?: string,
     private readonly id?: PaymentId,
-  ) {}
+  ) { }
 
   static create(data: {
     id_reservation: string;
@@ -50,16 +50,49 @@ export class Payment {
     );
   }
 
-  public getId(): PaymentId | undefined { return this.id; }
-  public getIdReservation(): string { return this.id_reservation; }
-  public getIdPaymentMethod(): PaymentMethodId { return this.id_payment_method; }
-  public getAmount(): PaymentAmount { return this.amount; }
-  public getPaymentDate(): PaymentDate { return this.payment_date; }
-  public getStatus(): PaymentStatus { return this.status; }
-  public getReferenceNumber(): string | undefined { return this.reference_number; }
-  public getNotes(): string | undefined { return this.notes; }
-  public getGatewayProvider(): string | undefined { return this.gateway_provider; }
-  public getGatewayTxId(): string | undefined { return this.gateway_tx_id; }
-  public getGatewayResponse(): any { return this.gateway_response; }
-  public getIdReceivedBy(): string | undefined { return this.id_received_by; }
+  public getId(): PaymentId | undefined {
+    return this.id;
+  }
+  public getIdReservation(): string {
+    return this.id_reservation;
+  }
+  public getIdPaymentMethod(): PaymentMethodId {
+    return this.id_payment_method;
+  }
+  public getAmount(): PaymentAmount {
+    return this.amount;
+  }
+  public getPaymentDate(): PaymentDate {
+    return this.payment_date;
+  }
+  public getStatus(): PaymentStatus {
+    return this.status;
+  }
+  public getReferenceNumber(): string | undefined {
+    return this.reference_number;
+  }
+  public getNotes(): string | undefined {
+    return this.notes;
+  }
+  public getGatewayProvider(): string | undefined {
+    return this.gateway_provider;
+  }
+  public getGatewayTxId(): string | undefined {
+    return this.gateway_tx_id;
+  }
+  public getGatewayResponse(): any {
+    return this.gateway_response;
+  }
+  public getIdReceivedBy(): string | undefined {
+    return this.id_received_by;
+  }
+
+  public void(): void {
+    if (this.status.value() === 'CANCELLED') {
+      throw new Error('Payment is already cancelled');
+    }
+    // We update the underlying value object in a simple way for now
+    // In a stricter DDD setup, we might re-instantiate PaymentStatus
+    (this as any).status = new PaymentStatus('CANCELLED');
+  }
 }

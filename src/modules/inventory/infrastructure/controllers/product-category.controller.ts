@@ -39,7 +39,7 @@ export class ProductCategoryController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) { }
 
   @Permissions('crear-categoria-producto')
   @Post()
@@ -91,7 +91,9 @@ export class ProductCategoryController {
   @ApiQuery({ name: 'status', required: false, type: Boolean })
   async getAll(
     @Query() query: GetProductCategoriesQueryDto,
-  ): Promise<SuccessResponseDto<HttpPaginatedResponseDto<ProductCategoryHttpDto>>> {
+  ): Promise<
+    SuccessResponseDto<HttpPaginatedResponseDto<ProductCategoryHttpDto>>
+  > {
     const appQuery = new GetProductCategoriesQuery(
       query,
       query.filter_name,
@@ -102,9 +104,12 @@ export class ProductCategoryController {
       Pagination<ProductCategoryDto> | ProductCategoryDto[]
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : (result as ProductCategoryDto[]);
-    const totalItems = result instanceof Pagination ? result.getTotalItems() : items.length;
-    const totalPages = result instanceof Pagination ? result.getTotalPages() : 1;
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
 
     const httpDtos = items.map((c: ProductCategoryDto) =>
       ProductCategoryHttpDto.fromDto(c),
@@ -131,7 +136,8 @@ export class ProductCategoryController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<SuccessResponseDto<ProductCategoryHttpDto>> {
     const query = new GetProductCategoryQuery(id);
-    const result: ProductCategoryDto | null = await this.queryBus.execute(query);
+    const result: ProductCategoryDto | null =
+      await this.queryBus.execute(query);
     if (!result) {
       throw new NotFoundException('ProductCategory', id);
     }

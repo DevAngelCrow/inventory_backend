@@ -53,6 +53,7 @@ describe('Inventory Categories (e2e)', () => {
       active: true,
       created_at: new Date(),
       updated_at: new Date(),
+      deleted_at: null,
     });
 
     return request(app.getHttpServer())

@@ -19,24 +19,35 @@ export class ImplPaymentRepository
 
   async save(payment: Payment): Promise<Payment> {
     try {
-      const savedPayment = await this.prisma.client.mnt_payment.create({
-        data: {
-          id_reservation: payment.getIdReservation(),
-          id_payment_method: payment.getIdPaymentMethod().value(),
-          payment_number: `PAY-${Date.now().toString().slice(-6)}`,
-          amount: payment.getAmount().value(),
-          payment_date: payment.getPaymentDate().value(),
-          reference_number: payment.getReferenceNumber() ?? null,
-          notes: payment.getNotes() ?? null,
-          status: payment.getStatus().value(),
-          gateway_provider: payment.getGatewayProvider() ?? null,
-          gateway_tx_id: payment.getGatewayTxId() ?? null,
-          gateway_response: payment.getGatewayResponse() ?? null,
-          id_received_by: payment.getIdReceivedBy() ?? null,
-          created_at: new Date(),
-        },
-      });
-      
+      let savedPayment;
+      if (payment.getId()) {
+        savedPayment = await this.prisma.client.mnt_payment.update({
+          where: { id: payment.getId()?.value() },
+          data: {
+            status: payment.getStatus().value(),
+            notes: payment.getNotes() ?? null,
+            // Assuming we only really update status and notes when voiding
+          },
+        });
+      } else {
+        savedPayment = await this.prisma.client.mnt_payment.create({
+          data: {
+            id_reservation: payment.getIdReservation(),
+            id_payment_method: payment.getIdPaymentMethod().value(),
+            payment_number: `PAY-${Date.now().toString().slice(-6)}`,
+            amount: payment.getAmount().value(),
+            payment_date: payment.getPaymentDate().value(),
+            reference_number: payment.getReferenceNumber() ?? null,
+            notes: payment.getNotes() ?? null,
+            status: payment.getStatus().value(),
+            gateway_provider: payment.getGatewayProvider() ?? null,
+            gateway_tx_id: payment.getGatewayTxId() ?? null,
+            gateway_response: payment.getGatewayResponse() ?? null,
+            id_received_by: payment.getIdReceivedBy() ?? null,
+            created_at: new Date(),
+          },
+        });
+      }
       return this.mapToDomain(savedPayment);
     } catch (error: any) {
       throw new DatabaseException('Error saving payment', 'save');
@@ -103,6 +114,16 @@ export class ImplPaymentRepository
       return this.mapToDto(payment as any);
     } catch (error) {
       throw new DatabaseException('Error finding payment', 'findById');
+    }
+  }
+
+  async getMethods(): Promise<any[]> {
+    try {
+      return await this.prisma.client.ctl_payment_method.findMany({
+        where: { active: true },
+      });
+    } catch (error) {
+      throw new DatabaseException('Error getting payment methods', 'getMethods');
     }
   }
 

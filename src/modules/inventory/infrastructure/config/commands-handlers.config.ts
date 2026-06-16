@@ -6,6 +6,7 @@ import { UpdateProductHandler } from '../../application/product/commands/update-
 import { DeleteProductHandler } from '../../application/product/commands/delete-product/delete-product.handler';
 import { CreateMaintenanceHandler } from '../../application/maintenance/commands/create-maintenance/create-maintenance.handler';
 import { ResolveMaintenanceHandler } from '../../application/maintenance/commands/resolve-maintenance/resolve-maintenance.handler';
+import { UpdateMaintenanceHandler } from '../../application/maintenance/commands/update-maintenance/update-maintenance.handler';
 
 export const commandHandlerProviders = [
   CreateProductCategoryHandler,
@@ -16,4 +17,5 @@ export const commandHandlerProviders = [
   DeleteProductHandler,
   CreateMaintenanceHandler,
   ResolveMaintenanceHandler,
+  UpdateMaintenanceHandler,
 ];

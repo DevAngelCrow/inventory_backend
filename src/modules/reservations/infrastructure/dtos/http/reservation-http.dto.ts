@@ -7,6 +7,10 @@ export class ReservationItemHttpDto {
     public readonly quantity: number,
     public readonly unit_price: number,
     public readonly total_price: number,
+    public readonly mnt_product?: {
+      name: string;
+      sku: string;
+    },
   ) {}
 
   public static fromDto(dto: ReservationItemDto): ReservationItemHttpDto {
@@ -16,6 +20,7 @@ export class ReservationItemHttpDto {
       dto.quantity,
       dto.unit_price,
       dto.total_price,
+      dto.mnt_product,
     );
   }
 }
@@ -35,6 +40,16 @@ export class ReservationHttpDto {
     public readonly items: ReservationItemHttpDto[],
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly reservation_number?: string,
+    public readonly delivery_datetime?: Date | null,
+    public readonly pickup_datetime?: Date | null,
+    public readonly transit_time_minutes?: number,
+    public readonly mnt_customer?: {
+      first_name: string;
+      last_name: string;
+      email?: string | null;
+      phone?: string | null;
+    },
   ) {}
 
   public static fromDto(dto: ReservationDto): ReservationHttpDto {
@@ -52,6 +67,11 @@ export class ReservationHttpDto {
       dto.items.map(i => ReservationItemHttpDto.fromDto(i)),
       dto.created_at,
       dto.updated_at,
+      dto.reservation_number,
+      dto.delivery_datetime,
+      dto.pickup_datetime,
+      dto.transit_time_minutes,
+      dto.mnt_customer,
     );
   }
 }

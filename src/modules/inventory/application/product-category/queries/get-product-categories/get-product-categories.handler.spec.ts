@@ -36,7 +36,7 @@ describe('GetProductCategoriesHandler', () => {
   it('should return an array of categories without pagination', async () => {
     const query = new GetProductCategoriesQuery();
     const categories: ProductCategoryDto[] = [
-      new ProductCategoryDto('1', 'Cat 1', 'Desc 1', 'icon', true),
+      new ProductCategoryDto('Cat 1', 'Desc 1', 'icon', true, '1'),
     ];
     
     repository.getAll.mockResolvedValue(categories);
@@ -51,7 +51,7 @@ describe('GetProductCategoriesHandler', () => {
     const query = new GetProductCategoriesQuery({ page: 1, per_page: 10 });
     
     const categories: ProductCategoryDto[] = [
-      new ProductCategoryDto('1', 'Cat 1', 'Desc 1', 'icon', true),
+      new ProductCategoryDto('Cat 1', 'Desc 1', 'icon', true, '1'),
     ];
     
     const paginationResult = new Pagination<ProductCategoryDto>(

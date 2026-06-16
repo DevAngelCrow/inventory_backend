@@ -366,6 +366,8 @@ export const seedRolPermissions = async (tx: PrismaClient) => {
     'crear-mantenimiento-producto',
     'listar-mantenimientos-producto',
     'resolver-mantenimiento-producto',
+    'editar-mantenimiento-producto',
+    'ver-mantenimiento-producto',
     // Clientes
     'crear-cliente',
     'listar-clientes',
@@ -382,13 +384,17 @@ export const seedRolPermissions = async (tx: PrismaClient) => {
     'cancelar-reserva',
     'cambiar-estado-reserva',
     'ver-calendario-reservas',
+    'eliminar-reserva',
     // Pagos
     'registrar-pago',
+    'procesar-pago',
     'listar-pagos',
     'anular-pago',
     'reembolsar-pago',
     // Inspecciones
     'crear-inspeccion',
+    'registrar-inspeccion',
+    'listar-inspecciones',
     'ver-inspeccion',
     'editar-inspeccion',
     'cobrar-inspeccion',

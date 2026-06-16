@@ -70,6 +70,26 @@ export class Maintenance {
     this.updated_at = new Date();
   }
 
+  public update(
+    description: string,
+    quantity: number,
+    date_start: Date,
+    id_product: string,
+    cost?: number | null,
+  ): void {
+    if (this.resolved) {
+      throw new Error('Cannot update a resolved maintenance');
+    }
+    this.description = description;
+    this.quantity = quantity;
+    this.date_start = date_start;
+    this.id_product = id_product;
+    if (cost !== undefined) {
+      this.cost = cost;
+    }
+    this.updated_at = new Date();
+  }
+
   // Getters
   public getId(): string {
     return this.id;

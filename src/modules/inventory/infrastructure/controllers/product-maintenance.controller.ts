@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -17,19 +18,19 @@ import { SuccessResponseDto } from '@/shared/infrastructure/http/dtos/http-succe
 import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http-paginated-response.dto';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { Pagination } from '@/shared/domain/value-object/pagination';
-import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 
 import { CreateMaintenanceDto } from '../dtos/validators/maintenance/create-maintenance.dto';
 import { ResolveMaintenanceDto } from '../dtos/validators/maintenance/resolve-maintenance.dto';
+import { UpdateMaintenanceDto } from '../dtos/validators/maintenance/update-maintenance.dto';
 import { GetMaintenancesQueryDto } from '../dtos/query/get-maintenances-query.dto';
 import { MaintenanceHttpDto } from '../dtos/http/maintenance-http.dto';
 
 import { CreateMaintenanceCommand } from '../../application/maintenance/commands/create-maintenance/create-maintenance.command';
 import { ResolveMaintenanceCommand } from '../../application/maintenance/commands/resolve-maintenance/resolve-maintenance.command';
+import { UpdateMaintenanceCommand } from '../../application/maintenance/commands/update-maintenance/update-maintenance.command';
 import { GetMaintenancesQuery } from '../../application/maintenance/queries/get-maintenances/get-maintenances.query';
 import { GetMaintenanceQuery } from '../../application/maintenance/queries/get-maintenance/get-maintenance.query';
 import { MaintenanceDto } from '../../application/dtos/maintenance.dto';
-import { Maintenance } from '../../domain/entities/maintenance';
 
 @ApiTags('Maintenance')
 @Controller('maintenance')
@@ -38,7 +39,7 @@ export class ProductMaintenanceController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) { }
 
   @Permissions('crear-mantenimiento-producto')
   @Post()
@@ -59,6 +60,30 @@ export class ProductMaintenanceController {
       null,
       HttpStatus.CREATED,
       'Maintenance record created successfully',
+    );
+  }
+
+  @Permissions('editar-mantenimiento-producto')
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', required: true, type: String })
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateMaintenanceDto,
+  ): Promise<SuccessResponseDto<null>> {
+    const command = new UpdateMaintenanceCommand(
+      id,
+      dto.description,
+      dto.quantity,
+      new Date(dto.date_start),
+      dto.id_product,
+      dto.cost !== undefined ? dto.cost : null,
+    );
+    await this.commandBus.execute(command);
+    return new SuccessResponseDto<null>(
+      null,
+      HttpStatus.OK,
+      'Maintenance updated successfully',
     );
   }
 
@@ -103,11 +128,16 @@ export class ProductMaintenanceController {
       Pagination<MaintenanceDto> | MaintenanceDto[]
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : (result as MaintenanceDto[]);
-    const totalItems = result instanceof Pagination ? result.getTotalItems() : items.length;
-    const totalPages = result instanceof Pagination ? result.getTotalPages() : 1;
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
 
-    const httpDtos = items.map((c: MaintenanceDto) => MaintenanceHttpDto.fromDto(c));
+    const httpDtos = items.map((c: MaintenanceDto) =>
+      MaintenanceHttpDto.fromDto(c),
+    );
     const response = new HttpPaginatedResponseDto<MaintenanceHttpDto>(
       httpDtos,
       totalItems,

@@ -9,4 +9,5 @@ export abstract class PaymentQueriesRepository {
     filter_status?: string,
   ): Promise<Pagination<PaymentDto> | PaymentDto[]>;
   abstract findById(id: string): Promise<PaymentDto | null>;
+  abstract getMethods(): Promise<any[]>;
 }

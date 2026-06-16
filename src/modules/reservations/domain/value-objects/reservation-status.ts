@@ -1,11 +1,11 @@
 import { InvalidValueObjectException } from '@/shared/domain/exceptions/invalid-value-object.exception';
 
-export type ReservationStatusType = 'PENDING' | 'CONFIRMED' | 'DELIVERED' | 'RETURNED' | 'CANCELLED';
+export type ReservationStatusType = 'DRAFT' | 'CONFIRMED' | 'IN_TRANSIT' | 'DELIVERED' | 'PICKED_UP' | 'RETURNED' | 'INSPECTED' | 'COMPLETED' | 'CANCELLED';
 
 export class ReservationStatus {
   private readonly _value: ReservationStatusType;
   private readonly allowedStatuses: ReservationStatusType[] = [
-    'PENDING', 'CONFIRMED', 'DELIVERED', 'RETURNED', 'CANCELLED'
+    'DRAFT', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'PICKED_UP', 'RETURNED', 'INSPECTED', 'COMPLETED', 'CANCELLED'
   ];
 
   constructor(value: string) {

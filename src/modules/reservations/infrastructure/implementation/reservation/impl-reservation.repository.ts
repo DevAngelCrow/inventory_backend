@@ -146,7 +146,10 @@ export class ImplReservationRepository
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
-          include: { mnt_reservation_item: true },
+          include: { 
+            mnt_reservation_item: { include: { mnt_product: true } },
+            mnt_customer: true
+          },
           orderBy: { created_at: 'desc' },
         }),
         this.prisma.client.mnt_reservation.count({ where }),
@@ -177,7 +180,10 @@ export class ImplReservationRepository
     try {
       const reservation = await this.prisma.client.mnt_reservation.findUnique({
         where: { id },
-        include: { mnt_reservation_item: true },
+        include: { 
+          mnt_reservation_item: { include: { mnt_product: true } },
+          mnt_customer: true
+        },
       });
       if (!reservation) return null;
       return this.mapToDto(reservation as any);
@@ -226,10 +232,21 @@ export class ImplReservationRepository
         Number(i.subtotal),
         i.id_reservation,
         i.id,
+        i.mnt_product ? { name: i.mnt_product.name, sku: i.mnt_product.sku } : undefined,
       )) : [],
       r.id,
       r.created_at,
       r.updated_at,
+      r.reservation_number,
+      r.delivery_datetime,
+      r.pickup_datetime,
+      r.transit_time_minutes,
+      r.mnt_customer ? {
+        first_name: r.mnt_customer.first_name,
+        last_name: r.mnt_customer.last_name,
+        email: r.mnt_customer.email,
+        phone: r.mnt_customer.phone,
+      } : undefined,
     );
   }
 }

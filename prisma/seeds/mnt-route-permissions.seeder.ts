@@ -85,7 +85,7 @@ export const seedMntRoutePermissions = async (tx: PrismaClient) => {
     },
     'Mantenimiento de Productos': {
       'inventory-parent': ['listar-mantenimientos-producto'],
-      'product-maintenance': ['listar-mantenimientos-producto'],
+      'product-maintenance': ['listar-mantenimientos-producto', 'editar-mantenimiento-producto', 'ver-mantenimiento-producto'],
     },
     'Clientes': {
       'customers-parent': ['listar-clientes'],
@@ -93,12 +93,12 @@ export const seedMntRoutePermissions = async (tx: PrismaClient) => {
     },
     'Reservas': {
       'reservations-parent': ['listar-reservas', 'ver-calendario-reservas'],
-      'reservations-list': ['listar-reservas'],
+      'reservations-list': ['listar-reservas', 'eliminar-reserva'],
       'reservations-calendar': ['ver-calendario-reservas'],
     },
     'Pagos': {
       'billing-parent': ['listar-pagos'],
-      'billing-payments': ['listar-pagos'],
+      'billing-payments': ['listar-pagos', 'procesar-pago'],
     },
     'Facturación': {
       'billing-parent': ['listar-facturas'],

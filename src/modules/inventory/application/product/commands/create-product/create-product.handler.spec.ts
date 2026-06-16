@@ -50,7 +50,7 @@ describe('CreateProductHandler', () => {
     expect(createdProduct.getSku().value()).toBe('SKU-123');
     expect(createdProduct.getName().value()).toBe('Test Product');
     expect(createdProduct.getRentalPrice().value()).toBe(10.5);
-    expect(createdProduct.getReplacementCost().value()).toBe(100);
+    expect(createdProduct.getReplacementCost()?.value()).toBe(100);
     expect(createdProduct.getTotalStock().value()).toBe(50);
     expect(createdProduct.getMinStockAlert().value()).toBe(10);
     expect(createdProduct.getCategoryId().value()).toBe('123e4567-e89b-12d3-a456-426614174000');
