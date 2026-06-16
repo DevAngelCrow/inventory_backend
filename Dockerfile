@@ -7,6 +7,16 @@ RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json ./
 RUN npm ci --include=dev
 
+# ---------- 1.5) development: stage para desarrollo local ----------
+FROM node:20-alpine AS development
+WORKDIR /app
+RUN apk add --no-cache libc6-compat
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npx prisma generate
+EXPOSE 3000
+CMD ["npm", "run", "start:dev"]
+
 # ---------- 2) build: compila TypeScript + assets + Prisma client ----------
 FROM node:20-alpine AS build
 WORKDIR /app
