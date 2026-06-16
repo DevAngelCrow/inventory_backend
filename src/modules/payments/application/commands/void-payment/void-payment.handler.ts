@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, CommandBus } from '@nestjs/cqrs';
 import { VoidPaymentCommand } from './void-payment.command';
 import { PaymentRepository } from '@/modules/payments/domain/repositories/payment-repository';
 import { PaymentQueriesRepository } from '@/modules/payments/application/repositories/payment-read.repository';
 import { Payment } from '@/modules/payments/domain/entities/payment';
+import { UpdateReservationBalanceCommand } from '@/modules/reservations/application/commands/update-reservation-balance/update-reservation-balance.command';
 
 @CommandHandler(VoidPaymentCommand)
 export class VoidPaymentHandler implements ICommandHandler<VoidPaymentCommand> {
   constructor(
     private readonly repository: PaymentRepository,
     private readonly queriesRepository: PaymentQueriesRepository,
+    private readonly commandBus: CommandBus,
   ) {}
 
   async execute(command: VoidPaymentCommand): Promise<Payment> {
@@ -34,6 +36,17 @@ export class VoidPaymentHandler implements ICommandHandler<VoidPaymentCommand> {
 
     payment.void();
     
-    return await this.repository.save(payment);
+    const savedPayment = await this.repository.save(payment);
+
+    // Revert reservation balance via CommandBus
+    await this.commandBus.execute(
+      new UpdateReservationBalanceCommand(
+        paymentDto.id_reservation,
+        paymentDto.amount,  // balance_due_delta (increment)
+        -paymentDto.amount  // deposit_amount_delta (decrement)
+      )
+    );
+
+    return savedPayment;
   }
 }

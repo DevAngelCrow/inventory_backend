@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, CommandBus } from '@nestjs/cqrs';
 import { ProcessPaymentCommand } from './process-payment.command';
 import { PaymentRepository } from '@/modules/payments/domain/repositories/payment-repository';
 import { PaymentGatewayPort } from '@/modules/payments/application/ports/payment-gateway.port';
 import { Payment } from '@/modules/payments/domain/entities/payment';
+import { UpdateReservationBalanceCommand } from '@/modules/reservations/application/commands/update-reservation-balance/update-reservation-balance.command';
 
 @CommandHandler(ProcessPaymentCommand)
 export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentCommand> {
   constructor(
     private readonly repository: PaymentRepository,
     private readonly paymentGateway: PaymentGatewayPort,
+    private readonly commandBus: CommandBus,
   ) {}
 
   async execute(command: ProcessPaymentCommand): Promise<Payment> {
@@ -36,6 +38,19 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     });
 
     // 3. Save to repository
-    return await this.repository.save(payment);
+    const savedPayment = await this.repository.save(payment);
+
+    // 4. Update Reservation Balance via CommandBus
+    if (result.status === 'COMPLETED') {
+      await this.commandBus.execute(
+        new UpdateReservationBalanceCommand(
+          command.id_reservation,
+          -command.amount, // balance_due_delta (decrement)
+          command.amount   // deposit_amount_delta (increment)
+        )
+      );
+    }
+
+    return savedPayment;
   }
 }

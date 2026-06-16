@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -20,11 +21,13 @@ import { NotFoundException } from '@/shared/domain/exceptions/not-found.exceptio
 import { Pagination } from '@/shared/domain/value-object/pagination';
 
 import { CreateReservationDto } from '../dtos/validators/reservation/create-reservation.dto';
+import { UpdateReservationDto } from '../dtos/validators/reservation/update-reservation.dto';
 import { UpdateReservationStatusDto } from '../dtos/validators/reservation/update-reservation-status.dto';
 import { GetReservationsQueryDto } from '../dtos/query/get-reservations-query.dto';
 import { ReservationHttpDto } from '../dtos/http/reservation-http.dto';
 
 import { CreateReservationCommand } from '../../application/commands/create-reservation/create-reservation.command';
+import { UpdateReservationCommand } from '../../application/commands/update-reservation/update-reservation.command';
 import { UpdateReservationStatusCommand } from '../../application/commands/update-reservation-status/update-reservation-status.command';
 import { DeleteReservationCommand } from '../../application/commands/delete-reservation/delete-reservation.command';
 import { GetReservationsQuery } from '../../application/queries/get-reservations/get-reservations.query';
@@ -67,6 +70,40 @@ export class ReservationController {
       null,
       HttpStatus.CREATED,
       'Reservation created successfully',
+    );
+  }
+
+  @Permissions('editar-reserva')
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', required: true, type: String })
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateReservationDto,
+  ): Promise<SuccessResponseDto<null>> {
+    const command = new UpdateReservationCommand(
+      id,
+      dto.id_customer,
+      dto.status,
+      dto.event_start,
+      dto.event_end,
+      dto.total_amount,
+      dto.items.map(i => ({
+        id_product: i.id_product,
+        quantity: i.quantity,
+        unit_price: i.unit_price,
+        total_price: i.total_price,
+      })),
+      dto.delivery_address,
+      dto.deposit_amount,
+      dto.balance_due,
+      dto.notes,
+    );
+    await this.commandBus.execute(command);
+    return new SuccessResponseDto<null>(
+      null,
+      HttpStatus.OK,
+      'Reservation updated successfully',
     );
   }
 

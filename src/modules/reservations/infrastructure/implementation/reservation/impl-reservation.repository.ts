@@ -66,6 +66,80 @@ export class ImplReservationRepository
     }
   }
 
+  async updateBalance(
+    id: ReservationId,
+    balance_due_delta: number,
+    deposit_amount_delta: number,
+  ): Promise<void> {
+    try {
+      await this.prisma.client.mnt_reservation.update({
+        where: { id: id.value() },
+        data: {
+          balance_due: { increment: balance_due_delta },
+          deposit_amount: { increment: deposit_amount_delta },
+        },
+      });
+    } catch (error) {
+      throw new DatabaseException('Error updating reservation balance', 'updateBalance');
+    }
+  }
+
+  async update(reservation: Reservation): Promise<void> {
+    try {
+      const reservationId = reservation.getId()?.value();
+      if (!reservationId) throw new Error('Reservation ID is required for update');
+
+      await this.prisma.client.$transaction(async (prisma) => {
+        const existing = await prisma.mnt_reservation.findUnique({
+          where: { id: reservationId },
+        });
+        if (!existing) {
+          throw new NotFoundException('Reservation', reservationId);
+        }
+
+        await prisma.mnt_reservation.update({
+          where: { id: reservationId },
+          data: {
+            id_customer: reservation.getIdCustomer(),
+            status: reservation.getStatus().value(),
+            event_start: reservation.getDateRange().start,
+            event_end: reservation.getDateRange().end,
+            delivery_address: reservation.getDeliveryAddress().value() ?? null,
+            subtotal: reservation.getAmount().total,
+            total: reservation.getAmount().total,
+            deposit_amount: reservation.getAmount().deposit ?? 0,
+            balance_due: reservation.getAmount().balance ?? reservation.getAmount().total,
+            notes: reservation.getNotes().value() ?? null,
+            updated_at: new Date(),
+          },
+        });
+
+        // Delete existing items and recreate them
+        await prisma.mnt_reservation_item.deleteMany({
+          where: { id_reservation: reservationId },
+        });
+
+        const itemsData = reservation.getItems().map((item) => ({
+          id_reservation: reservationId,
+          id_product: item.getIdProduct(),
+          quantity: item.getQuantity().value(),
+          unit_price: item.getPrice().unitPrice,
+          subtotal: item.getPrice().totalPrice,
+          created_at: existing.created_at, // Preserve original created_at if needed, or use new Date()
+        }));
+
+        if (itemsData.length > 0) {
+          await prisma.mnt_reservation_item.createMany({
+            data: itemsData,
+          });
+        }
+      });
+    } catch (error: any) {
+      if (error instanceof NotFoundException) throw error;
+      throw new DatabaseException('Error updating reservation', 'update');
+    }
+  }
+
   async updateStatus(id: ReservationId, status: ReservationStatusType): Promise<Reservation> {
     try {
       const existing = await this.prisma.client.mnt_reservation.findUnique({
