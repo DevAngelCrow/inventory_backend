@@ -1,11 +1,11 @@
 import { InvalidValueObjectException } from '@/shared/domain/exceptions/invalid-value-object.exception';
 
-export type InvoiceStatusType = 'DRAFT' | 'ISSUED' | 'PAID' | 'CANCELLED';
+export type InvoiceStatusType = 'DRAFT' | 'ISSUED' | 'PAID' | 'VOIDED';
 
 export class InvoiceStatus {
   private readonly _value: InvoiceStatusType;
   private readonly allowedStatuses: InvoiceStatusType[] = [
-    'DRAFT', 'ISSUED', 'PAID', 'CANCELLED'
+    'DRAFT', 'ISSUED', 'PAID', 'VOIDED'
   ];
 
   constructor(value: string) {
