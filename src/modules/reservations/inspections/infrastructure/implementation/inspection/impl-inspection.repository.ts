@@ -25,7 +25,7 @@ export class ImplInspectionRepository
             id_reservation: inspection.getIdReservation(),
             inspection_date: inspection.getInspectionDate(),
             overall_condition: inspection.getOverallCondition(),
-            status: inspection.getStatus().value(),
+            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: inspection.getStatus().value(), ctl_category_status: { code: 'INS' } } })).id,
             general_notes: inspection.getGeneralNotes() ?? null,
             total_charges: inspection.getTotalCharges(),
             id_inspected_by: inspection.getIdInspectedBy() ?? null,
@@ -67,7 +67,7 @@ export class ImplInspectionRepository
         where.id_reservation = filter_reservation;
       }
       if (filter_status) {
-        where.status = filter_status;
+        where.id_status = filter_status;
       }
 
       const [inspectionsDb, total] = await Promise.all([
@@ -82,6 +82,7 @@ export class ImplInspectionRepository
           where,
           include: {
             mnt_damage_item: true,
+            ctl_status: true,
           },
           orderBy: { inspection_date: 'desc' },
         }),
@@ -115,6 +116,7 @@ export class ImplInspectionRepository
         where: { id },
         include: {
           mnt_damage_item: true,
+          ctl_status: true,
         },
       });
       if (!inspection) return null;
@@ -129,7 +131,7 @@ export class ImplInspectionRepository
       i.id_reservation,
       i.inspection_date,
       i.overall_condition,
-      i.status,
+      i.ctl_status ?? i.status,
       i.general_notes ?? undefined,
       Number(i.total_charges),
       i.id_inspected_by ?? undefined,

@@ -33,7 +33,7 @@ export class ImplReservationRepository
             reservation_number: `RES-${Date.now().toString().slice(-6)}`,
             id_customer: reservation.getIdCustomer(),
             id_currency: id_currency,
-            status: reservation.getStatus().value(),
+            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: reservation.getStatus().value(), ctl_category_status: { code: 'RES' } } })).id,
             event_start: reservation.getDateRange().start,
             event_end: reservation.getDateRange().end,
             delivery_address: reservation.getDeliveryAddress().value() ?? null,
@@ -101,7 +101,7 @@ export class ImplReservationRepository
           where: { id: reservationId },
           data: {
             id_customer: reservation.getIdCustomer(),
-            status: reservation.getStatus().value(),
+            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: reservation.getStatus().value(), ctl_category_status: { code: 'RES' } } })).id,
             event_start: reservation.getDateRange().start,
             event_end: reservation.getDateRange().end,
             delivery_address: reservation.getDeliveryAddress().value() ?? null,
@@ -152,10 +152,10 @@ export class ImplReservationRepository
       const updated = await this.prisma.client.mnt_reservation.update({
         where: { id: id.value() },
         data: {
-          status: status,
+          id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: status, ctl_category_status: { code: 'RES' } } })).id,
           updated_at: new Date(),
         },
-        include: { mnt_reservation_item: true },
+        include: { mnt_reservation_item: true, ctl_status: true },
       });
       return this.mapToDomain(updated);
     } catch (error) {
@@ -176,7 +176,7 @@ export class ImplReservationRepository
         where: { id: id.value() },
         data: {
           deleted_at: new Date(),
-          status: 'CANCELLED',
+          id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: 'CANCELLED', ctl_category_status: { code: 'RES' } } })).id,
         },
       });
     } catch (error) {
@@ -201,7 +201,7 @@ export class ImplReservationRepository
         where.id_customer = filter_customer;
       }
       if (filter_status) {
-        where.status = filter_status;
+        where.id_status = filter_status;
       }
       if (filter_date_start) {
         where.event_start = { gte: filter_date_start };
@@ -222,7 +222,8 @@ export class ImplReservationRepository
           where,
           include: { 
             mnt_reservation_item: { include: { mnt_product: true } },
-            mnt_customer: true
+            mnt_customer: true,
+            ctl_status: true
           },
           orderBy: { created_at: 'desc' },
         }),
@@ -256,7 +257,8 @@ export class ImplReservationRepository
         where: { id },
         include: { 
           mnt_reservation_item: { include: { mnt_product: true } },
-          mnt_customer: true
+          mnt_customer: true,
+          ctl_status: true
         },
       });
       if (!reservation) return null;
@@ -270,7 +272,7 @@ export class ImplReservationRepository
     return Reservation.create({
       id: r.id,
       id_customer: r.id_customer,
-      status: r.status,
+      status: r.ctl_status?.code ?? r.status,
       event_start: r.event_start,
       event_end: r.event_end,
       delivery_address: r.delivery_address ?? undefined,
@@ -291,7 +293,7 @@ export class ImplReservationRepository
   private mapToDto(r: any): ReservationDto {
     return new ReservationDto(
       r.id_customer,
-      r.status,
+      r.ctl_status ?? r.status,
       r.event_start,
       r.event_end,
       Number(r.total),

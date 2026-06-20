@@ -6,21 +6,29 @@ import {
   HttpStatus,
   Post,
   Query,
+  Patch,
+  Param,
+  ParseUUIDPipe,
+  Res,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permissions } from '@/modules/security/infrastructure/decorators/permissions.decorator';
 import { SuccessResponseDto } from '@/shared/infrastructure/http/dtos/http-success-response.dto';
 import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http-paginated-response.dto';
 import { Pagination } from '@/shared/domain/value-object/pagination';
+import { Response } from 'express';
 
 import { GenerateInvoiceDto } from '../dtos/validators/invoice/generate-invoice.dto';
 import { GetInvoicesQueryDto } from '../dtos/query/get-invoices-query.dto';
 import { InvoiceHttpDto } from '../dtos/http/invoice-http.dto';
 
 import { GenerateInvoiceCommand } from '../../application/commands/generate-invoice/generate-invoice.command';
+import { UpdateInvoiceStatusCommand } from '../../application/commands/update-invoice-status/update-invoice-status.command';
 import { GetInvoicesQuery } from '../../application/queries/get-invoices/get-invoices.query';
+import { GetInvoiceQuery } from '../../application/queries/get-invoice/get-invoice.query';
 import { InvoiceDto } from '../../application/dtos/invoice.dto';
+import { PdfService } from '../services/pdf.service';
 
 @ApiTags('Billing')
 @Controller('invoices')
@@ -29,6 +37,7 @@ export class InvoiceController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly pdfService: PdfService,
   ) {}
 
   @Permissions('generar-factura')
@@ -103,5 +112,64 @@ export class InvoiceController {
       HttpStatus.OK,
       'Invoices retrieved successfully',
     );
+  }
+
+  @Permissions('editar-factura')
+  @Patch(':id/issue')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', required: true, type: String })
+  async issueInvoice(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SuccessResponseDto<null>> {
+    const command = new UpdateInvoiceStatusCommand(id, 'ISSUED');
+    await this.commandBus.execute(command);
+    return new SuccessResponseDto(
+      null,
+      HttpStatus.OK,
+      'Invoice issued successfully',
+    );
+  }
+
+  @Permissions('anular-factura')
+  @Patch(':id/void')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', required: true, type: String })
+  async voidInvoice(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SuccessResponseDto<null>> {
+    const command = new UpdateInvoiceStatusCommand(id, 'VOIDED');
+    await this.commandBus.execute(command);
+    return new SuccessResponseDto(
+      null,
+      HttpStatus.OK,
+      'Invoice voided successfully',
+    );
+  }
+
+  @Permissions('descargar-factura')
+  @Get(':id/pdf')
+  @ApiParam({ name: 'id', required: true, type: String })
+  async downloadPdf(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Res() res: Response,
+  ) {
+    const query = new GetInvoiceQuery(id);
+    const invoice: InvoiceDto | null = await this.queryBus.execute(query);
+
+    if (!invoice) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        message: 'Invoice not found',
+      });
+    }
+
+    const pdfBuffer = await this.pdfService.generateInvoicePdf(invoice);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="factura-${invoice.invoice_number}.pdf"`,
+      'Content-Length': pdfBuffer.length,
+    });
+
+    res.end(pdfBuffer);
   }
 }

@@ -24,7 +24,7 @@ export class ImplPaymentRepository
         savedPayment = await this.prisma.client.mnt_payment.update({
           where: { id: payment.getId()?.value() },
           data: {
-            status: payment.getStatus().value(),
+            id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: payment.getStatus().value(), ctl_category_status: { code: 'PAY' } } })).id,
             notes: payment.getNotes() ?? null,
             // Assuming we only really update status and notes when voiding
           },
@@ -39,7 +39,7 @@ export class ImplPaymentRepository
             payment_date: payment.getPaymentDate().value(),
             reference_number: payment.getReferenceNumber() ?? null,
             notes: payment.getNotes() ?? null,
-            status: payment.getStatus().value(),
+            id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: payment.getStatus().value(), ctl_category_status: { code: 'PAY' } } })).id,
             gateway_provider: payment.getGatewayProvider() ?? null,
             gateway_tx_id: payment.getGatewayTxId() ?? null,
             gateway_response: payment.getGatewayResponse() ?? null,
@@ -48,7 +48,7 @@ export class ImplPaymentRepository
           },
         });
       }
-      return this.mapToDomain(savedPayment);
+      return this.mapToDomain(await this.prisma.client.mnt_payment.findUniqueOrThrow({ where: { id: savedPayment.id }, include: { ctl_status: true } }));
     } catch (error: any) {
       throw new DatabaseException('Error saving payment', 'save');
     }
@@ -66,7 +66,7 @@ export class ImplPaymentRepository
         where.id_reservation = filter_reservation;
       }
       if (filter_status) {
-        where.status = filter_status;
+        where.id_status = filter_status;
       }
 
       const [paymentsDb, total] = await Promise.all([
@@ -79,6 +79,7 @@ export class ImplPaymentRepository
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
+          include: { ctl_status: true },
           orderBy: { payment_date: 'desc' },
         }),
         this.prisma.client.mnt_payment.count({ where }),
@@ -109,6 +110,7 @@ export class ImplPaymentRepository
     try {
       const payment = await this.prisma.client.mnt_payment.findUnique({
         where: { id },
+        include: { ctl_status: true },
       });
       if (!payment) return null;
       return this.mapToDto(payment as any);
@@ -134,7 +136,7 @@ export class ImplPaymentRepository
       id_payment_method: p.id_payment_method,
       amount: Number(p.amount),
       payment_date: p.payment_date,
-      status: p.status,
+      status: p.ctl_status?.code ?? p.status,
       reference_number: p.reference_number ?? undefined,
       notes: p.notes ?? undefined,
       gateway_provider: p.gateway_provider ?? undefined,
@@ -150,7 +152,7 @@ export class ImplPaymentRepository
       p.id_payment_method,
       Number(p.amount),
       p.payment_date,
-      p.status,
+      p.ctl_status ?? p.status,
       p.payment_number,
       p.reference_number ?? undefined,
       p.notes ?? undefined,

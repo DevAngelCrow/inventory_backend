@@ -63,8 +63,8 @@ export class PaymentController {
       result.getIdPaymentMethod().value(),
       result.getAmount().value(),
       result.getPaymentDate().value(),
-      result.getStatus().value(),
-      undefined, // payment_number is not accessible via entity methods directly, but let's assume UI doesn't need it on creation sync or we add a getter. We will omit it in this response.
+      { id: '', code: result.getStatus().value(), name: result.getStatus().value(), state_color: 'primary', text_color: 'primary-foreground' } as any, // Mock object for DTO compatibility
+      undefined, // payment_number
       result.getReferenceNumber(),
       result.getNotes(),
       result.getGatewayProvider(),

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InvoiceRepository } from '@/modules/billing/domain/repositories/invoice-repository';
 import { InvoiceQueriesRepository } from '@/modules/billing/application/repositories/invoice-read.repository';
 import { Invoice } from '@/modules/billing/domain/entities/invoice';
+import { InvoiceId } from '@/modules/billing/domain/value-objects/invoice-id';
 import { InvoiceDto, InvoiceLineDto } from '@/modules/billing/application/dtos/invoice.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Pagination } from '@/shared/domain/value-object/pagination';
@@ -35,7 +36,7 @@ export class ImplInvoiceRepository
             delivery_fee: invoice.getAmount().deliveryFee,
             damage_charges: invoice.getAmount().damageCharges,
             total: invoice.getAmount().total,
-            status: invoice.getStatus().value(),
+            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: invoice.getStatus().value(), ctl_category_status: { code: 'INV' } } })).id,
             notes: invoice.getNotes() ?? null,
             fiscal_provider: invoice.getFiscalProvider() ?? null,
             fiscal_id: invoice.getFiscalId() ?? null,
@@ -47,16 +48,14 @@ export class ImplInvoiceRepository
           },
         });
 
-        const invoiceLines = invoice.getLines().map((line) => ({
+        const invoiceLines = invoice.getLines().map((line, index) => ({
           id_invoice: createdInvoice.id,
           description: line.getDescription(),
           quantity: line.getQuantity(),
           unit_price: line.getUnitPrice(),
           subtotal: line.getSubtotal(),
-          tax_amount: line.getTaxAmount(),
-          total: line.getTotal(),
           id_product: line.getIdProduct() ?? null,
-          created_at: new Date(),
+          sort_order: index,
         }));
 
         if (invoiceLines.length > 0) {
@@ -67,7 +66,7 @@ export class ImplInvoiceRepository
 
         return await prisma.mnt_invoice.findUniqueOrThrow({
           where: { id: createdInvoice.id },
-          include: { mnt_invoice_line: true },
+          include: { mnt_invoice_line: true, ctl_status: true },
         });
       });
 
@@ -94,7 +93,7 @@ export class ImplInvoiceRepository
         where.id_customer = filter_customer;
       }
       if (filter_status) {
-        where.status = filter_status;
+        where.id_status = filter_status;
       }
 
       const [invoicesDb, total] = await Promise.all([
@@ -109,6 +108,8 @@ export class ImplInvoiceRepository
           where,
           include: {
             mnt_invoice_line: true,
+            mnt_customer: true,
+            ctl_status: true,
           },
           orderBy: { issue_date: 'desc' },
         }),
@@ -136,15 +137,26 @@ export class ImplInvoiceRepository
     }
   }
 
-  async findById(id: string): Promise<InvoiceDto | null> {
+  findById(id: string): Promise<InvoiceDto | null>;
+  findById(id: InvoiceId): Promise<Invoice | null>;
+  async findById(id: string | InvoiceId): Promise<InvoiceDto | Invoice | null> {
     try {
+      const isDomainId = id instanceof InvoiceId;
+      const idString = isDomainId ? id.value() : id as string;
+
       const invoice = await this.prisma.client.mnt_invoice.findUnique({
-        where: { id },
+        where: { id: idString },
         include: {
           mnt_invoice_line: true,
+          mnt_customer: true,
+          ctl_status: true,
         },
       });
       if (!invoice) return null;
+      
+      if (isDomainId) {
+        return this.mapToDomain(invoice);
+      }
       return this.mapToDto(invoice as any);
     } catch (error) {
       throw new DatabaseException('Error finding invoice', 'findById');
@@ -168,7 +180,7 @@ export class ImplInvoiceRepository
         damageCharges: Number(i.damage_charges),
         total: Number(i.total),
       },
-      status: i.status,
+      status: i.ctl_status.code,
       due_date: i.due_date ?? undefined,
       notes: i.notes ?? undefined,
       fiscal_provider: i.fiscal_provider ?? undefined,
@@ -183,8 +195,8 @@ export class ImplInvoiceRepository
         quantity: l.quantity,
         unit_price: Number(l.unit_price),
         subtotal: Number(l.subtotal),
-        tax_amount: Number(l.tax_amount),
-        total: Number(l.total),
+        tax_amount: 0,
+        total: Number(l.subtotal),
         id_product: l.id_product ?? undefined,
       })) : [],
     });
@@ -204,7 +216,7 @@ export class ImplInvoiceRepository
       Number(i.delivery_fee),
       Number(i.damage_charges),
       Number(i.total),
-      i.status,
+      i.ctl_status,
       i.due_date ?? undefined,
       i.notes ?? undefined,
       i.fiscal_provider ?? undefined,
@@ -218,8 +230,8 @@ export class ImplInvoiceRepository
         l.quantity,
         Number(l.unit_price),
         Number(l.subtotal),
-        Number(l.tax_amount),
-        Number(l.total),
+        0,
+        Number(l.subtotal),
         l.id_product ?? undefined,
         l.id_invoice,
         l.id,
@@ -227,6 +239,12 @@ export class ImplInvoiceRepository
       i.id,
       i.created_at,
       i.updated_at,
+      i.mnt_customer ? {
+        first_name: i.mnt_customer.first_name,
+        last_name: i.mnt_customer.last_name,
+        email: i.mnt_customer.email,
+        phone: i.mnt_customer.phone,
+      } : undefined,
     );
   }
 }

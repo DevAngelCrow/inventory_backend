@@ -26,7 +26,7 @@ export class InvoiceDto {
     public readonly delivery_fee: number,
     public readonly damage_charges: number,
     public readonly total: number,
-    public readonly status: string,
+    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
     public readonly due_date?: Date,
     public readonly notes?: string,
     public readonly fiscal_provider?: string,
@@ -39,5 +39,12 @@ export class InvoiceDto {
     public readonly id?: string,
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly mnt_customer?: {
+      first_name: string;
+      last_name: string;
+      email?: string | null;
+      phone?: string | null;
+    },
   ) {}
 }
+

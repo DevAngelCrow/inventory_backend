@@ -16,7 +16,7 @@ export class ReservationItemDto {
 export class ReservationDto {
   constructor(
     public readonly id_customer: string,
-    public readonly status: string,
+    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
     public readonly event_start: Date,
     public readonly event_end: Date,
     public readonly total_amount: number,

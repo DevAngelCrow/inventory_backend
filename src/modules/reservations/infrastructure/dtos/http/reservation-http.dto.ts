@@ -29,9 +29,9 @@ export class ReservationHttpDto {
   constructor(
     public readonly id: string,
     public readonly id_customer: string,
-    public readonly status: string,
     public readonly event_start: Date,
     public readonly event_end: Date,
+    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
     public readonly total_amount: number,
     public readonly delivery_address: string | undefined,
     public readonly deposit_amount: number | undefined,
@@ -56,9 +56,9 @@ export class ReservationHttpDto {
     return new ReservationHttpDto(
       dto.id!,
       dto.id_customer,
-      dto.status,
       dto.event_start,
       dto.event_end,
+      dto.status,
       dto.total_amount,
       dto.delivery_address,
       dto.deposit_amount,

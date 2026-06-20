@@ -20,8 +20,10 @@ export class GetRevenueReportHandler implements IQueryHandler<GetRevenueReportQu
           gte: query.start_date,
           lte: query.end_date,
         },
-        status: {
-          not: 'CANCELLED',
+        ctl_status: {
+          code: {
+            not: 'CANCELLED',
+          },
         },
       },
       select: {

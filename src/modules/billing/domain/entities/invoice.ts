@@ -11,7 +11,7 @@ export class Invoice {
     private readonly invoice_number: string,
     private readonly issue_date: Date,
     private readonly amount: InvoiceAmount,
-    private readonly status: InvoiceStatus,
+    private status: InvoiceStatus,
     private readonly due_date?: Date,
     private readonly notes?: string,
     private readonly fiscal_provider?: string,
@@ -106,4 +106,17 @@ export class Invoice {
   public getPdfPath(): string | undefined { return this.pdf_path; }
   public getIdCreatedBy(): string | undefined { return this.id_created_by; }
   public getLines(): InvoiceLine[] { return this.lines; }
+
+  public void(): void {
+    this.status = new InvoiceStatus('VOIDED');
+  }
+
+  public issue(): void {
+    this.status = new InvoiceStatus('ISSUED');
+  }
+
+  public updateStatus(status: string): void {
+    this.status = new InvoiceStatus(status);
+  }
 }
+

@@ -25,7 +25,7 @@ export class VoidPaymentHandler implements ICommandHandler<VoidPaymentCommand> {
       id_payment_method: paymentDto.id_payment_method,
       amount: paymentDto.amount,
       payment_date: paymentDto.payment_date,
-      status: paymentDto.status,
+      status: paymentDto.status.code,
       reference_number: paymentDto.reference_number,
       notes: paymentDto.notes,
       gateway_provider: paymentDto.gateway_provider,

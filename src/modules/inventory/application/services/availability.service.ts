@@ -36,8 +36,10 @@ export class AvailabilityService {
       where: {
         id_product: productId,
         mnt_reservation: {
-          status: {
-            notIn: ['CANCELLED', 'RETURNED'],
+          ctl_status: {
+            code: {
+              notIn: ['CANCELLED', 'RETURNED'],
+            },
           },
           event_start: {
             lt: dateEnd,
@@ -49,7 +51,7 @@ export class AvailabilityService {
       },
     });
 
-    const reservedQuantity = overlappingReservations._sum.quantity || 0;
+    const reservedQuantity = overlappingReservations._sum?.quantity || 0;
     const availableStock = product.total_stock - reservedQuantity;
 
     return Math.max(0, availableStock);
