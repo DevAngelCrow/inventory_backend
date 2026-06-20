@@ -8,9 +8,11 @@ import { GetRevenueReportQueryDto } from '../dtos/query/get-revenue-report-query
 import { RevenueReportHttpDto } from '../dtos/http/revenue-report-http.dto';
 import { GetRevenueReportQuery } from '../../application/queries/get-revenue-report.query';
 import { RevenueReportResult } from '../../application/queries/get-revenue-report.handler';
+import { GetDashboardSummaryQuery } from '../../application/queries/get-dashboard-summary.query';
+import { DashboardSummaryHttpDto } from '../dtos/http/dashboard-summary-http.dto';
 
 @ApiTags('Reports')
-@Controller()
+@Controller('reports')
 @ApiBearerAuth('JWT-auth')
 export class ReportsController {
   constructor(private readonly queryBus: QueryBus) {}
@@ -31,6 +33,20 @@ export class ReportsController {
       RevenueReportHttpDto.fromResult(result),
       HttpStatus.OK,
       'Revenue report generated successfully',
+    );
+  }
+
+  @Permissions('ver-tablero')
+  @Get('dashboard-summary')
+  @HttpCode(HttpStatus.OK)
+  async getDashboardSummary(): Promise<SuccessResponseDto<DashboardSummaryHttpDto>> {
+    const appQuery = new GetDashboardSummaryQuery();
+    const result: DashboardSummaryHttpDto = await this.queryBus.execute(appQuery);
+    
+    return new SuccessResponseDto(
+      result,
+      HttpStatus.OK,
+      'Dashboard summary generated successfully',
     );
   }
 }

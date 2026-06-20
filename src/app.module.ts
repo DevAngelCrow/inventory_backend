@@ -42,6 +42,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { MetricsController } from './shared/infrastructure/health/metrics.controller';
 import { AuditableInterceptor } from './modules/audit/infrastructure/interceptors/auditable.interceptor';
+import { DateModule } from './shared/infrastructure/services/date.module';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 
@@ -61,6 +62,7 @@ import { ExpressAdapter } from '@bull-board/express';
       ],
     }),
     PrismaModule,
+    DateModule,
     QueuesModule,
     CatalogsModule,
     ProfileModule,
