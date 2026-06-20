@@ -107,7 +107,7 @@ export class ReservationController {
     );
   }
 
-  @Permissions('editar-reserva')
+  @Permissions('cambiar-estado-reserva')
   @Patch(':id/status')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', required: true, type: String })

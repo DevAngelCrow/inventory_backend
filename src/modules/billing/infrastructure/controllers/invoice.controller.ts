@@ -12,7 +12,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permissions } from '@/modules/security/infrastructure/decorators/permissions.decorator';
 import { SuccessResponseDto } from '@/shared/infrastructure/http/dtos/http-success-response.dto';
 import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http-paginated-response.dto';
@@ -114,7 +114,7 @@ export class InvoiceController {
     );
   }
 
-  @Permissions('editar-factura')
+  @Permissions('emitir-factura')
   @Patch(':id/issue')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', required: true, type: String })
@@ -146,7 +146,7 @@ export class InvoiceController {
     );
   }
 
-  @Permissions('descargar-factura')
+  @Permissions('descargar-factura-pdf')
   @Get(':id/pdf')
   @ApiParam({ name: 'id', required: true, type: String })
   async downloadPdf(

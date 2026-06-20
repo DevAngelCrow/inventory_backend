@@ -111,6 +111,10 @@ model ctl_status {
   mnt_people          mnt_people[]
   mnt_role            mnt_role[]
   mnt_user            mnt_user[]
+  mnt_reservation            mnt_reservation[]
+  mnt_payment                mnt_payment[]
+  mnt_invoice                mnt_invoice[]
+  mnt_reservation_inspection mnt_reservation_inspection[]
 
   @@unique([code, id_category_status], map: "ctl_status_code_category_unique")
   @@index([id_category_status])
@@ -582,7 +586,7 @@ model mnt_reservation {
   balance_due                Decimal                      @db.Decimal(10, 2)
   notes                      String?
   internal_notes             String?
-  status                     String                       @db.VarChar(30)
+  id_status                  String                       @db.Uuid
   created_at                 DateTime?                    @db.Timestamp(0)
   updated_at                 DateTime?                    @db.Timestamp(0)
   deleted_at                 DateTime?                    @db.Timestamp(0)
@@ -595,15 +599,16 @@ model mnt_reservation {
   mnt_payment                mnt_payment[]
   ctl_currency               ctl_currency                 @relation(fields: [id_currency], references: [id])
   mnt_customer               mnt_customer                 @relation(fields: [id_customer], references: [id])
+  ctl_status                 ctl_status                   @relation(fields: [id_status], references: [id], onDelete: NoAction)
   mnt_reservation_inspection mnt_reservation_inspection[]
   mnt_reservation_item       mnt_reservation_item[]
 
   @@index([id_customer])
   @@index([event_start])
   @@index([event_end])
-  @@index([status])
+  @@index([id_status])
   @@index([reservation_number])
-  @@index([event_start, event_end, status])
+  @@index([event_start, event_end, id_status])
   @@index([delivery_datetime])
   @@index([pickup_datetime])
 }
@@ -644,7 +649,7 @@ model mnt_payment {
   payment_date       DateTime           @db.Timestamptz(0)
   reference_number   String?            @db.VarChar(100)
   notes              String?            @db.VarChar(500)
-  status             String             @db.VarChar(20)
+  id_status          String             @db.Uuid
   gateway_provider   String?            @db.VarChar(50)
   gateway_tx_id      String?            @db.VarChar(200)
   gateway_response   Json?
@@ -653,12 +658,13 @@ model mnt_payment {
   id_reservation     String             @db.Uuid
   id_payment_method  String             @db.Uuid
   id_received_by     String?            @db.Uuid
-  ctl_payment_method ctl_payment_method @relation(fields: [id_payment_method], references: [id])
-  mnt_reservation    mnt_reservation    @relation(fields: [id_reservation], references: [id])
+  ctl_payment_method ctl_payment_method @relation(fields: [id_payment_method], references: [id], onDelete: NoAction)
+  mnt_reservation    mnt_reservation    @relation(fields: [id_reservation], references: [id], onDelete: Cascade)
+  ctl_status         ctl_status         @relation(fields: [id_status], references: [id], onDelete: NoAction)
 
   @@index([id_reservation])
   @@index([payment_date])
-  @@index([status])
+  @@index([id_status])
 }
 
 model mnt_reservation_inspection {
@@ -667,16 +673,18 @@ model mnt_reservation_inspection {
   general_notes     String?
   overall_condition String            @db.VarChar(50)
   total_charges     Decimal           @default(0) @db.Decimal(10, 2)
-  status            String            @db.VarChar(20)
+  id_status         String            @db.Uuid
   created_at        DateTime?         @db.Timestamp(0)
   updated_at        DateTime?         @db.Timestamp(0)
   id_reservation    String            @db.Uuid
   id_inspected_by   String?           @db.Uuid
   mnt_damage_item   mnt_damage_item[]
   mnt_reservation   mnt_reservation   @relation(fields: [id_reservation], references: [id])
+  ctl_status        ctl_status?       @relation(fields: [id_status], references: [id], onDelete: NoAction)
 
   @@index([id_reservation])
-  @@index([status])
+
+  @@index([id_status])
 }
 
 model mnt_damage_item {
@@ -707,7 +715,7 @@ model mnt_invoice {
   delivery_fee     Decimal            @default(0) @db.Decimal(10, 2)
   damage_charges   Decimal            @default(0) @db.Decimal(10, 2)
   total            Decimal            @db.Decimal(10, 2)
-  status           String             @db.VarChar(20)
+  id_status        String             @db.Uuid
   notes            String?
   fiscal_provider  String?            @db.VarChar(50)
   fiscal_id        String?            @db.VarChar(100)
@@ -722,13 +730,14 @@ model mnt_invoice {
   id_created_by    String?            @db.Uuid
   ctl_currency     ctl_currency       @relation(fields: [id_currency], references: [id])
   mnt_customer     mnt_customer       @relation(fields: [id_customer], references: [id])
+  ctl_status       ctl_status         @relation(fields: [id_status], references: [id], onDelete: NoAction)
   mnt_invoice_line mnt_invoice_line[]
 
   @@index([invoice_number])
   @@index([id_reservation])
   @@index([id_customer])
   @@index([issue_date])
-  @@index([status])
+  @@index([id_status])
 }
 
 model mnt_invoice_line {
