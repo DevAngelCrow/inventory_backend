@@ -20,54 +20,127 @@ export class ImplInvoiceRepository
 
   async save(invoice: Invoice): Promise<Invoice> {
     try {
+      const invoiceId = invoice.getId()?.value();
+
       const savedInvoice = await this.prisma.client.$transaction(async (prisma) => {
-        const createdInvoice = await prisma.mnt_invoice.create({
-          data: {
-            id_reservation: invoice.getIdReservation(),
-            id_customer: invoice.getIdCustomer(),
-            id_currency: invoice.getIdCurrency(),
-            invoice_number: invoice.getInvoiceNumber(),
-            issue_date: invoice.getIssueDate(),
-            due_date: invoice.getDueDate() ?? null,
-            subtotal: invoice.getAmount().subtotal,
-            tax_rate: invoice.getAmount().taxRate,
-            tax_amount: invoice.getAmount().taxAmount,
-            discount_amount: invoice.getAmount().discountAmount,
-            delivery_fee: invoice.getAmount().deliveryFee,
-            damage_charges: invoice.getAmount().damageCharges,
-            total: invoice.getAmount().total,
-            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: invoice.getStatus().value(), ctl_category_status: { code: 'INV' } } })).id,
-            notes: invoice.getNotes() ?? null,
-            fiscal_provider: invoice.getFiscalProvider() ?? null,
-            fiscal_id: invoice.getFiscalId() ?? null,
-            fiscal_status: invoice.getFiscalStatus() ?? null,
-            fiscal_response: invoice.getFiscalResponse() ?? null,
-            pdf_path: invoice.getPdfPath() ?? null,
-            id_created_by: invoice.getIdCreatedBy() ?? null,
-            created_at: new Date(),
-          },
-        });
+        const statusId = (await prisma.ctl_status.findFirstOrThrow({ 
+          where: { code: invoice.getStatus().value(), ctl_category_status: { code: 'INV' } } 
+        })).id;
 
-        const invoiceLines = invoice.getLines().map((line, index) => ({
-          id_invoice: createdInvoice.id,
-          description: line.getDescription(),
-          quantity: line.getQuantity(),
-          unit_price: line.getUnitPrice(),
-          subtotal: line.getSubtotal(),
-          id_product: line.getIdProduct() ?? null,
-          sort_order: index,
-        }));
+        if (invoiceId) {
+          // Update existing invoice
+          const existing = await prisma.mnt_invoice.findUnique({
+            where: { id: invoiceId },
+          });
+          
+          if (!existing) {
+            throw new Error(`Invoice with ID ${invoiceId} not found for update`);
+          }
 
-        if (invoiceLines.length > 0) {
-          await prisma.mnt_invoice_line.createMany({
-            data: invoiceLines,
+          await prisma.mnt_invoice.update({
+            where: { id: invoiceId },
+            data: {
+              id_reservation: invoice.getIdReservation(),
+              id_customer: invoice.getIdCustomer(),
+              id_currency: invoice.getIdCurrency(),
+              invoice_number: invoice.getInvoiceNumber(),
+              issue_date: invoice.getIssueDate(),
+              due_date: invoice.getDueDate() ?? null,
+              subtotal: invoice.getAmount().subtotal,
+              tax_rate: invoice.getAmount().taxRate,
+              tax_amount: invoice.getAmount().taxAmount,
+              discount_amount: invoice.getAmount().discountAmount,
+              delivery_fee: invoice.getAmount().deliveryFee,
+              damage_charges: invoice.getAmount().damageCharges,
+              total: invoice.getAmount().total,
+              id_status: statusId,
+              notes: invoice.getNotes() ?? null,
+              fiscal_provider: invoice.getFiscalProvider() ?? null,
+              fiscal_id: invoice.getFiscalId() ?? null,
+              fiscal_status: invoice.getFiscalStatus() ?? null,
+              fiscal_response: invoice.getFiscalResponse() ?? null,
+              pdf_path: invoice.getPdfPath() ?? null,
+              id_created_by: invoice.getIdCreatedBy() ?? null,
+              updated_at: new Date(),
+            },
+          });
+
+          // Delete existing lines and recreate them
+          await prisma.mnt_invoice_line.deleteMany({
+            where: { id_invoice: invoiceId }
+          });
+
+          const invoiceLines = invoice.getLines().map((line, index) => ({
+            id_invoice: invoiceId,
+            description: line.getDescription(),
+            quantity: line.getQuantity(),
+            unit_price: line.getUnitPrice(),
+            subtotal: line.getSubtotal(),
+            id_product: line.getIdProduct() ?? null,
+            sort_order: index,
+          }));
+
+          if (invoiceLines.length > 0) {
+            await prisma.mnt_invoice_line.createMany({
+              data: invoiceLines,
+            });
+          }
+
+          return await prisma.mnt_invoice.findUniqueOrThrow({
+            where: { id: invoiceId },
+            include: { mnt_invoice_line: true, ctl_status: true },
+          });
+
+        } else {
+          // Create new invoice
+          const createdInvoice = await prisma.mnt_invoice.create({
+            data: {
+              id_reservation: invoice.getIdReservation(),
+              id_customer: invoice.getIdCustomer(),
+              id_currency: invoice.getIdCurrency(),
+              invoice_number: invoice.getInvoiceNumber(),
+              issue_date: invoice.getIssueDate(),
+              due_date: invoice.getDueDate() ?? null,
+              subtotal: invoice.getAmount().subtotal,
+              tax_rate: invoice.getAmount().taxRate,
+              tax_amount: invoice.getAmount().taxAmount,
+              discount_amount: invoice.getAmount().discountAmount,
+              delivery_fee: invoice.getAmount().deliveryFee,
+              damage_charges: invoice.getAmount().damageCharges,
+              total: invoice.getAmount().total,
+              id_status: statusId,
+              notes: invoice.getNotes() ?? null,
+              fiscal_provider: invoice.getFiscalProvider() ?? null,
+              fiscal_id: invoice.getFiscalId() ?? null,
+              fiscal_status: invoice.getFiscalStatus() ?? null,
+              fiscal_response: invoice.getFiscalResponse() ?? null,
+              pdf_path: invoice.getPdfPath() ?? null,
+              id_created_by: invoice.getIdCreatedBy() ?? null,
+              created_at: new Date(),
+            },
+          });
+
+          const invoiceLines = invoice.getLines().map((line, index) => ({
+            id_invoice: createdInvoice.id,
+            description: line.getDescription(),
+            quantity: line.getQuantity(),
+            unit_price: line.getUnitPrice(),
+            subtotal: line.getSubtotal(),
+            id_product: line.getIdProduct() ?? null,
+            sort_order: index,
+          }));
+
+          if (invoiceLines.length > 0) {
+            await prisma.mnt_invoice_line.createMany({
+              data: invoiceLines,
+            });
+          }
+
+          return await prisma.mnt_invoice.findUniqueOrThrow({
+            where: { id: createdInvoice.id },
+            include: { mnt_invoice_line: true, ctl_status: true },
           });
         }
-
-        return await prisma.mnt_invoice.findUniqueOrThrow({
-          where: { id: createdInvoice.id },
-          include: { mnt_invoice_line: true, ctl_status: true },
-        });
       });
 
       return this.mapToDomain(savedInvoice);
