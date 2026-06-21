@@ -15,5 +15,6 @@ export class PaymentDto {
     public readonly id?: string,
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly mnt_reservation?: any,
   ) {}
 }

@@ -17,6 +17,7 @@ export class PaymentHttpDto {
     public readonly id_received_by?: string,
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly mnt_reservation?: any,
   ) {}
 
   public static fromDto(dto: PaymentDto): PaymentHttpDto {
@@ -36,6 +37,7 @@ export class PaymentHttpDto {
       dto.id_received_by,
       dto.created_at,
       dto.updated_at,
+      dto.mnt_reservation,
     );
   }
 }

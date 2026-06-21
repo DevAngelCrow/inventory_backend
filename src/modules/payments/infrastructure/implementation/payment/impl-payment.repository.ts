@@ -63,10 +63,20 @@ export class ImplPaymentRepository
       const where: any = {};
 
       if (filter_reservation) {
-        where.id_reservation = filter_reservation;
+        where.mnt_reservation = {
+          reservation_number: {
+            contains: filter_reservation,
+            mode: 'insensitive',
+          },
+        };
       }
       if (filter_status) {
-        where.id_status = filter_status;
+        where.ctl_status = {
+          code: {
+            contains: filter_status,
+            mode: 'insensitive',
+          },
+        };
       }
 
       const [paymentsDb, total] = await Promise.all([
@@ -79,7 +89,7 @@ export class ImplPaymentRepository
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
-          include: { ctl_status: true },
+          include: { ctl_status: true, mnt_reservation: true },
           orderBy: { payment_date: 'desc' },
         }),
         this.prisma.client.mnt_payment.count({ where }),
@@ -163,6 +173,7 @@ export class ImplPaymentRepository
       p.id,
       p.created_at,
       p.updated_at,
+      p.mnt_reservation,
     );
   }
 }
