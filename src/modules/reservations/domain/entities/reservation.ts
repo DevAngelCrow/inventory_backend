@@ -15,6 +15,8 @@ export class Reservation {
     private readonly amount: ReservationAmount,
     private readonly notes: ReservationNotes,
     private readonly items: ReservationItem[],
+    private readonly deliveryDatetime?: Date,
+    private readonly pickupDatetime?: Date,
     private readonly id?: ReservationId,
   ) {}
 
@@ -40,6 +42,8 @@ export class Reservation {
       total_price: number;
       id?: string;
     }[];
+    delivery_datetime?: Date;
+    pickup_datetime?: Date;
     id?: string;
   }): Reservation {
     return new Reservation(
@@ -66,6 +70,8 @@ export class Reservation {
           id: i.id,
         }),
       ),
+      data.delivery_datetime,
+      data.pickup_datetime,
       data.id ? new ReservationId(data.id) : undefined,
     );
   }
@@ -78,4 +84,6 @@ export class Reservation {
   public getAmount(): ReservationAmount { return this.amount; }
   public getNotes(): ReservationNotes { return this.notes; }
   public getItems(): ReservationItem[] { return this.items; }
+  public getDeliveryDatetime(): Date | undefined { return this.deliveryDatetime; }
+  public getPickupDatetime(): Date | undefined { return this.pickupDatetime; }
 }

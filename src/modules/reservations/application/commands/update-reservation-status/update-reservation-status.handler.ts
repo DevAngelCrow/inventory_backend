@@ -17,8 +17,12 @@ export class UpdateReservationStatusHandler implements ICommandHandler<UpdateRes
   ) {}
 
   async execute(command: UpdateReservationStatusCommand): Promise<Reservation> {
-    const id = new ReservationId(command.id);
-    const updated = await this.repository.updateStatus(id, command.status);
+    const updated = await this.repository.updateStatus(
+      new ReservationId(command.id),
+      command.status,
+      command.deliveryDatetime,
+      command.pickupDatetime,
+    );
 
     if (command.status === 'CONFIRMED') {
       const reservation = await this.queriesRepository.findById(command.id);

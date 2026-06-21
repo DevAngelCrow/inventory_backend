@@ -151,7 +151,7 @@ export class ImplReservationRepository
     }
   }
 
-  async updateStatus(id: ReservationId, status: ReservationStatusType): Promise<Reservation> {
+  async updateStatus(id: ReservationId, status: ReservationStatusType, deliveryDatetime?: Date, pickupDatetime?: Date): Promise<Reservation> {
     try {
       const existing = await this.prisma.client.mnt_reservation.findUnique({
         where: { id: id.value() },
@@ -165,6 +165,8 @@ export class ImplReservationRepository
         data: {
           id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: status, ctl_category_status: { code: 'RES' } } })).id,
           updated_at: new Date(),
+          ...(deliveryDatetime ? { delivery_datetime: deliveryDatetime } : {}),
+          ...(pickupDatetime ? { pickup_datetime: pickupDatetime } : {}),
         },
         include: { mnt_reservation_item: true, ctl_status: true },
       });
@@ -305,6 +307,8 @@ export class ImplReservationRepository
         unit_price: Number(i.unit_price),
         total_price: Number(i.subtotal),
       })) : [],
+      delivery_datetime: r.delivery_datetime ?? undefined,
+      pickup_datetime: r.pickup_datetime ?? undefined,
     });
   }
 

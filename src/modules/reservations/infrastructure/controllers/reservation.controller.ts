@@ -125,7 +125,12 @@ export class ReservationController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateReservationStatusDto,
   ): Promise<SuccessResponseDto<null>> {
-    const command = new UpdateReservationStatusCommand(id, dto.status);
+    const command = new UpdateReservationStatusCommand(
+      id,
+      dto.status,
+      dto.delivery_datetime ? new Date(dto.delivery_datetime) : undefined,
+      dto.pickup_datetime ? new Date(dto.pickup_datetime) : undefined,
+    );
     await this.commandBus.execute(command);
     return new SuccessResponseDto<null>(
       null,
