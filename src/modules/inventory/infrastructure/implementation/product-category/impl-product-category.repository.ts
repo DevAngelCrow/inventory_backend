@@ -13,6 +13,9 @@ import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { ctl_product_category } from 'generated/prisma/client';
+import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
+import { StatusMapperUtil } from '@/shared/infrastructure/utils/status-mapper.util';
+import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
 
 @Injectable()
 export class ImplProductCategoryRepository
@@ -100,7 +103,7 @@ export class ImplProductCategoryRepository
         ...(active !== undefined ? { active } : {}),
         deleted_at: null,
       };
-      const [categoriesDb, total] = await Promise.all([
+      const [categoriesDb, total, catalog_status] = await Promise.all([
         this.prisma.client.ctl_product_category.findMany({
           skip:
             pagination_params?.getPage().value() &&
@@ -113,9 +116,10 @@ export class ImplProductCategoryRepository
           orderBy: { name: 'asc' },
         }),
         this.prisma.client.ctl_product_category.count({ where }),
+        GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const categories = categoriesDb.map((cat) => this.mapToDto(cat));
+      const categories = categoriesDb.map((cat) => this.mapToDto(cat, catalog_status));
 
       if (!pagination_params) return categories;
 
@@ -161,7 +165,15 @@ export class ImplProductCategoryRepository
     });
   }
 
-  private mapToDto(cat: ctl_product_category): ProductCategoryDto {
+  private mapToDto(
+    cat: ctl_product_category,
+    catalog_status?: Map<string, BooleanStatusData>,
+  ): ProductCategoryDto {
+    const status = StatusMapperUtil.getStatusFromBoolean(
+      cat.active,
+      catalog_status,
+      'mapToDto',
+    );
     return new ProductCategoryDto(
       cat.name,
       cat.description ?? undefined,
@@ -170,6 +182,7 @@ export class ImplProductCategoryRepository
       cat.id,
       cat.created_at,
       cat.updated_at,
+      status,
     );
   }
 }

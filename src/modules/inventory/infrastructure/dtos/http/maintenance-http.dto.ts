@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MaintenanceDto } from '../../../application/dtos/maintenance.dto';
+import { GlobalStatusDto } from '@/modules/catalogs/application/dtos/global-status.dto';
 
 export class MaintenanceHttpDto {
   @ApiProperty()
@@ -32,6 +33,9 @@ export class MaintenanceHttpDto {
   @ApiProperty()
   public readonly id_product: string;
 
+  @ApiProperty({ required: false })
+  public readonly status?: GlobalStatusDto;
+
   constructor(
     id: string,
     description: string,
@@ -43,6 +47,7 @@ export class MaintenanceHttpDto {
     created_at: Date,
     updated_at: Date | null,
     id_product: string,
+    status?: GlobalStatusDto,
   ) {
     this.id = id;
     this.description = description;
@@ -54,6 +59,7 @@ export class MaintenanceHttpDto {
     this.created_at = created_at;
     this.updated_at = updated_at;
     this.id_product = id_product;
+    this.status = status;
   }
 
   public static fromDto(dto: MaintenanceDto): MaintenanceHttpDto {
@@ -68,6 +74,7 @@ export class MaintenanceHttpDto {
       dto.created_at,
       dto.updated_at,
       dto.id_product,
+      dto.status,
     );
   }
 }

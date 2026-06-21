@@ -5,7 +5,7 @@ import { ReservationStatusType } from '@/modules/reservations/domain/value-objec
 export class UpdateReservationStatusDto {
   @IsString()
   @IsNotEmpty()
-  @IsIn(['DRAFT', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'PICKED_UP', 'RETURNED', 'INSPECTED', 'COMPLETED', 'CANCELLED'])
+  @IsIn(['PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
   @ApiProperty({ example: 'CONFIRMED' })
   status!: ReservationStatusType;
 

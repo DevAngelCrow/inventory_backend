@@ -57,12 +57,12 @@ export class GetDashboardSummaryHandler implements IQueryHandler<GetDashboardSum
     // Cuentas por Cobrar
     const reservasCxc = await this.prisma.client.mnt_reservation.aggregate({
       _sum: { balance_due: true },
-      where: { balance_due: { gt: 0 }, ctl_status: { code: { notIn: ['CANCELLED', 'DRAFT'] } } }
+      where: { balance_due: { gt: 0 }, ctl_status: { code: { notIn: ['CANCELLED', 'PENDING'] } } }
     });
     const balancePendiente = Number(reservasCxc._sum.balance_due || 0);
 
     const facturasDraft = await this.prisma.client.mnt_invoice.count({
-      where: { ctl_status: { code: 'DRAFT' } }
+      where: { ctl_status: { code: 'PENDING' } }
     });
 
     // Top Productos
@@ -88,7 +88,7 @@ export class GetDashboardSummaryHandler implements IQueryHandler<GetDashboardSum
     const eventosRaw = await this.prisma.client.mnt_reservation.findMany({
       where: { 
         event_start: { gte: todayStart, lte: tomorrowEnd },
-        ctl_status: { code: { notIn: ['CANCELLED', 'DRAFT'] } }
+        ctl_status: { code: { notIn: ['CANCELLED', 'PENDING'] } }
       },
       orderBy: { event_start: 'asc' },
       take: 5,

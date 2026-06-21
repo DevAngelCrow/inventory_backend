@@ -1,5 +1,6 @@
 import { CustomerDto } from '@/modules/customers/application/dtos/customer.dto';
 import { CustomerAddressHttpDto } from './customer-address-http.dto';
+import { GlobalStatusDto } from '@/modules/catalogs/application/dtos/global-status.dto';
 
 export class CustomerHttpDto {
   constructor(
@@ -20,6 +21,7 @@ export class CustomerHttpDto {
     public readonly addresses: CustomerAddressHttpDto[],
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly status?: GlobalStatusDto,
   ) {}
 
   public static fromDto(dto: CustomerDto): CustomerHttpDto {
@@ -41,6 +43,7 @@ export class CustomerHttpDto {
       dto.addresses ? dto.addresses.map(a => CustomerAddressHttpDto.fromDto(a)) : [],
       dto.created_at,
       dto.updated_at,
+      dto.status,
     );
   }
 }

@@ -13,6 +13,9 @@ import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { mnt_product } from 'generated/prisma/client';
+import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
+import { StatusMapperUtil } from '@/shared/infrastructure/utils/status-mapper.util';
+import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
 
 @Injectable()
 export class ImplProductRepository
@@ -131,7 +134,7 @@ export class ImplProductRepository
         where.active = active;
       }
 
-      const [productsDb, total] = await Promise.all([
+      const [productsDb, total, catalog_status] = await Promise.all([
         this.prisma.client.mnt_product.findMany({
           skip:
             pagination_params?.getPage().value() &&
@@ -144,9 +147,10 @@ export class ImplProductRepository
           orderBy: { name: 'asc' },
         }),
         this.prisma.client.mnt_product.count({ where }),
+        GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const products = productsDb.map((p: any) => this.mapToDto(p));
+      const products = productsDb.map((p: any) => this.mapToDto(p, catalog_status));
 
       if (!pagination_params) return products;
 
@@ -212,7 +216,15 @@ export class ImplProductRepository
     });
   }
 
-  private mapToDto(p: any): ProductDto {
+  private mapToDto(
+    p: any,
+    catalog_status?: Map<string, BooleanStatusData>,
+  ): ProductDto {
+    const status = StatusMapperUtil.getStatusFromBoolean(
+      p.active,
+      catalog_status,
+      'mapToDto',
+    );
     return new ProductDto(
       p.sku,
       p.name,
@@ -231,6 +243,7 @@ export class ImplProductRepository
       p.id,
       p.created_at,
       p.updated_at,
+      status,
     );
   }
 }

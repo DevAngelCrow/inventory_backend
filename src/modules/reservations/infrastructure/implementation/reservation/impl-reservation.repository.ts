@@ -67,7 +67,8 @@ export class ImplReservationRepository
         }
       });
     } catch (error: any) {
-      throw new DatabaseException('Error creating reservation', 'create');
+      console.error('DATABASE ERROR (create reservation):', error);
+      throw new DatabaseException(`Error creating reservation: ${error.message || error}`, 'create');
     }
   }
 

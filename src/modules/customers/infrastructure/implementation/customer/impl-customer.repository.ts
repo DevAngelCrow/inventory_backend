@@ -12,6 +12,9 @@ import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
+import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
+import { StatusMapperUtil } from '@/shared/infrastructure/utils/status-mapper.util';
+import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
 
 @Injectable()
 export class ImplCustomerRepository
@@ -136,7 +139,7 @@ export class ImplCustomerRepository
         where.active = active;
       }
 
-      const [customersDb, total] = await Promise.all([
+      const [customersDb, total, catalog_status] = await Promise.all([
         this.prisma.client.mnt_customer.findMany({
           skip:
             pagination_params?.getPage().value() &&
@@ -161,9 +164,10 @@ export class ImplCustomerRepository
           orderBy: { last_name: 'asc' },
         }),
         this.prisma.client.mnt_customer.count({ where }),
+        GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const customers = customersDb.map((c: any) => this.mapToDto(c));
+      const customers = customersDb.map((c: any) => this.mapToDto(c, catalog_status));
 
       if (!pagination_params) return customers;
 
@@ -260,7 +264,12 @@ export class ImplCustomerRepository
     });
   }
 
-  private mapToDto(c: any): CustomerDto {
+  private mapToDto(c: any, catalog_status?: Map<string, BooleanStatusData>): CustomerDto {
+    const status = StatusMapperUtil.getStatusFromBoolean(
+      c.active,
+      catalog_status,
+      'mapToDto',
+    );
     return new CustomerDto(
       c.first_name,
       c.last_name,
@@ -290,6 +299,7 @@ export class ImplCustomerRepository
       c.id,
       c.created_at,
       c.updated_at,
+      status,
     );
   }
 }

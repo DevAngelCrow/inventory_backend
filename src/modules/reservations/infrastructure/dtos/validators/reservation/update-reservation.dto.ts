@@ -42,7 +42,7 @@ export class UpdateReservationDto {
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ example: 'DRAFT' })
+  @ApiProperty({ example: 'PENDING' })
   status!: string;
 
   @IsDate()

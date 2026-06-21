@@ -1,4 +1,5 @@
 import { CustomerAddressDto } from './customer-address.dto';
+import { GlobalStatusDto } from '@/modules/catalogs/application/dtos/global-status.dto';
 
 export class CustomerDto {
   constructor(
@@ -19,5 +20,6 @@ export class CustomerDto {
     public readonly id?: string,
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly status?: GlobalStatusDto,
   ) {}
 }

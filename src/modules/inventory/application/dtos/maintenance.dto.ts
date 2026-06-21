@@ -1,3 +1,5 @@
+import { GlobalStatusDto } from '@/modules/catalogs/application/dtos/global-status.dto';
+
 export class MaintenanceDto {
   constructor(
     public readonly id: string,
@@ -10,5 +12,6 @@ export class MaintenanceDto {
     public readonly created_at: Date,
     public readonly updated_at: Date | null,
     public readonly id_product: string,
+    public readonly status?: GlobalStatusDto,
   ) {}
 }

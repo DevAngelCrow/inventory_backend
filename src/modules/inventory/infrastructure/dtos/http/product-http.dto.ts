@@ -1,4 +1,5 @@
 import { ProductDto } from '@/modules/inventory/application/dtos/product.dto';
+import { GlobalStatusDto } from '@/modules/catalogs/application/dtos/global-status.dto';
 
 export class ProductHttpDto {
   constructor(
@@ -19,6 +20,7 @@ export class ProductHttpDto {
     public readonly active: boolean,
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly status?: GlobalStatusDto,
   ) {}
 
   public static fromDto(dto: ProductDto): ProductHttpDto {
@@ -40,6 +42,7 @@ export class ProductHttpDto {
       dto.active,
       dto.created_at,
       dto.updated_at,
+      dto.status,
     );
   }
 }

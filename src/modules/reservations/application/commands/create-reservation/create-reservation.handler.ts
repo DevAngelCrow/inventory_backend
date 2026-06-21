@@ -10,7 +10,7 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
   async execute(command: CreateReservationCommand): Promise<void> {
     const reservation = Reservation.create({
       id_customer: command.id_customer,
-      status: 'DRAFT',
+      status: 'PENDING',
       event_start: command.event_start,
       event_end: command.event_end,
       total_amount: command.total_amount,
