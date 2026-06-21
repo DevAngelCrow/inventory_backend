@@ -40,10 +40,15 @@ describe('CreateReservationHandler', () => {
       end,
       100,
       [new CreateReservationItemCommand('prod-1', 2, 50, 100)],
-      '123 Main St',
-      20,
-      80,
-      'Handle with care',
+      '123 Main St', // delivery_address
+      undefined, // delivery_address_line2
+      undefined, // delivery_zip
+      undefined, // delivery_notes
+      undefined, // id_customer_address
+      undefined, // id_geographic_division
+      20, // deposit_amount
+      80, // balance_due
+      'Handle with care', // notes
     );
 
     await handler.execute(command);

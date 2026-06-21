@@ -24,20 +24,27 @@ export class ImplCustomerRepository
       await this.prisma.client.mnt_customer.create({
         data: {
           first_name: customer.getName().firstName,
+          middle_name: customer.getName().middleName ?? null,
           last_name: customer.getName().lastName,
           email: customer.getContact().email ?? null,
           phone: customer.getContact().phone,
           phone_secondary: customer.getContact().phoneSecondary ?? null,
           company_name: customer.getCompanyName() ?? null,
           tax_id: customer.getTaxId() ?? null,
-          address_line1: customer.getAddress().addressLine1 ?? null,
-          address_line2: customer.getAddress().addressLine2 ?? null,
-          city: customer.getAddress().city ?? null,
-          state: customer.getAddress().state ?? null,
-          zip_code: customer.getAddress().zipCode ?? null,
           notes: customer.getNotes() ?? null,
           active: customer.getActive(),
-          id_user: customer.getIdUser() ?? null,
+          id_country: customer.getIdCountry(),
+          mnt_customer_address: {
+            create: customer.getAddresses().map(a => ({
+              label: a.label,
+              address_line1: a.addressLine1,
+              address_line2: a.addressLine2 ?? null,
+              zip_code: a.zipCode ?? null,
+              is_primary: a.isPrimary,
+              id_geographic_division: a.idGeographicDivision ?? null,
+              active: a.active,
+            }))
+          },
           created_at: new Date(),
         },
       });
@@ -58,19 +65,15 @@ export class ImplCustomerRepository
         where: { id: customer.getId()?.value() },
         data: {
           first_name: customer.getName().firstName,
+          middle_name: customer.getName().middleName ?? null,
           last_name: customer.getName().lastName,
           email: customer.getContact().email ?? null,
           phone: customer.getContact().phone,
           phone_secondary: customer.getContact().phoneSecondary ?? null,
           company_name: customer.getCompanyName() ?? null,
           tax_id: customer.getTaxId() ?? null,
-          address_line1: customer.getAddress().addressLine1 ?? null,
-          address_line2: customer.getAddress().addressLine2 ?? null,
-          city: customer.getAddress().city ?? null,
-          state: customer.getAddress().state ?? null,
-          zip_code: customer.getAddress().zipCode ?? null,
           notes: customer.getNotes() ?? null,
-          id_user: customer.getIdUser() ?? null,
+          id_country: customer.getIdCountry(),
           updated_at: new Date(),
         },
       });
@@ -143,6 +146,18 @@ export class ImplCustomerRepository
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
+          include: {
+            ctl_country: true,
+            mnt_customer_address: {
+              include: {
+                ctl_geographic_division: {
+                  include: {
+                    ctl_geographic_division: true
+                  }
+                }
+              }
+            }
+          },
           orderBy: { last_name: 'asc' },
         }),
         this.prisma.client.mnt_customer.count({ where }),
@@ -174,6 +189,18 @@ export class ImplCustomerRepository
     try {
       const customer = await this.prisma.client.mnt_customer.findUnique({
         where: { id },
+        include: {
+          ctl_country: true,
+          mnt_customer_address: {
+            include: {
+              ctl_geographic_division: {
+                include: {
+                  ctl_geographic_division: true
+                }
+              }
+            }
+          }
+        }
       });
       if (!customer) return null;
       return this.mapToDto(customer as any);
@@ -186,6 +213,18 @@ export class ImplCustomerRepository
     try {
       const customer = await this.prisma.client.mnt_customer.findFirst({
         where: { email },
+        include: {
+          ctl_country: true,
+          mnt_customer_address: {
+            include: {
+              ctl_geographic_division: {
+                include: {
+                  ctl_geographic_division: true
+                }
+              }
+            }
+          }
+        }
       });
       if (!customer) return null;
       return this.mapToDto(customer as any);
@@ -198,20 +237,26 @@ export class ImplCustomerRepository
     return Customer.create({
       id: c.id,
       first_name: c.first_name,
+      middle_name: c.middle_name ?? undefined,
       last_name: c.last_name,
       email: c.email ?? undefined,
       phone: c.phone,
       phone_secondary: c.phone_secondary ?? undefined,
       company_name: c.company_name ?? undefined,
       tax_id: c.tax_id ?? undefined,
-      address_line1: c.address_line1 ?? undefined,
-      address_line2: c.address_line2 ?? undefined,
-      city: c.city ?? undefined,
-      state: c.state ?? undefined,
-      zip_code: c.zip_code ?? undefined,
       notes: c.notes ?? undefined,
       active: c.active,
-      id_user: c.id_user ?? undefined,
+      id_country: c.id_country,
+      addresses: c.mnt_customer_address ? c.mnt_customer_address.map((a: any) => ({
+        label: a.label,
+        address_line1: a.address_line1,
+        address_line2: a.address_line2 ?? undefined,
+        zip_code: a.zip_code ?? undefined,
+        is_primary: a.is_primary,
+        id_geographic_division: a.id_geographic_division ?? undefined,
+        id: a.id,
+        active: a.active,
+      })) : [],
     });
   }
 
@@ -220,18 +265,28 @@ export class ImplCustomerRepository
       c.first_name,
       c.last_name,
       c.phone,
+      c.id_country,
+      c.middle_name ?? undefined,
       c.email ?? undefined,
       c.phone_secondary ?? undefined,
       c.company_name ?? undefined,
       c.tax_id ?? undefined,
-      c.address_line1 ?? undefined,
-      c.address_line2 ?? undefined,
-      c.city ?? undefined,
-      c.state ?? undefined,
-      c.zip_code ?? undefined,
       c.notes ?? undefined,
       c.active,
-      c.id_user ?? undefined,
+      c.ctl_country?.name,
+      c.ctl_country?.phone_code,
+      c.mnt_customer_address ? c.mnt_customer_address.map((a: any) => ({
+        label: a.label,
+        address_line1: a.address_line1,
+        is_primary: a.is_primary,
+        address_line2: a.address_line2 ?? undefined,
+        zip_code: a.zip_code ?? undefined,
+        id_geographic_division: a.id_geographic_division ?? undefined,
+        id: a.id,
+        active: a.active,
+        geographic_division_name: a.ctl_geographic_division?.name,
+        state_name: a.ctl_geographic_division?.ctl_geographic_division?.name,
+      })) : [],
       c.id,
       c.created_at,
       c.updated_at,

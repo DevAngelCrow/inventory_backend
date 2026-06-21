@@ -33,7 +33,7 @@ import { CustomerDto } from '../../application/dtos/customer.dto';
 import { Customer } from '../../domain/entities/customer';
 
 @ApiTags('Customers')
-@Controller()
+@Controller('customers')
 @ApiBearerAuth('JWT-auth')
 export class CustomerController {
   constructor(
@@ -51,17 +51,14 @@ export class CustomerController {
       dto.first_name,
       dto.last_name,
       dto.phone,
+      dto.id_country,
+      dto.middle_name,
       dto.email,
       dto.phone_secondary,
       dto.company_name,
       dto.tax_id,
-      dto.address_line1,
-      dto.address_line2,
-      dto.city,
-      dto.state,
-      dto.zip_code,
       dto.notes,
-      dto.id_user,
+      dto.addresses,
     );
     await this.commandBus.execute(command);
     return new SuccessResponseDto<null>(
@@ -84,17 +81,13 @@ export class CustomerController {
       dto.first_name,
       dto.last_name,
       dto.phone,
+      dto.id_country,
+      dto.middle_name,
       dto.email,
       dto.phone_secondary,
       dto.company_name,
       dto.tax_id,
-      dto.address_line1,
-      dto.address_line2,
-      dto.city,
-      dto.state,
-      dto.zip_code,
       dto.notes,
-      dto.id_user,
     );
     await this.commandBus.execute(command);
     return new SuccessResponseDto<null>(

@@ -32,6 +32,7 @@ model ctl_country {
   id                           String                         @id @default(uuid()) @db.Uuid
   ctl_geographic_division      ctl_geographic_division[]
   ctl_geographic_division_type ctl_geographic_division_type[]
+  mnt_customer                 mnt_customer[]
   people_country               people_country[]
 }
 
@@ -421,6 +422,8 @@ model ctl_geographic_division {
   other_ctl_geographic_division ctl_geographic_division[]    @relation("ctl_geographic_divisionToctl_geographic_division")
   ctl_geographic_division_type  ctl_geographic_division_type @relation(fields: [id_type], references: [id], onDelete: Cascade, map: "ctl_geographic_division_ctl_geographic_division_type_fk")
   mnt_address                   mnt_address[]
+  mnt_customer_address          mnt_customer_address[]
+  mnt_reservation               mnt_reservation[]
 
   @@unique([name, id_parent, id_country])
   @@index([id_country])
@@ -532,30 +535,51 @@ model mnt_product_maintenance {
 model mnt_customer {
   id              String            @id @default(uuid()) @db.Uuid
   first_name      String            @db.VarChar(150)
+  middle_name     String?           @db.VarChar(150)
   last_name       String            @db.VarChar(150)
   email           String?           @db.VarChar(150)
   phone           String            @db.VarChar(20)
   phone_secondary String?           @db.VarChar(20)
   company_name    String?           @db.VarChar(200)
   tax_id          String?           @db.VarChar(50)
-  address_line1   String?           @db.VarChar(255)
-  address_line2   String?           @db.VarChar(255)
-  city            String?           @db.VarChar(100)
-  state           String?           @db.VarChar(100)
-  zip_code        String?           @db.VarChar(20)
   notes           String?
   active          Boolean           @default(true)
   created_at      DateTime?         @db.Timestamp(0)
   updated_at      DateTime?         @db.Timestamp(0)
   deleted_at      DateTime?         @db.Timestamp(0)
-  id_user         String?           @unique @db.Uuid
+  id_country      String            @db.Uuid
+  ctl_country     ctl_country       @relation(fields: [id_country], references: [id])
+  mnt_customer_address mnt_customer_address[]
   mnt_invoice     mnt_invoice[]
   mnt_reservation mnt_reservation[]
 
+  @@index([id_country])
   @@index([phone])
   @@index([email])
   @@index([last_name])
   @@index([active])
+}
+
+model mnt_customer_address {
+  id                      String                   @id @default(uuid()) @db.Uuid
+  label                   String                   @default("Principal") @db.VarChar(50)
+  address_line1           String                   @db.VarChar(255)
+  address_line2           String?                  @db.VarChar(255)
+  zip_code                String?                  @db.VarChar(20)
+  is_primary              Boolean                  @default(false)
+  active                  Boolean                  @default(true)
+  created_at              DateTime?                @db.Timestamp(0)
+  updated_at              DateTime?                @db.Timestamp(0)
+  deleted_at              DateTime?                @db.Timestamp(0)
+  id_customer             String                   @db.Uuid
+  id_geographic_division  String?                  @db.Uuid
+  mnt_customer            mnt_customer             @relation(fields: [id_customer], references: [id], onDelete: Cascade)
+  ctl_geographic_division ctl_geographic_division? @relation(fields: [id_geographic_division], references: [id])
+  mnt_reservation         mnt_reservation[]
+
+  @@index([id_customer])
+  @@index([id_geographic_division])
+  @@index([id_customer, is_primary])
 }
 
 model mnt_reservation {
@@ -567,8 +591,7 @@ model mnt_reservation {
   pickup_datetime            DateTime?                    @db.Timestamptz(0)
   transit_time_minutes       Int                          @default(0)
   delivery_address           String?                      @db.VarChar(500)
-  delivery_city              String?                      @db.VarChar(100)
-  delivery_state             String?                      @db.VarChar(100)
+  delivery_address_line2     String?                      @db.VarChar(255)
   delivery_zip               String?                      @db.VarChar(20)
   delivery_notes             String?
   delivery_contact_name      String?                      @db.VarChar(200)
@@ -596,10 +619,14 @@ model mnt_reservation {
   id_customer                String                       @db.Uuid
   id_currency                String                       @db.Uuid
   id_created_by              String?                      @db.Uuid
+  id_customer_address        String?                      @db.Uuid
+  id_geographic_division     String?                      @db.Uuid
   mnt_payment                mnt_payment[]
   ctl_currency               ctl_currency                 @relation(fields: [id_currency], references: [id])
   mnt_customer               mnt_customer                 @relation(fields: [id_customer], references: [id])
   ctl_status                 ctl_status                   @relation(fields: [id_status], references: [id], onDelete: NoAction)
+  mnt_customer_address       mnt_customer_address?        @relation(fields: [id_customer_address], references: [id])
+  ctl_geographic_division    ctl_geographic_division?     @relation(fields: [id_geographic_division], references: [id])
   mnt_reservation_inspection mnt_reservation_inspection[]
   mnt_reservation_item       mnt_reservation_item[]
 

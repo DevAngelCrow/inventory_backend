@@ -10,19 +10,19 @@ export class CreateCustomerHandler implements ICommandHandler<CreateCustomerComm
   async execute(command: CreateCustomerCommand): Promise<void> {
     const customer = Customer.create({
       first_name: command.first_name,
+      middle_name: command.middle_name,
       last_name: command.last_name,
       phone: command.phone,
       email: command.email,
       phone_secondary: command.phone_secondary,
       company_name: command.company_name,
       tax_id: command.tax_id,
-      address_line1: command.address_line1,
-      address_line2: command.address_line2,
-      city: command.city,
-      state: command.state,
-      zip_code: command.zip_code,
       notes: command.notes,
-      id_user: command.id_user,
+      id_country: command.id_country,
+      addresses: command.addresses ? command.addresses.map(a => ({
+        ...a,
+        is_primary: a.is_primary ?? false,
+      })) : [],
       active: true,
     });
     await this.repository.create(customer);

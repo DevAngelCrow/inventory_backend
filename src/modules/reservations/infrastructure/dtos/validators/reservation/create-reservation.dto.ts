@@ -57,6 +57,31 @@ export class CreateReservationDto {
   @ApiProperty({ example: 'Calle Principal 123', required: false })
   delivery_address?: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: 'Apto 4B', required: false })
+  delivery_address_line2?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: '90210', required: false })
+  delivery_zip?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: 'Entregar por la puerta trasera', required: false })
+  delivery_notes?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty({ required: false, description: 'FK to a pre-registered customer address' })
+  id_customer_address?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty({ required: false, description: 'FK to geographic division (state/department)' })
+  id_geographic_division?: string;
+
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 100.0 })

@@ -24,6 +24,11 @@ export class Reservation {
     event_start: Date;
     event_end: Date;
     delivery_address?: string;
+    delivery_address_line2?: string;
+    delivery_zip?: string;
+    delivery_notes?: string;
+    id_customer_address?: string;
+    id_geographic_division?: string;
     total_amount: number;
     deposit_amount?: number;
     balance_due?: number;
@@ -41,7 +46,14 @@ export class Reservation {
       data.id_customer,
       new ReservationStatus(data.status),
       new ReservationDateRange(data.event_start, data.event_end),
-      new ReservationAddress(data.delivery_address),
+      new ReservationAddress({
+        addressLine1: data.delivery_address,
+        addressLine2: data.delivery_address_line2,
+        zip: data.delivery_zip,
+        notes: data.delivery_notes,
+        idCustomerAddress: data.id_customer_address,
+        idGeographicDivision: data.id_geographic_division,
+      }),
       new ReservationAmount(data.total_amount, data.deposit_amount, data.balance_due),
       new ReservationNotes(data.notes),
       data.items.map((i) =>
