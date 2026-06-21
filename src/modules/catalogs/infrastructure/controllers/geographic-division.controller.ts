@@ -35,6 +35,8 @@ import { GetGeographicDivisionQuery } from '../../application/geographic-divisio
 import { GetGeographicDivisionsCursorQuery } from '../../application/geographic-division/queries/get-geographic-divisions-cursor/get-geographic-divisions-cursor.query';
 import { GeographicDivisionDto } from '../../application/dtos/geographic-division.dto';
 
+import { GetGeographicDivisionLineageQuery } from '../../application/geographic-division/queries/get-geographic-division-lineage/get-geographic-division-lineage.query';
+
 @Controller('geographic-divisions')
 @ApiBearerAuth('JWT-auth')
 export class GeographicDivisionController {
@@ -213,6 +215,23 @@ export class GeographicDivisionController {
       null,
       HttpStatus.OK,
       `Geographic division status updated to ${result.active ? 'active' : 'inactive'}`,
+    );
+  }
+
+  @Permissions('ver-division-geografica')
+  @Get(':id/lineage')
+  @HttpCode(200)
+  @ApiParam({ name: 'id', required: true, type: String })
+  async getLineage(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SuccessResponseDto<string[]>> {
+    const result: string[] = await this.queryBus.execute(
+      new GetGeographicDivisionLineageQuery(id),
+    );
+    return new SuccessResponseDto<string[]>(
+      result,
+      HttpStatus.OK,
+      'Geographic division lineage retrieved successfully',
     );
   }
 }

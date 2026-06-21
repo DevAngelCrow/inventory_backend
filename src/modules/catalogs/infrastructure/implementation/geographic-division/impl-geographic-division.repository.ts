@@ -232,6 +232,32 @@ export class ImplGeographicDivisionRepository
     }
   }
 
+  async getLineage(id: string): Promise<string[]> {
+    try {
+      const lineage: string[] = [];
+      let currentId: string | null = id;
+      
+      while (currentId) {
+        lineage.unshift(currentId);
+        const item: { id_parent: string | null } | null = await this.prisma.client.ctl_geographic_division.findUnique({
+          where: { id: currentId },
+          select: { id_parent: true }
+        });
+        currentId = item?.id_parent || null;
+      }
+      
+      return lineage;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Error getting geographic division lineage: ${error.message}`);
+      }
+      throw new DatabaseException(
+        'Error getting geographic division lineage',
+        'getLineage',
+      );
+    }
+  }
+
   async toggleStatus(id: GeographicDivisionId): Promise<GeographicDivision> {
     try {
       const existing = await this.getOneById(id.value());

@@ -13,6 +13,7 @@ import { GetGeographicDivisionTypeHandler } from '../../application/geographic-d
 import { GetGeographicDivisionsHandler } from '../../application/geographic-division/queries/get-geographic-divisions/get-geographic-divisions.handler';
 import { GetGeographicDivisionHandler } from '../../application/geographic-division/queries/get-geographic-division/get-geographic-division.handler';
 import { GetGeographicDivisionsCursorHandler } from '../../application/geographic-division/queries/get-geographic-divisions-cursor/get-geographic-divisions-cursor.handler';
+import { GetGeographicDivisionLineageHandler } from '../../application/geographic-division/queries/get-geographic-division-lineage/get-geographic-division-lineage.handler';
 
 export const queryHandlerProviders = [
   GetCountriesHandler,
@@ -30,4 +31,5 @@ export const queryHandlerProviders = [
   GetGeographicDivisionsHandler,
   GetGeographicDivisionHandler,
   GetGeographicDivisionsCursorHandler,
+  GetGeographicDivisionLineageHandler,
 ];

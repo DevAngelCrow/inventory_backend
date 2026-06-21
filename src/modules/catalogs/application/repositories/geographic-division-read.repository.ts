@@ -21,4 +21,5 @@ export abstract class GeographicDivisionQueriesRepository {
     id_parent?: string,
     id_type?: string,
   ): Promise<{ data: GeographicDivisionDto[]; next_cursor: string | null }>;
+  abstract getLineage(id: string): Promise<string[]>;
 }
