@@ -73,10 +73,10 @@ import { ResetForgottenPasswordCommand } from '../../application/commands/reset-
 import { Permissions } from '@/modules/security/infrastructure/decorators/permissions.decorator';
 import { CheckAuthenticatedUserGuard } from '../guards/check-authenticated-user.guard';
 import { CheckAuthenticatedUser } from '../decorators/check-authenticated-user.decorator';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import { VerifyEmailQueryDto } from '../dtos/validators/auth/verify-email-query.dto';
-import { LoginThrottleGuard } from '../guards/login-throttle.guard';
+
 import { AuditLogService } from '@/modules/audit/application/services/audit-log.service';
 import { AuditAction } from '@/modules/audit/domain/enums/audit-action.enum';
 import { Auditable } from '@/modules/audit/infrastructure/decorators/auditable.decorator';
@@ -183,9 +183,7 @@ export class AuthController {
     );
   }
   @SkipAuth()
-  @SkipThrottle({ global: true })
-  @UseGuards(LoginThrottleGuard)
-  @Throttle({ login: { ttl: 60000, limit: 5 } })
+  @Throttle({ global: { ttl: 60000, limit: 5 } })
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'Authenticate and receive JWT tokens' })

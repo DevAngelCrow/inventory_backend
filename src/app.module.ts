@@ -35,7 +35,8 @@ import {
   throttlerConfig,
 } from './shared/infrastructure/config/configs';
 import { QueuesModule } from './shared/infrastructure/queues/queues.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { LoginThrottleGuard } from './modules/auth/infrastructure/guards/login-throttle.guard';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { RedisCacheModule } from './shared/infrastructure/cache/cache.module';
 import { AuditModule } from './modules/audit/audit.module';
@@ -84,13 +85,6 @@ import { ExpressAdapter } from '@bull-board/express';
             name: 'global',
             ttl: config.get<number>('THROTTLE_GLOBAL_TTL')!,
             limit: config.get<number>('THROTTLE_GLOBAL_LIMIT')!,
-          },
-          {
-            // Named throttler 'login' — only applies to routes that opt in via
-            // @Throttle({ login: {...} }). Driven by env (THROTTLE_LOGIN_*).
-            name: 'login',
-            ttl: config.get<number>('THROTTLE_LOGIN_TTL')!,
-            limit: config.get<number>('THROTTLE_LOGIN_LIMIT')!,
           },
         ],
       }),
@@ -177,7 +171,7 @@ import { ExpressAdapter } from '@bull-board/express';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: LoginThrottleGuard,
     },
   ],
 })
