@@ -20,9 +20,9 @@ class IngresosMetric {
 
 class LogisticaMetric {
   @ApiProperty()
-  en_transito!: number;
+  en_progreso!: number;
   @ApiProperty()
-  entregados!: number;
+  finalizadas!: number;
   @ApiProperty()
   en_mantenimiento!: number;
 }

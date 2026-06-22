@@ -44,11 +44,11 @@ export class GetDashboardSummaryHandler implements IQueryHandler<GetDashboardSum
     const ingresosMes = await getRevenue(monthStart, monthEnd);
 
     // Logística
-    const enTransito = await this.prisma.client.mnt_reservation.count({
-      where: { ctl_status: { code: 'IN_TRANSIT' } }
+    const enProgreso = await this.prisma.client.mnt_reservation.count({
+      where: { ctl_status: { code: 'IN_PROGRESS' } }
     });
-    const entregados = await this.prisma.client.mnt_reservation.count({
-      where: { ctl_status: { code: 'DELIVERED' } }
+    const finalizadas = await this.prisma.client.mnt_reservation.count({
+      where: { ctl_status: { code: 'COMPLETED' } }
     });
     const enMantenimiento = await this.prisma.client.mnt_product_maintenance.count({
       where: { resolved: false }
@@ -105,7 +105,7 @@ export class GetDashboardSummaryHandler implements IQueryHandler<GetDashboardSum
     return {
       reservas: { hoy: reservasHoy, semana: reservasSemana, mes: reservasMes },
       ingresos: { hoy: ingresosHoy, semana: ingresosSemana, mes: ingresosMes },
-      logistica: { en_transito: enTransito, entregados: entregados, en_mantenimiento: enMantenimiento },
+      logistica: { en_progreso: enProgreso, finalizadas: finalizadas, en_mantenimiento: enMantenimiento },
       cuentas_por_cobrar: { balance_pendiente: balancePendiente, facturas_draft: facturasDraft },
       top_productos,
       proximos_eventos,
