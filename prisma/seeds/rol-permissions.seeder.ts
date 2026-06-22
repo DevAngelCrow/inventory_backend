@@ -412,6 +412,9 @@ export const seedRolPermissions = async (tx: PrismaClient) => {
     'ver-reporte-utilizacion-inventario',
     'ver-reporte-clientes',
     'ver-reporte-productos-top',
+
+    //
+    'listar-estados-globales'
   ];
 
   // Asignar permisos a cada rol
