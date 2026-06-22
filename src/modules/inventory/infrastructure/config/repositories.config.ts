@@ -6,6 +6,10 @@ import { ProductQueriesRepository } from '../../application/repositories/product
 import { ImplProductRepository } from '../implementation/product/impl-product.repository';
 import { MAINTENANCE_REPOSITORY } from '../../domain/repositories/maintenance.repository';
 import { PrismaMaintenanceRepository } from '../repositories/prisma-maintenance.repository';
+import { AVAILABILITY_REPOSITORY } from '../../domain/repositories/availability.repository';
+import { PrismaAvailabilityRepository } from '../repositories/prisma-availability.repository';
+import { MaintenanceQueriesRepository } from '../../application/repositories/maintenance-read.repository';
+import { ImplMaintenanceQueriesRepository } from '../implementation/maintenance/impl-maintenance-queries.repository';
 
 export const repositories = [
   { provide: ProductCategoryRepository, useClass: ImplProductCategoryRepository },
@@ -13,4 +17,6 @@ export const repositories = [
   { provide: ProductRepository, useClass: ImplProductRepository },
   { provide: ProductQueriesRepository, useClass: ImplProductRepository },
   { provide: MAINTENANCE_REPOSITORY, useClass: PrismaMaintenanceRepository },
+  { provide: MaintenanceQueriesRepository, useClass: ImplMaintenanceQueriesRepository },
+  { provide: AVAILABILITY_REPOSITORY, useClass: PrismaAvailabilityRepository },
 ];
