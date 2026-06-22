@@ -10,7 +10,7 @@ import { GetRevenueReportQuery } from '../../application/queries/get-revenue-rep
 import { RevenueReportResult } from '../../application/queries/get-revenue-report.handler';
 import { GetDashboardSummaryQuery } from '../../application/queries/get-dashboard-summary.query';
 import { DashboardSummaryHttpDto } from '../dtos/http/dashboard-summary-http.dto';
-
+import { DashboardSummaryDto } from '../../application/dtos/dashboard-summary.dto';
 @ApiTags('Reports')
 @Controller('reports')
 @ApiBearerAuth('JWT-auth')
@@ -41,10 +41,10 @@ export class ReportsController {
   @HttpCode(HttpStatus.OK)
   async getDashboardSummary(): Promise<SuccessResponseDto<DashboardSummaryHttpDto>> {
     const appQuery = new GetDashboardSummaryQuery();
-    const result: DashboardSummaryHttpDto = await this.queryBus.execute(appQuery);
+    const result: DashboardSummaryDto = await this.queryBus.execute(appQuery);
     
     return new SuccessResponseDto(
-      result,
+      DashboardSummaryHttpDto.fromDto(result),
       HttpStatus.OK,
       'Dashboard summary generated successfully',
     );

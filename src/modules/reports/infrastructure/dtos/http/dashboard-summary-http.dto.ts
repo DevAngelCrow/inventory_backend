@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { DashboardSummaryDto } from '../../../application/dtos/dashboard-summary.dto';
 
 class ReservasMetric {
   @ApiProperty()
@@ -70,4 +71,15 @@ export class DashboardSummaryHttpDto {
 
   @ApiProperty({ type: [ProximoEventoMetric] })
   proximos_eventos!: ProximoEventoMetric[];
+
+  public static fromDto(dto: DashboardSummaryDto): DashboardSummaryHttpDto {
+    const httpDto = new DashboardSummaryHttpDto();
+    httpDto.reservas = dto.reservas;
+    httpDto.ingresos = dto.ingresos;
+    httpDto.logistica = dto.logistica;
+    httpDto.cuentas_por_cobrar = dto.cuentas_por_cobrar;
+    httpDto.top_productos = dto.top_productos;
+    httpDto.proximos_eventos = dto.proximos_eventos;
+    return httpDto;
+  }
 }

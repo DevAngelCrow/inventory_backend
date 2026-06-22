@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetRevenueReportQuery } from './get-revenue-report.query';
-import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
+import { Inject } from '@nestjs/common';
+import { IReportsReadRepository, REPORTS_READ_REPOSITORY } from '../repositories/reports-read.repository';
 
 export interface RevenueReportResult {
   totalRevenue: number;
@@ -11,31 +12,20 @@ export interface RevenueReportResult {
 
 @QueryHandler(GetRevenueReportQuery)
 export class GetRevenueReportHandler implements IQueryHandler<GetRevenueReportQuery> {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(REPORTS_READ_REPOSITORY)
+    private readonly reportsReadRepository: IReportsReadRepository,
+  ) {}
 
   async execute(query: GetRevenueReportQuery): Promise<RevenueReportResult> {
-    const invoices = await this.prisma.client.mnt_invoice.findMany({
-      where: {
-        issue_date: {
-          gte: query.start_date,
-          lte: query.end_date,
-        },
-        ctl_status: {
-          code: {
-            not: 'CANCELLED',
-          },
-        },
-      },
-      select: {
-        total: true,
-      },
-    });
-
-    const totalRevenue = invoices.reduce((acc, inv) => acc + Number(inv.total), 0);
+    const { totalRevenue, totalInvoices } = await this.reportsReadRepository.getRevenueSummary(
+      query.start_date,
+      query.end_date,
+    );
 
     return {
       totalRevenue,
-      totalInvoices: invoices.length,
+      totalInvoices,
       startDate: query.start_date,
       endDate: query.end_date,
     };

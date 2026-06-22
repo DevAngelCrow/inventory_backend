@@ -283,6 +283,17 @@ export class ImplReservationRepository
     }
   }
 
+  async getDefaultCurrencyId(): Promise<string> {
+    try {
+      const defaultCurrency = await this.prisma.client.ctl_currency.findFirst({
+          where: { active: true },
+      });
+      return defaultCurrency?.id || '00000000-0000-0000-0000-000000000000';
+    } catch (e) {
+      return '00000000-0000-0000-0000-000000000000';
+    }
+  }
+
   private mapToDomain(r: any): Reservation {
     return Reservation.create({
       id: r.id,

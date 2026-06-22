@@ -1,20 +1,21 @@
 import { CommandHandler, ICommandHandler, CommandBus } from '@nestjs/cqrs';
+import { Logger } from '@nestjs/common';
 import { UpdateReservationStatusCommand } from './update-reservation-status.command';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
 import { ReservationQueriesRepository } from '../../repositories/reservation-read.repository';
 import { ReservationId } from '@/modules/reservations/domain/value-objects/reservation-id';
 import { Reservation } from '@/modules/reservations/domain/entities/reservation';
 import { GenerateInvoiceCommand } from '@/modules/billing/application/commands/generate-invoice/generate-invoice.command';
-import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 
 @CommandHandler(UpdateReservationStatusCommand)
 export class UpdateReservationStatusHandler implements ICommandHandler<UpdateReservationStatusCommand> {
+  private readonly logger = new Logger(UpdateReservationStatusHandler.name);
+
   constructor(
     private readonly repository: ReservationRepository,
     private readonly queriesRepository: ReservationQueriesRepository,
     private readonly commandBus: CommandBus,
-    private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async execute(command: UpdateReservationStatusCommand): Promise<Reservation> {
     const updated = await this.repository.updateStatus(
@@ -27,15 +28,7 @@ export class UpdateReservationStatusHandler implements ICommandHandler<UpdateRes
     if (command.status === 'CONFIRMED') {
       const reservation = await this.queriesRepository.findById(command.id);
       if (reservation) {
-        let id_currency = '00000000-0000-0000-0000-000000000000';
-        try {
-          const defaultCurrency = await this.prisma.client.ctl_currency.findFirst({
-              where: { active: true },
-          });
-          if (defaultCurrency) id_currency = defaultCurrency.id;
-        } catch (e) {
-          // ignore
-        }
+        const id_currency = await this.queriesRepository.getDefaultCurrencyId();
 
         const generateInvoiceCmd = new GenerateInvoiceCommand(
           reservation.id!,
@@ -66,10 +59,9 @@ export class UpdateReservationStatusHandler implements ICommandHandler<UpdateRes
         // We catch errors so the status update doesn't fail if billing fails
         try {
           await this.commandBus.execute(generateInvoiceCmd);
-          require('fs').appendFileSync('error_log.txt', 'Invoice generated successfully for ' + reservation.id + '\n');
+          this.logger.log(`Invoice generated successfully for ${reservation.id}`);
         } catch (e: any) {
-          console.error('Failed to auto-generate invoice', e);
-          require('fs').appendFileSync('error_log.txt', 'Error: ' + e.message + '\n' + e.stack + '\n');
+          this.logger.error(`Failed to auto-generate invoice for ${reservation.id}`, e.stack);
         }
       }
     }

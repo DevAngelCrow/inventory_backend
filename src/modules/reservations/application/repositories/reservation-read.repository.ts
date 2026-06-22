@@ -11,4 +11,5 @@ export abstract class ReservationQueriesRepository {
     filter_date_end?: Date,
   ): Promise<Pagination<ReservationDto> | ReservationDto[]>;
   abstract findById(id: string): Promise<ReservationDto | null>;
+  abstract getDefaultCurrencyId(): Promise<string>;
 }
