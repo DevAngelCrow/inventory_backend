@@ -5,7 +5,11 @@ import { AppModule } from '../../src/app.module';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from '@/modules/security/infrastructure/guards/permissions.guard';
-import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../mocks/prisma.mock';
+import {
+  createPrismaMock,
+  createPrismaServiceMock,
+  MockPrismaClient,
+} from '../mocks/prisma.mock';
 
 describe('Reservations (e2e)', () => {
   let app: INestApplication;
@@ -19,9 +23,7 @@ describe('Reservations (e2e)', () => {
       .spyOn(JwtPassportAuthGuard.prototype, 'canActivate')
       .mockReturnValue(true);
 
-    jest
-      .spyOn(PermissionsGuard.prototype, 'canActivate')
-      .mockReturnValue(true);
+    jest.spyOn(PermissionsGuard.prototype, 'canActivate').mockReturnValue(true);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -57,16 +59,18 @@ describe('Reservations (e2e)', () => {
       .send({
         id_customer: '123e4567-e89b-12d3-a456-426614174000',
         event_start: new Date().toISOString(),
-        event_end: new Date(new Date().getTime() + 1000 * 60 * 60 * 2).toISOString(),
+        event_end: new Date(
+          new Date().getTime() + 1000 * 60 * 60 * 2,
+        ).toISOString(),
         total_amount: 100,
         items: [
           {
             id_product: '123e4567-e89b-12d3-a456-426614174001',
             quantity: 2,
             unit_price: 50,
-            total_price: 100
-          }
-        ]
+            total_price: 100,
+          },
+        ],
       })
       .expect(201)
       .expect((res) => {
@@ -93,12 +97,12 @@ describe('Reservations (e2e)', () => {
         deleted_at: null,
         mnt_customer: {
           first_name: 'John',
-          last_name: 'Doe'
+          last_name: 'Doe',
         },
-        dtl_reservation_item: []
+        dtl_reservation_item: [],
       },
     ] as any);
-    
+
     mockPrismaClient.mnt_reservation.count.mockResolvedValue(1);
 
     return request(app.getHttpServer())
@@ -108,7 +112,9 @@ describe('Reservations (e2e)', () => {
         expect(res.body.statusCode).toBe(200);
         expect(res.body.data.data).toBeInstanceOf(Array);
         expect(res.body.data.data.length).toBe(1);
-        expect(res.body.data.data[0].id_customer).toBe('123e4567-e89b-12d3-a456-426614174000');
+        expect(res.body.data.data[0].id_customer).toBe(
+          '123e4567-e89b-12d3-a456-426614174000',
+        );
       });
   });
 });

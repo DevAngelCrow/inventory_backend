@@ -21,7 +21,9 @@ export class GrantDocsAccessHandler implements ICommandHandler<GrantDocsAccessCo
     private readonly auditLog: AuditLogService,
   ) {}
 
-  async execute(command: GrantDocsAccessCommand): Promise<{ cookieToken: string; maxAge: number }> {
+  async execute(
+    command: GrantDocsAccessCommand,
+  ): Promise<{ cookieToken: string; maxAge: number }> {
     let payload: JwtPayload;
     try {
       payload = this.jwtService.verify<JwtPayload>(command.access_token);
@@ -31,7 +33,9 @@ export class GrantDocsAccessHandler implements ICommandHandler<GrantDocsAccessCo
 
     const user = await this.userReadRepository.getOneByIdForAuth(payload.id);
     if (!user || !user.permissions.includes('ver-documentacion-api')) {
-      throw new ForbiddenException('No posee permiso para acceder a la documentación de la API');
+      throw new ForbiddenException(
+        'No posee permiso para acceder a la documentación de la API',
+      );
     }
 
     const cookieToken = this.jwtService.sign({

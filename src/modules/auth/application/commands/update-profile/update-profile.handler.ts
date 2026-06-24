@@ -48,26 +48,38 @@ export class UpdateProfileHandler<
     const idPeople = user.id_people;
 
     if (command.update_profile_dto.id_address) {
-      const address = await this.queryBus.execute<GetAddressByIdQuery, Address | null>(
-        new GetAddressByIdQuery(command.update_profile_dto.id_address)
-      );
+      const address = await this.queryBus.execute<
+        GetAddressByIdQuery,
+        Address | null
+      >(new GetAddressByIdQuery(command.update_profile_dto.id_address));
       if (!address) {
-        throw new NotFoundException('Address', command.update_profile_dto.id_address);
+        throw new NotFoundException(
+          'Address',
+          command.update_profile_dto.id_address,
+        );
       }
       if (address.getIdPeople().value() !== idPeople) {
-        throw new ForbiddenException('You are not allowed to modify this address.');
+        throw new ForbiddenException(
+          'You are not allowed to modify this address.',
+        );
       }
     }
 
     if (command.update_profile_dto.id_document) {
-      const document = await this.queryBus.execute<GetDocumentByIdQuery, Document | null>(
-        new GetDocumentByIdQuery(command.update_profile_dto.id_document)
-      );
+      const document = await this.queryBus.execute<
+        GetDocumentByIdQuery,
+        Document | null
+      >(new GetDocumentByIdQuery(command.update_profile_dto.id_document));
       if (!document) {
-        throw new NotFoundException('Document', command.update_profile_dto.id_document);
+        throw new NotFoundException(
+          'Document',
+          command.update_profile_dto.id_document,
+        );
       }
       if (document.getIdPeople().value() !== idPeople) {
-        throw new ForbiddenException('You are not allowed to modify this document.');
+        throw new ForbiddenException(
+          'You are not allowed to modify this document.',
+        );
       }
     }
 

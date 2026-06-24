@@ -4,14 +4,12 @@ import { ProductCategoryQueriesRepository } from '@/modules/inventory/applicatio
 import { ProductCategoryDto } from '@/modules/inventory/application/dtos/product-category.dto';
 
 @QueryHandler(GetProductCategoryQuery)
-export class GetProductCategoryHandler
-  implements IQueryHandler<GetProductCategoryQuery>
-{
-  constructor(
-    private readonly repository: ProductCategoryQueriesRepository,
-  ) {}
+export class GetProductCategoryHandler implements IQueryHandler<GetProductCategoryQuery> {
+  constructor(private readonly repository: ProductCategoryQueriesRepository) {}
 
-  async execute(query: GetProductCategoryQuery): Promise<ProductCategoryDto | null> {
+  async execute(
+    query: GetProductCategoryQuery,
+  ): Promise<ProductCategoryDto | null> {
     return await this.repository.findById(query.id);
   }
 }

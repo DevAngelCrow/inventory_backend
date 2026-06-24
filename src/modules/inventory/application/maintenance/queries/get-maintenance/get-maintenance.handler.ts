@@ -5,9 +5,7 @@ import { MaintenanceQueriesRepository } from '../../../repositories/maintenance-
 
 @QueryHandler(GetMaintenanceQuery)
 export class GetMaintenanceHandler implements IQueryHandler<GetMaintenanceQuery> {
-  constructor(
-    private readonly repository: MaintenanceQueriesRepository,
-  ) {}
+  constructor(private readonly repository: MaintenanceQueriesRepository) {}
 
   async execute(query: GetMaintenanceQuery): Promise<MaintenanceDto | null> {
     return await this.repository.getById(query.id);

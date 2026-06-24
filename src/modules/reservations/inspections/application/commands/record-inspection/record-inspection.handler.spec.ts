@@ -45,27 +45,31 @@ describe('RecordInspectionHandler', () => {
           description: '',
           quantity_affected: 1,
           charge_amount: 0,
-        }
+        },
       ],
       'Everything looks fine',
       0,
-      '123e4567-e89b-12d3-a456-426614174002' // user
+      '123e4567-e89b-12d3-a456-426614174002', // user
     );
 
     await handler.execute(command);
 
     expect(repository.save).toHaveBeenCalledTimes(1);
-    
-    const savedInspection = repository.save.mock.calls[0][0] as Inspection;
-    
-    expect(savedInspection.getIdReservation()).toBe('123e4567-e89b-12d3-a456-426614174000');
+
+    const savedInspection = repository.save.mock.calls[0][0];
+
+    expect(savedInspection.getIdReservation()).toBe(
+      '123e4567-e89b-12d3-a456-426614174000',
+    );
     expect(savedInspection.getOverallCondition()).toBe('GOOD');
     expect(savedInspection.getStatus().value()).toBe('COMPLETED');
     expect(savedInspection.getTotalCharges()).toBe(0);
-    
+
     const items = savedInspection.getDamageItems();
     expect(items.length).toBe(1);
-    expect(items[0].getIdProduct()).toBe('123e4567-e89b-12d3-a456-426614174001');
+    expect(items[0].getIdProduct()).toBe(
+      '123e4567-e89b-12d3-a456-426614174001',
+    );
     expect(items[0].getDamageType()).toBe('NONE');
   });
 });

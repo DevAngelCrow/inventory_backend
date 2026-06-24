@@ -17,7 +17,10 @@ import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-st
 export class ImplMaintenanceQueriesRepository implements MaintenanceQueriesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private mapToDto(record: any, catalog_status?: Map<string, BooleanStatusData>): MaintenanceDto {
+  private mapToDto(
+    record: any,
+    catalog_status?: Map<string, BooleanStatusData>,
+  ): MaintenanceDto {
     const status = StatusMapperUtil.getStatusFromBoolean(
       !record.resolved,
       catalog_status,
@@ -50,7 +53,10 @@ export class ImplMaintenanceQueriesRepository implements MaintenanceQueriesRepos
     const [records, total, catalog_status] = await Promise.all([
       this.prisma.client.mnt_product_maintenance.findMany({
         where,
-        skip: params.page && params.per_page ? (params.page - 1) * params.per_page : undefined,
+        skip:
+          params.page && params.per_page
+            ? (params.page - 1) * params.per_page
+            : undefined,
         take: params.per_page ? params.per_page : undefined,
         orderBy: { date_start: 'desc' },
       }),
@@ -64,7 +70,10 @@ export class ImplMaintenanceQueriesRepository implements MaintenanceQueriesRepos
       return dtos;
     }
 
-    const entityList = dtos.length > 0 ? new EntityList<MaintenanceDto>(dtos) : new EntityList<MaintenanceDto>([]);
+    const entityList =
+      dtos.length > 0
+        ? new EntityList<MaintenanceDto>(dtos)
+        : new EntityList<MaintenanceDto>([]);
     return new Pagination<MaintenanceDto>(
       entityList,
       new Page(params.page),

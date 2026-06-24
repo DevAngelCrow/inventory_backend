@@ -45,13 +45,31 @@ export class InvoiceLine {
     );
   }
 
-  public getId(): InvoiceLineId | undefined { return this.id; }
-  public getIdInvoice(): InvoiceLineIdInvoice | undefined { return this.id_invoice; }
-  public getIdProduct(): InvoiceLineIdProduct | undefined { return this.id_product; }
-  public getDescription(): InvoiceLineDescription { return this.description; }
-  public getQuantity(): InvoiceLineQuantity { return this.quantity; }
-  public getUnitPrice(): InvoiceLineUnitPrice { return this.unit_price; }
-  public getSubtotal(): InvoiceLineSubtotal { return this.subtotal; }
-  public getTaxAmount(): InvoiceLineTaxAmount { return this.tax_amount; }
-  public getTotal(): InvoiceLineTotal { return this.total; }
+  public getId(): InvoiceLineId | undefined {
+    return this.id;
+  }
+  public getIdInvoice(): InvoiceLineIdInvoice | undefined {
+    return this.id_invoice;
+  }
+  public getIdProduct(): InvoiceLineIdProduct | undefined {
+    return this.id_product;
+  }
+  public getDescription(): InvoiceLineDescription {
+    return this.description;
+  }
+  public getQuantity(): InvoiceLineQuantity {
+    return this.quantity;
+  }
+  public getUnitPrice(): InvoiceLineUnitPrice {
+    return this.unit_price;
+  }
+  public getSubtotal(): InvoiceLineSubtotal {
+    return this.subtotal;
+  }
+  public getTaxAmount(): InvoiceLineTaxAmount {
+    return this.tax_amount;
+  }
+  public getTotal(): InvoiceLineTotal {
+    return this.total;
+  }
 }

@@ -31,7 +31,12 @@ export class AvailabilityService {
     dateStart: Date,
     dateEnd: Date,
   ): Promise<boolean> {
-    const query = new CheckAvailabilityQuery(productId, quantity, dateStart, dateEnd);
+    const query = new CheckAvailabilityQuery(
+      productId,
+      quantity,
+      dateStart,
+      dateEnd,
+    );
     return await this.checkAvailabilityHandler.execute(query);
   }
 }

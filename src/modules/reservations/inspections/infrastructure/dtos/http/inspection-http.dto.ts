@@ -1,4 +1,7 @@
-import { InspectionDto, DamageItemDto } from '@/modules/reservations/inspections/application/dtos/inspection.dto';
+import {
+  InspectionDto,
+  DamageItemDto,
+} from '@/modules/reservations/inspections/application/dtos/inspection.dto';
 
 export class DamageItemHttpDto {
   constructor(
@@ -19,7 +22,13 @@ export class InspectionHttpDto {
     public readonly id_reservation: string,
     public readonly inspection_date: Date,
     public readonly overall_condition: string,
-    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
+    public readonly status: {
+      id: string;
+      code: string;
+      name: string;
+      state_color: string;
+      text_color: string;
+    },
     public readonly general_notes?: string,
     public readonly total_charges?: number,
     public readonly id_inspected_by?: string,
@@ -38,16 +47,19 @@ export class InspectionHttpDto {
       dto.general_notes,
       dto.total_charges,
       dto.id_inspected_by,
-      dto.damage_items.map((d: DamageItemDto) => new DamageItemHttpDto(
-        d.id!,
-        d.id_product,
-        d.damage_type,
-        d.description,
-        d.quantity_affected,
-        d.charge_amount,
-        d.id_inspection,
-        d.photo_url,
-      )),
+      dto.damage_items.map(
+        (d: DamageItemDto) =>
+          new DamageItemHttpDto(
+            d.id!,
+            d.id_product,
+            d.damage_type,
+            d.description,
+            d.quantity_affected,
+            d.charge_amount,
+            d.id_inspection,
+            d.photo_url,
+          ),
+      ),
       dto.created_at,
       dto.updated_at,
     );

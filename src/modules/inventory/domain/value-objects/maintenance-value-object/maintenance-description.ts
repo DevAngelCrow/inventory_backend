@@ -11,7 +11,10 @@ export class MaintenanceDescription {
     )
       .required('Maintenance description is required')
       .string('Maintenance description must be a string')
-      .maxLength(1000, 'Maintenance description must be at most 1000 characters long')
+      .maxLength(
+        1000,
+        'Maintenance description must be at most 1000 characters long',
+      )
       .getValue();
   }
 

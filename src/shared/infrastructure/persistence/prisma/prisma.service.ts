@@ -13,9 +13,7 @@ import { TransactionContextService } from '../../services/transaction-context.se
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class PrismaService
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('template-project:prisma');
   private prisma: PrismaClient;
 
@@ -67,7 +65,9 @@ export class PrismaService
     return this.transactionContext.getTransaction() ?? this.prisma;
   }
 
-  async $transaction<T>(...args: Parameters<PrismaClient['$transaction']>): Promise<T> {
+  async $transaction<T>(
+    ...args: Parameters<PrismaClient['$transaction']>
+  ): Promise<T> {
     return (this.prisma.$transaction as any)(...args);
   }
 }

@@ -39,7 +39,7 @@ export class ProductMaintenanceController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) { }
+  ) {}
 
   @Permissions('crear-mantenimiento-producto')
   @Post()

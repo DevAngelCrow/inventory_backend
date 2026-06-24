@@ -56,14 +56,20 @@ export class PaymentController {
       dto.id_received_by,
     );
     const result: Payment = await this.commandBus.execute(command);
-    
+
     // Convert entity to DTO for HTTP mapping
     const dtoResult = new PaymentDto(
       result.getIdReservation().value(),
       result.getIdPaymentMethod().value(),
       result.getAmount().value(),
       result.getPaymentDate().value(),
-      { id: '', code: result.getStatus().value(), name: result.getStatus().value(), state_color: 'primary', text_color: 'primary-foreground' } as any, // Mock object for DTO compatibility
+      {
+        id: '',
+        code: result.getStatus().value(),
+        name: result.getStatus().value(),
+        state_color: 'primary',
+        text_color: 'primary-foreground',
+      }, // Mock object for DTO compatibility
       undefined, // payment_number
       result.getReferenceNumber()?.value(),
       result.getNotes()?.value(),
@@ -101,9 +107,12 @@ export class PaymentController {
       Pagination<PaymentDto> | PaymentDto[]
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : (result as PaymentDto[]);
-    const totalItems = result instanceof Pagination ? result.getTotalItems() : items.length;
-    const totalPages = result instanceof Pagination ? result.getTotalPages() : 1;
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
 
     const httpDtos = items.map((c: PaymentDto) => PaymentHttpDto.fromDto(c));
     const response = new HttpPaginatedResponseDto<PaymentHttpDto>(

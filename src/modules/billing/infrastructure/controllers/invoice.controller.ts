@@ -12,7 +12,13 @@ import {
   Res,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Permissions } from '@/modules/security/infrastructure/decorators/permissions.decorator';
 import { SuccessResponseDto } from '@/shared/infrastructure/http/dtos/http-success-response.dto';
 import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http-paginated-response.dto';
@@ -64,9 +70,9 @@ export class InvoiceController {
       dto.lines,
     );
     await this.commandBus.execute(command);
-    
+
     return new SuccessResponseDto(
-      undefined as void,
+      undefined,
       HttpStatus.CREATED,
       'Invoice generated successfully',
     );
@@ -94,9 +100,12 @@ export class InvoiceController {
       Pagination<InvoiceDto> | InvoiceDto[]
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : (result as InvoiceDto[]);
-    const totalItems = result instanceof Pagination ? result.getTotalItems() : items.length;
-    const totalPages = result instanceof Pagination ? result.getTotalPages() : 1;
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
 
     const httpDtos = items.map((c: InvoiceDto) => InvoiceHttpDto.fromDto(c));
     const response = new HttpPaginatedResponseDto<InvoiceHttpDto>(
@@ -153,7 +162,8 @@ export class InvoiceController {
     @Res() res: Response,
   ) {
     const query = new GetInvoicePdfQuery(id);
-    const result: { buffer: Buffer; fileName: string } = await this.queryBus.execute(query);
+    const result: { buffer: Buffer; fileName: string } =
+      await this.queryBus.execute(query);
 
     res.set({
       'Content-Type': 'application/pdf',

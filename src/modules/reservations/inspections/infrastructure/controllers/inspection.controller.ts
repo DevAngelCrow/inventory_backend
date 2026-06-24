@@ -42,7 +42,7 @@ export class InspectionController {
       dto.inspection_date,
       dto.overall_condition,
       dto.status,
-      dto.damage_items?.map(i => ({
+      dto.damage_items?.map((i) => ({
         id_product: i.id_product,
         damage_type: i.damage_type,
         description: i.description,
@@ -55,9 +55,9 @@ export class InspectionController {
       dto.id_inspected_by,
     );
     await this.commandBus.execute(command);
-    
+
     return new SuccessResponseDto(
-      undefined as void,
+      undefined,
       HttpStatus.CREATED,
       'Inspection recorded successfully',
     );
@@ -83,11 +83,16 @@ export class InspectionController {
       Pagination<InspectionDto> | InspectionDto[]
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : (result as InspectionDto[]);
-    const totalItems = result instanceof Pagination ? result.getTotalItems() : items.length;
-    const totalPages = result instanceof Pagination ? result.getTotalPages() : 1;
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
 
-    const httpDtos = items.map((c: InspectionDto) => InspectionHttpDto.fromDto(c));
+    const httpDtos = items.map((c: InspectionDto) =>
+      InspectionHttpDto.fromDto(c),
+    );
     const response = new HttpPaginatedResponseDto<InspectionHttpDto>(
       httpDtos,
       totalItems,

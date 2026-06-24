@@ -46,7 +46,7 @@ export class CustomerName {
   }
 
   public get fullName(): string {
-    return this._middleName 
+    return this._middleName
       ? `${this._firstName} ${this._middleName} ${this._lastName}`
       : `${this._firstName} ${this._lastName}`;
   }

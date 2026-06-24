@@ -17,7 +17,8 @@ export class ReservationItemPrice {
 
     this._totalPrice = Validator.of(
       totalPrice,
-      (msg) => new InvalidValueObjectException('ReservationItemTotalPrice', msg),
+      (msg) =>
+        new InvalidValueObjectException('ReservationItemTotalPrice', msg),
     )
       .required()
       .number()
@@ -25,6 +26,10 @@ export class ReservationItemPrice {
       .getValue();
   }
 
-  public get unitPrice(): number { return this._unitPrice; }
-  public get totalPrice(): number { return this._totalPrice; }
+  public get unitPrice(): number {
+    return this._unitPrice;
+  }
+  public get totalPrice(): number {
+    return this._totalPrice;
+  }
 }

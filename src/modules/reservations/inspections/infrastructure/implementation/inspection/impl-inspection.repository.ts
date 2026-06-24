@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InspectionRepository } from '@/modules/reservations/inspections/domain/repositories/inspection-repository';
 import { InspectionQueriesRepository } from '@/modules/reservations/inspections/application/repositories/inspection-read.repository';
 import { Inspection } from '@/modules/reservations/inspections/domain/entities/inspection';
-import { InspectionDto, DamageItemDto } from '@/modules/reservations/inspections/application/dtos/inspection.dto';
+import {
+  InspectionDto,
+  DamageItemDto,
+} from '@/modules/reservations/inspections/application/dtos/inspection.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
@@ -20,18 +23,26 @@ export class ImplInspectionRepository
   async save(inspection: Inspection): Promise<void> {
     try {
       await this.prisma.client.$transaction(async (prisma) => {
-        const createdInspection = await prisma.mnt_reservation_inspection.create({
-          data: {
-            id_reservation: inspection.getIdReservation(),
-            inspection_date: inspection.getInspectionDate(),
-            overall_condition: inspection.getOverallCondition(),
-            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: inspection.getStatus().value(), ctl_category_status: { code: 'INS' } } })).id,
-            general_notes: inspection.getGeneralNotes() ?? null,
-            total_charges: inspection.getTotalCharges(),
-            id_inspected_by: inspection.getIdInspectedBy() ?? null,
-            created_at: new Date(),
-          },
-        });
+        const createdInspection =
+          await prisma.mnt_reservation_inspection.create({
+            data: {
+              id_reservation: inspection.getIdReservation(),
+              inspection_date: inspection.getInspectionDate(),
+              overall_condition: inspection.getOverallCondition(),
+              id_status: (
+                await prisma.ctl_status.findFirstOrThrow({
+                  where: {
+                    code: inspection.getStatus().value(),
+                    ctl_category_status: { code: 'INS' },
+                  },
+                })
+              ).id,
+              general_notes: inspection.getGeneralNotes() ?? null,
+              total_charges: inspection.getTotalCharges(),
+              id_inspected_by: inspection.getIdInspectedBy() ?? null,
+              created_at: new Date(),
+            },
+          });
 
         const damageItems = inspection.getDamageItems().map((item) => ({
           id_inspection: createdInspection.id,
@@ -103,7 +114,9 @@ export class ImplInspectionRepository
         pagination_params.getPage(),
         pagination_params.getPerPage(),
         new TotalItems(total),
-        new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
+        new TotalPages(
+          Math.ceil(total / pagination_params.getPerPage().value()),
+        ),
       );
     } catch (error) {
       throw new DatabaseException('Error getting inspections', 'getAll');
@@ -112,13 +125,14 @@ export class ImplInspectionRepository
 
   async findById(id: string): Promise<InspectionDto | null> {
     try {
-      const inspection = await this.prisma.client.mnt_reservation_inspection.findUnique({
-        where: { id },
-        include: {
-          mnt_damage_item: true,
-          ctl_status: true,
-        },
-      });
+      const inspection =
+        await this.prisma.client.mnt_reservation_inspection.findUnique({
+          where: { id },
+          include: {
+            mnt_damage_item: true,
+            ctl_status: true,
+          },
+        });
       if (!inspection) return null;
       return this.mapToDto(inspection as any);
     } catch (error) {
@@ -135,16 +149,21 @@ export class ImplInspectionRepository
       i.general_notes ?? undefined,
       Number(i.total_charges),
       i.id_inspected_by ?? undefined,
-      i.mnt_damage_item ? i.mnt_damage_item.map((d: any) => new DamageItemDto(
-        d.id_product,
-        d.damage_type,
-        d.description,
-        d.quantity_affected,
-        Number(d.charge_amount),
-        d.id_inspection,
-        d.photo_url ?? undefined,
-        d.id,
-      )) : [],
+      i.mnt_damage_item
+        ? i.mnt_damage_item.map(
+            (d: any) =>
+              new DamageItemDto(
+                d.id_product,
+                d.damage_type,
+                d.description,
+                d.quantity_affected,
+                Number(d.charge_amount),
+                d.id_inspection,
+                d.photo_url ?? undefined,
+                d.id,
+              ),
+          )
+        : [],
       i.id,
       i.created_at,
       i.updated_at,

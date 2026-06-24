@@ -79,12 +79,18 @@ export class UpdateReservationDto {
 
   @IsUUID()
   @IsOptional()
-  @ApiProperty({ required: false, description: 'FK to a pre-registered customer address' })
+  @ApiProperty({
+    required: false,
+    description: 'FK to a pre-registered customer address',
+  })
   id_customer_address?: string;
 
   @IsUUID()
   @IsOptional()
-  @ApiProperty({ required: false, description: 'FK to geographic division (state/department)' })
+  @ApiProperty({
+    required: false,
+    description: 'FK to geographic division (state/department)',
+  })
   id_geographic_division?: string;
 
   @IsNumber()

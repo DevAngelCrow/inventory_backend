@@ -28,7 +28,7 @@ export class ReportsController {
       new Date(query.end_date),
     );
     const result: RevenueReportResult = await this.queryBus.execute(appQuery);
-    
+
     return new SuccessResponseDto(
       RevenueReportHttpDto.fromResult(result),
       HttpStatus.OK,
@@ -39,10 +39,12 @@ export class ReportsController {
   @Permissions('ver-tablero')
   @Get('dashboard-summary')
   @HttpCode(HttpStatus.OK)
-  async getDashboardSummary(): Promise<SuccessResponseDto<DashboardSummaryHttpDto>> {
+  async getDashboardSummary(): Promise<
+    SuccessResponseDto<DashboardSummaryHttpDto>
+  > {
     const appQuery = new GetDashboardSummaryQuery();
     const result: DashboardSummaryDto = await this.queryBus.execute(appQuery);
-    
+
     return new SuccessResponseDto(
       DashboardSummaryHttpDto.fromDto(result),
       HttpStatus.OK,

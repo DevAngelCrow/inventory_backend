@@ -6,12 +6,8 @@ import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 
 @QueryHandler(GetProductCategoriesQuery)
-export class GetProductCategoriesHandler
-  implements IQueryHandler<GetProductCategoriesQuery>
-{
-  constructor(
-    private readonly repository: ProductCategoryQueriesRepository,
-  ) {}
+export class GetProductCategoriesHandler implements IQueryHandler<GetProductCategoriesQuery> {
+  constructor(private readonly repository: ProductCategoryQueriesRepository) {}
 
   async execute(
     query: GetProductCategoriesQuery,

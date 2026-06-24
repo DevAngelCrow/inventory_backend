@@ -16,7 +16,7 @@ export class RecordInspectionHandler implements ICommandHandler<RecordInspection
       general_notes: command.general_notes,
       total_charges: command.total_charges,
       id_inspected_by: command.id_inspected_by,
-      damage_items: command.damage_items.map(i => ({
+      damage_items: command.damage_items.map((i) => ({
         id_product: i.id_product,
         damage_type: i.damage_type,
         description: i.description,

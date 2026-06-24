@@ -24,7 +24,14 @@ export class ImplPaymentRepository
         savedPayment = await this.prisma.client.mnt_payment.update({
           where: { id: payment.getId()?.value() },
           data: {
-            id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: payment.getStatus().value(), ctl_category_status: { code: 'PAY' } } })).id,
+            id_status: (
+              await this.prisma.client.ctl_status.findFirstOrThrow({
+                where: {
+                  code: payment.getStatus().value(),
+                  ctl_category_status: { code: 'PAY' },
+                },
+              })
+            ).id,
             notes: payment.getNotes()?.value() ?? null,
             // Assuming we only really update status and notes when voiding
           },
@@ -39,7 +46,14 @@ export class ImplPaymentRepository
             payment_date: payment.getPaymentDate().value(),
             reference_number: payment.getReferenceNumber()?.value() ?? null,
             notes: payment.getNotes()?.value() ?? null,
-            id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: payment.getStatus().value(), ctl_category_status: { code: 'PAY' } } })).id,
+            id_status: (
+              await this.prisma.client.ctl_status.findFirstOrThrow({
+                where: {
+                  code: payment.getStatus().value(),
+                  ctl_category_status: { code: 'PAY' },
+                },
+              })
+            ).id,
             gateway_provider: payment.getGatewayProvider()?.value() ?? null,
             gateway_tx_id: payment.getGatewayTxId()?.value() ?? null,
             gateway_response: payment.getGatewayResponse()?.value() ?? null,
@@ -48,7 +62,12 @@ export class ImplPaymentRepository
           },
         });
       }
-      return this.mapToDomain(await this.prisma.client.mnt_payment.findUniqueOrThrow({ where: { id: savedPayment.id }, include: { ctl_status: true } }));
+      return this.mapToDomain(
+        await this.prisma.client.mnt_payment.findUniqueOrThrow({
+          where: { id: savedPayment.id },
+          include: { ctl_status: true },
+        }),
+      );
     } catch (error: any) {
       throw new DatabaseException('Error saving payment', 'save');
     }
@@ -109,7 +128,9 @@ export class ImplPaymentRepository
         pagination_params.getPage(),
         pagination_params.getPerPage(),
         new TotalItems(total),
-        new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
+        new TotalPages(
+          Math.ceil(total / pagination_params.getPerPage().value()),
+        ),
       );
     } catch (error) {
       throw new DatabaseException('Error getting payments', 'getAll');
@@ -135,7 +156,10 @@ export class ImplPaymentRepository
         where: { active: true },
       });
     } catch (error) {
-      throw new DatabaseException('Error getting payment methods', 'getMethods');
+      throw new DatabaseException(
+        'Error getting payment methods',
+        'getMethods',
+      );
     }
   }
 

@@ -36,5 +36,7 @@ export interface GenerateInvoiceResult {
 }
 
 export abstract class InvoiceProviderPort {
-  abstract generate(params: GenerateInvoiceParams): Promise<GenerateInvoiceResult>;
+  abstract generate(
+    params: GenerateInvoiceParams,
+  ): Promise<GenerateInvoiceResult>;
 }

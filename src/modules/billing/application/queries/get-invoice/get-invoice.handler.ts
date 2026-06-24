@@ -4,7 +4,10 @@ import { InvoiceQueriesRepository } from '../../repositories/invoice-read.reposi
 import { InvoiceDto } from '../../dtos/invoice.dto';
 
 @QueryHandler(GetInvoiceQuery)
-export class GetInvoiceHandler implements IQueryHandler<GetInvoiceQuery, InvoiceDto | null> {
+export class GetInvoiceHandler implements IQueryHandler<
+  GetInvoiceQuery,
+  InvoiceDto | null
+> {
   constructor(private readonly repository: InvoiceQueriesRepository) {}
 
   async execute(query: GetInvoiceQuery): Promise<InvoiceDto | null> {

@@ -53,7 +53,9 @@ export class Product {
       new ProductName(data.name),
       new ProductDescription(data.description),
       new ProductPrice(data.rental_price),
-      data.replacement_cost !== undefined ? new ProductPrice(data.replacement_cost) : undefined,
+      data.replacement_cost !== undefined
+        ? new ProductPrice(data.replacement_cost)
+        : undefined,
       new ProductStock(data.total_stock),
       new ProductStock(data.min_stock_alert ?? 0),
       new ProductCategoryId(data.category_id),
@@ -67,19 +69,49 @@ export class Product {
     );
   }
 
-  public getId(): ProductId | undefined { return this.id; }
-  public getSku(): ProductSku { return this.sku; }
-  public getName(): ProductName { return this.name; }
-  public getDescription(): ProductDescription { return this.description; }
-  public getRentalPrice(): ProductPrice { return this.rental_price; }
-  public getReplacementCost(): ProductPrice | undefined { return this.replacement_cost; }
-  public getTotalStock(): ProductStock { return this.total_stock; }
-  public getMinStockAlert(): ProductStock { return this.min_stock_alert; }
-  public getCategoryId(): ProductCategoryId { return this.category_id; }
-  public getColor(): ProductColor { return this.color; }
-  public getDimensions(): ProductDimensions { return this.dimensions; }
-  public getWeightLbs(): ProductWeightLbs { return this.weight_lbs; }
-  public getImageUrl(): ProductImageUrl { return this.image_url; }
-  public getNotes(): ProductNotes { return this.notes; }
-  public getActive(): ProductActive { return this.active; }
+  public getId(): ProductId | undefined {
+    return this.id;
+  }
+  public getSku(): ProductSku {
+    return this.sku;
+  }
+  public getName(): ProductName {
+    return this.name;
+  }
+  public getDescription(): ProductDescription {
+    return this.description;
+  }
+  public getRentalPrice(): ProductPrice {
+    return this.rental_price;
+  }
+  public getReplacementCost(): ProductPrice | undefined {
+    return this.replacement_cost;
+  }
+  public getTotalStock(): ProductStock {
+    return this.total_stock;
+  }
+  public getMinStockAlert(): ProductStock {
+    return this.min_stock_alert;
+  }
+  public getCategoryId(): ProductCategoryId {
+    return this.category_id;
+  }
+  public getColor(): ProductColor {
+    return this.color;
+  }
+  public getDimensions(): ProductDimensions {
+    return this.dimensions;
+  }
+  public getWeightLbs(): ProductWeightLbs {
+    return this.weight_lbs;
+  }
+  public getImageUrl(): ProductImageUrl {
+    return this.image_url;
+  }
+  public getNotes(): ProductNotes {
+    return this.notes;
+  }
+  public getActive(): ProductActive {
+    return this.active;
+  }
 }

@@ -46,8 +46,8 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
         new UpdateReservationBalanceCommand(
           command.id_reservation,
           -command.amount, // balance_due_delta (decrement)
-          command.amount   // deposit_amount_delta (increment)
-        )
+          command.amount, // deposit_amount_delta (increment)
+        ),
       );
     }
 

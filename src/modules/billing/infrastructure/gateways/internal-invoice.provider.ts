@@ -7,7 +7,9 @@ import {
 
 @Injectable()
 export class InternalInvoiceProvider implements InvoiceProviderPort {
-  async generate(params: GenerateInvoiceParams): Promise<GenerateInvoiceResult> {
+  async generate(
+    params: GenerateInvoiceParams,
+  ): Promise<GenerateInvoiceResult> {
     // Aquí iría la lógica para generar un PDF o una factura interna.
     // Como es interno, el fiscalStatus puede ser 'NOT_APPLICABLE' o similar.
     return {

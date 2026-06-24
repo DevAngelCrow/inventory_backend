@@ -27,22 +27,30 @@ describe('CreateProductCategoryHandler', () => {
       ],
     }).compile();
 
-    handler = module.get<CreateProductCategoryHandler>(CreateProductCategoryHandler);
-    repository = module.get(ProductCategoryRepository) as jest.Mocked<ProductCategoryRepository>;
+    handler = module.get<CreateProductCategoryHandler>(
+      CreateProductCategoryHandler,
+    );
+    repository = module.get(ProductCategoryRepository);
   });
 
   it('should successfully create a product category', async () => {
-    const command = new CreateProductCategoryCommand('Electronics', 'Electronic devices', 'icon-tv');
+    const command = new CreateProductCategoryCommand(
+      'Electronics',
+      'Electronic devices',
+      'icon-tv',
+    );
 
     repository.create.mockResolvedValue();
 
     await handler.execute(command);
 
     expect(repository.create).toHaveBeenCalledTimes(1);
-    
-    const createdCategory = repository.create.mock.calls[0][0] as ProductCategory;
+
+    const createdCategory = repository.create.mock.calls[0][0];
     expect(createdCategory.getName().value()).toBe('Electronics');
-    expect(createdCategory.getDescription()?.value()).toBe('Electronic devices');
+    expect(createdCategory.getDescription()?.value()).toBe(
+      'Electronic devices',
+    );
     expect(createdCategory.getIcon()).toBe('icon-tv');
     expect(createdCategory.getActive()).toBe(true);
   });
@@ -52,6 +60,8 @@ describe('CreateProductCategoryHandler', () => {
 
     repository.create.mockRejectedValue(new Error('DB Connection Error'));
 
-    await expect(handler.execute(command)).rejects.toThrow('DB Connection Error');
+    await expect(handler.execute(command)).rejects.toThrow(
+      'DB Connection Error',
+    );
   });
 });

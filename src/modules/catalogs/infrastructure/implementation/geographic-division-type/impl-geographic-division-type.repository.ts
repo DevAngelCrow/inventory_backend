@@ -169,10 +169,11 @@ export class ImplGeographicDivisionTypeRepository
       if (!existing) {
         throw new NotFoundException('GeographicDivisionType', id.value());
       }
-      const updated = await this.prisma.client.ctl_geographic_division_type.update({
-        where: { id: id.value() },
-        data: { active: !existing.active },
-      });
+      const updated =
+        await this.prisma.client.ctl_geographic_division_type.update({
+          where: { id: id.value() },
+          data: { active: !existing.active },
+        });
       return this.mapToDomain(updated);
     } catch (error) {
       if (error instanceof Error) {

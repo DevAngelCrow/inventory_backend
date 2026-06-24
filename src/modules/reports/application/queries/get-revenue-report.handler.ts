@@ -1,7 +1,10 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetRevenueReportQuery } from './get-revenue-report.query';
 import { Inject } from '@nestjs/common';
-import { IReportsReadRepository, REPORTS_READ_REPOSITORY } from '../repositories/reports-read.repository';
+import {
+  IReportsReadRepository,
+  REPORTS_READ_REPOSITORY,
+} from '../repositories/reports-read.repository';
 
 export interface RevenueReportResult {
   totalRevenue: number;
@@ -18,10 +21,11 @@ export class GetRevenueReportHandler implements IQueryHandler<GetRevenueReportQu
   ) {}
 
   async execute(query: GetRevenueReportQuery): Promise<RevenueReportResult> {
-    const { totalRevenue, totalInvoices } = await this.reportsReadRepository.getRevenueSummary(
-      query.start_date,
-      query.end_date,
-    );
+    const { totalRevenue, totalInvoices } =
+      await this.reportsReadRepository.getRevenueSummary(
+        query.start_date,
+        query.end_date,
+      );
 
     return {
       totalRevenue,

@@ -38,7 +38,7 @@ export class ImplCustomerRepository
           active: customer.getActive().value(),
           id_country: customer.getIdCountry().value(),
           mnt_customer_address: {
-            create: customer.getAddresses().map(a => ({
+            create: customer.getAddresses().map((a) => ({
               label: a.label,
               address_line1: a.addressLine1,
               address_line2: a.addressLine2 ?? null,
@@ -46,7 +46,7 @@ export class ImplCustomerRepository
               is_primary: a.isPrimary,
               id_geographic_division: a.idGeographicDivision ?? null,
               active: a.active,
-            }))
+            })),
           },
           created_at: new Date(),
         },
@@ -82,10 +82,7 @@ export class ImplCustomerRepository
       });
     } catch (error: any) {
       if (error?.code === 'P2002') {
-        throw new DatabaseException(
-          'Conflicto de datos únicos.',
-          'update',
-        );
+        throw new DatabaseException('Conflicto de datos únicos.', 'update');
       }
       throw new DatabaseException('Error updating customer', 'update');
     }
@@ -109,7 +106,10 @@ export class ImplCustomerRepository
       return this.mapToDomain(updated);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new DatabaseException('Error toggling customer status', 'toggleStatus');
+      throw new DatabaseException(
+        'Error toggling customer status',
+        'toggleStatus',
+      );
     }
   }
 
@@ -155,11 +155,11 @@ export class ImplCustomerRepository
               include: {
                 ctl_geographic_division: {
                   include: {
-                    ctl_geographic_division: true
-                  }
-                }
-              }
-            }
+                    ctl_geographic_division: true,
+                  },
+                },
+              },
+            },
           },
           orderBy: { last_name: 'asc' },
         }),
@@ -167,7 +167,9 @@ export class ImplCustomerRepository
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const customers = customersDb.map((c: any) => this.mapToDto(c, catalog_status));
+      const customers = customersDb.map((c: any) =>
+        this.mapToDto(c, catalog_status),
+      );
 
       if (!pagination_params) return customers;
 
@@ -181,7 +183,9 @@ export class ImplCustomerRepository
         pagination_params.getPage(),
         pagination_params.getPerPage(),
         new TotalItems(total),
-        new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
+        new TotalPages(
+          Math.ceil(total / pagination_params.getPerPage().value()),
+        ),
       );
     } catch (error) {
       console.error('Prisma error in getAll Customers:', error);
@@ -199,12 +203,12 @@ export class ImplCustomerRepository
             include: {
               ctl_geographic_division: {
                 include: {
-                  ctl_geographic_division: true
-                }
-              }
-            }
-          }
-        }
+                  ctl_geographic_division: true,
+                },
+              },
+            },
+          },
+        },
       });
       if (!customer) return null;
       return this.mapToDto(customer as any);
@@ -223,17 +227,20 @@ export class ImplCustomerRepository
             include: {
               ctl_geographic_division: {
                 include: {
-                  ctl_geographic_division: true
-                }
-              }
-            }
-          }
-        }
+                  ctl_geographic_division: true,
+                },
+              },
+            },
+          },
+        },
       });
       if (!customer) return null;
       return this.mapToDto(customer as any);
     } catch (error) {
-      throw new DatabaseException('Error finding customer by email', 'findByEmail');
+      throw new DatabaseException(
+        'Error finding customer by email',
+        'findByEmail',
+      );
     }
   }
 
@@ -251,20 +258,25 @@ export class ImplCustomerRepository
       notes: c.notes ?? undefined,
       active: c.active,
       id_country: c.id_country,
-      addresses: c.mnt_customer_address ? c.mnt_customer_address.map((a: any) => ({
-        label: a.label,
-        address_line1: a.address_line1,
-        address_line2: a.address_line2 ?? undefined,
-        zip_code: a.zip_code ?? undefined,
-        is_primary: a.is_primary,
-        id_geographic_division: a.id_geographic_division ?? undefined,
-        id: a.id,
-        active: a.active,
-      })) : [],
+      addresses: c.mnt_customer_address
+        ? c.mnt_customer_address.map((a: any) => ({
+            label: a.label,
+            address_line1: a.address_line1,
+            address_line2: a.address_line2 ?? undefined,
+            zip_code: a.zip_code ?? undefined,
+            is_primary: a.is_primary,
+            id_geographic_division: a.id_geographic_division ?? undefined,
+            id: a.id,
+            active: a.active,
+          }))
+        : [],
     });
   }
 
-  private mapToDto(c: any, catalog_status?: Map<string, BooleanStatusData>): CustomerDto {
+  private mapToDto(
+    c: any,
+    catalog_status?: Map<string, BooleanStatusData>,
+  ): CustomerDto {
     const status = StatusMapperUtil.getStatusFromBoolean(
       c.active,
       catalog_status,
@@ -284,18 +296,21 @@ export class ImplCustomerRepository
       c.active,
       c.ctl_country?.name,
       c.ctl_country?.phone_code,
-      c.mnt_customer_address ? c.mnt_customer_address.map((a: any) => ({
-        label: a.label,
-        address_line1: a.address_line1,
-        is_primary: a.is_primary,
-        address_line2: a.address_line2 ?? undefined,
-        zip_code: a.zip_code ?? undefined,
-        id_geographic_division: a.id_geographic_division ?? undefined,
-        id: a.id,
-        active: a.active,
-        geographic_division_name: a.ctl_geographic_division?.name,
-        state_name: a.ctl_geographic_division?.ctl_geographic_division?.name,
-      })) : [],
+      c.mnt_customer_address
+        ? c.mnt_customer_address.map((a: any) => ({
+            label: a.label,
+            address_line1: a.address_line1,
+            is_primary: a.is_primary,
+            address_line2: a.address_line2 ?? undefined,
+            zip_code: a.zip_code ?? undefined,
+            id_geographic_division: a.id_geographic_division ?? undefined,
+            id: a.id,
+            active: a.active,
+            geographic_division_name: a.ctl_geographic_division?.name,
+            state_name:
+              a.ctl_geographic_division?.ctl_geographic_division?.name,
+          }))
+        : [],
       c.id,
       c.created_at,
       c.updated_at,

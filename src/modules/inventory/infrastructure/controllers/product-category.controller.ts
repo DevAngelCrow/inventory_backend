@@ -39,7 +39,7 @@ export class ProductCategoryController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) { }
+  ) {}
 
   @Permissions('crear-categoria-producto')
   @Post()

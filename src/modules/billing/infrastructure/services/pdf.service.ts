@@ -22,8 +22,13 @@ export class PdfService {
           .text('FACTURA', 50, 57, { align: 'right' })
           .fontSize(10)
           .text(`Factura N°: ${invoice.invoice_number}`, { align: 'right' })
-          .text(`Fecha: ${invoice.issue_date.toLocaleDateString()}`, { align: 'right' })
-          .text(`Vencimiento: ${invoice.due_date?.toLocaleDateString() || '-'}`, { align: 'right' })
+          .text(`Fecha: ${invoice.issue_date.toLocaleDateString()}`, {
+            align: 'right',
+          })
+          .text(
+            `Vencimiento: ${invoice.due_date?.toLocaleDateString() || '-'}`,
+            { align: 'right' },
+          )
           .moveDown();
 
         doc
@@ -34,15 +39,14 @@ export class PdfService {
           .moveDown();
 
         // Customer Info
-        doc
-          .fillColor('#000000')
-          .fontSize(12)
-          .text('Facturar a:', 50, 130);
+        doc.fillColor('#000000').fontSize(12).text('Facturar a:', 50, 130);
 
         if (invoice.mnt_customer) {
           doc
             .fontSize(10)
-            .text(`${invoice.mnt_customer.first_name} ${invoice.mnt_customer.last_name}`)
+            .text(
+              `${invoice.mnt_customer.first_name} ${invoice.mnt_customer.last_name}`,
+            )
             .text(invoice.mnt_customer.email || '')
             .text(invoice.mnt_customer.phone || '');
         } else {
@@ -74,9 +78,18 @@ export class PdfService {
           doc
             .fontSize(10)
             .text(line.description, 50, i)
-            .text(line.quantity.toString(), 280, i, { width: 50, align: 'right' })
-            .text(`$${Number(line.unit_price).toFixed(2)}`, 350, i, { width: 70, align: 'right' })
-            .text(`$${Number(line.subtotal).toFixed(2)}`, 450, i, { width: 70, align: 'right' });
+            .text(line.quantity.toString(), 280, i, {
+              width: 50,
+              align: 'right',
+            })
+            .text(`$${Number(line.unit_price).toFixed(2)}`, 350, i, {
+              width: 70,
+              align: 'right',
+            })
+            .text(`$${Number(line.subtotal).toFixed(2)}`, 450, i, {
+              width: 70,
+              align: 'right',
+            });
           i += 20;
         });
 
@@ -93,18 +106,27 @@ export class PdfService {
         doc
           .fontSize(10)
           .text('Subtotal:', 350, i, { width: 70, align: 'right' })
-          .text(`$${Number(invoice.subtotal).toFixed(2)}`, 450, i, { width: 70, align: 'right' });
-        
+          .text(`$${Number(invoice.subtotal).toFixed(2)}`, 450, i, {
+            width: 70,
+            align: 'right',
+          });
+
         i += 15;
         doc
           .text('Impuestos:', 350, i, { width: 70, align: 'right' })
-          .text(`$${Number(invoice.tax_amount).toFixed(2)}`, 450, i, { width: 70, align: 'right' });
+          .text(`$${Number(invoice.tax_amount).toFixed(2)}`, 450, i, {
+            width: 70,
+            align: 'right',
+          });
 
         i += 15;
         if (Number(invoice.discount_amount) > 0) {
           doc
             .text('Descuento:', 350, i, { width: 70, align: 'right' })
-            .text(`-$${Number(invoice.discount_amount).toFixed(2)}`, 450, i, { width: 70, align: 'right' });
+            .text(`-$${Number(invoice.discount_amount).toFixed(2)}`, 450, i, {
+              width: 70,
+              align: 'right',
+            });
           i += 15;
         }
 
@@ -112,7 +134,10 @@ export class PdfService {
           .fontSize(12)
           .font('Helvetica-Bold')
           .text('Total:', 350, i + 5, { width: 70, align: 'right' })
-          .text(`$${Number(invoice.total).toFixed(2)}`, 450, i + 5, { width: 70, align: 'right' });
+          .text(`$${Number(invoice.total).toFixed(2)}`, 450, i + 5, {
+            width: 70,
+            align: 'right',
+          });
 
         doc.end();
       } catch (error) {

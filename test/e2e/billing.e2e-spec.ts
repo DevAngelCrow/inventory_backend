@@ -5,7 +5,11 @@ import { AppModule } from '../../src/app.module';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from '@/modules/security/infrastructure/guards/permissions.guard';
-import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../mocks/prisma.mock';
+import {
+  createPrismaMock,
+  createPrismaServiceMock,
+  MockPrismaClient,
+} from '../mocks/prisma.mock';
 import { InvoiceProviderPort } from '@/modules/billing/application/ports/invoice-provider.port';
 
 describe('Billing (e2e)', () => {
@@ -31,9 +35,7 @@ describe('Billing (e2e)', () => {
       .spyOn(JwtPassportAuthGuard.prototype, 'canActivate')
       .mockReturnValue(true);
 
-    jest
-      .spyOn(PermissionsGuard.prototype, 'canActivate')
-      .mockReturnValue(true);
+    jest.spyOn(PermissionsGuard.prototype, 'canActivate').mockReturnValue(true);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -64,7 +66,9 @@ describe('Billing (e2e)', () => {
   });
 
   it('/invoices (POST) - should generate an invoice', () => {
-    mockPrismaClient.mnt_invoice.create.mockResolvedValue({ id: '123e4567-e89b-12d3-a456-426614174111' } as any);
+    mockPrismaClient.mnt_invoice.create.mockResolvedValue({
+      id: '123e4567-e89b-12d3-a456-426614174111',
+    } as any);
     mockPrismaClient.mnt_invoice_line.createMany.mockResolvedValue({} as any);
     mockPrismaClient.mnt_invoice.findUniqueOrThrow.mockResolvedValue({
       id: '123e4567-e89b-12d3-a456-426614174111',
@@ -81,7 +85,7 @@ describe('Billing (e2e)', () => {
       damage_charges: 0,
       total: 116,
       status: 'ISSUED',
-      mnt_invoice_line: []
+      mnt_invoice_line: [],
     } as any);
 
     return request(app.getHttpServer())
@@ -109,8 +113,8 @@ describe('Billing (e2e)', () => {
             subtotal: 100,
             tax_amount: 16,
             total: 116,
-          }
-        ]
+          },
+        ],
       })
       .expect(201)
       .expect((res) => {
@@ -149,7 +153,7 @@ describe('Billing (e2e)', () => {
         deleted_at: null,
       },
     ] as any);
-    
+
     mockPrismaClient.mnt_invoice.count.mockResolvedValue(1);
 
     return request(app.getHttpServer())

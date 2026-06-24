@@ -19,6 +19,10 @@ import { gatewayProviders } from './infrastructure/config/gateways.config';
     ...queryHandlerProviders,
     ...gatewayProviders,
   ],
-  exports: [...commandHandlerProviders, ...queryHandlerProviders, ...gatewayProviders],
+  exports: [
+    ...commandHandlerProviders,
+    ...queryHandlerProviders,
+    ...gatewayProviders,
+  ],
 })
 export class PaymentsModule {}

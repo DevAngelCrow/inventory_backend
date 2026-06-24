@@ -1,4 +1,7 @@
-import { InvoiceDto, InvoiceLineDto } from '@/modules/billing/application/dtos/invoice.dto';
+import {
+  InvoiceDto,
+  InvoiceLineDto,
+} from '@/modules/billing/application/dtos/invoice.dto';
 
 export class InvoiceLineHttpDto {
   constructor(
@@ -29,7 +32,13 @@ export class InvoiceHttpDto {
     public readonly delivery_fee: number,
     public readonly damage_charges: number,
     public readonly total: number,
-    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
+    public readonly status: {
+      id: string;
+      code: string;
+      name: string;
+      state_color: string;
+      text_color: string;
+    },
     public readonly due_date?: Date,
     public readonly notes?: string,
     public readonly fiscal_provider?: string,
@@ -67,17 +76,20 @@ export class InvoiceHttpDto {
       dto.fiscal_response,
       dto.pdf_path,
       dto.id_created_by,
-      dto.lines.map((l: InvoiceLineDto) => new InvoiceLineHttpDto(
-        l.id!,
-        l.description,
-        l.quantity,
-        l.unit_price,
-        l.subtotal,
-        l.tax_amount,
-        l.total,
-        l.id_product,
-        l.id_invoice,
-      )),
+      dto.lines.map(
+        (l: InvoiceLineDto) =>
+          new InvoiceLineHttpDto(
+            l.id!,
+            l.description,
+            l.quantity,
+            l.unit_price,
+            l.subtotal,
+            l.tax_amount,
+            l.total,
+            l.id_product,
+            l.id_invoice,
+          ),
+      ),
       dto.created_at,
       dto.updated_at,
     );

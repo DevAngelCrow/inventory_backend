@@ -35,12 +35,28 @@ export class DamageItem {
     );
   }
 
-  public getId(): DamageItemId | undefined { return this.id; }
-  public getIdInspection(): string | undefined { return this.id_inspection; }
-  public getIdProduct(): string { return this.id_product; }
-  public getDamageType(): string { return this.damage_type; }
-  public getDescription(): string { return this.description; }
-  public getQuantityAffected(): DamageItemQuantity { return this.quantity_affected; }
-  public getChargeAmount(): number { return this.charge_amount; }
-  public getPhotoUrl(): string | undefined { return this.photo_url; }
+  public getId(): DamageItemId | undefined {
+    return this.id;
+  }
+  public getIdInspection(): string | undefined {
+    return this.id_inspection;
+  }
+  public getIdProduct(): string {
+    return this.id_product;
+  }
+  public getDamageType(): string {
+    return this.damage_type;
+  }
+  public getDescription(): string {
+    return this.description;
+  }
+  public getQuantityAffected(): DamageItemQuantity {
+    return this.quantity_affected;
+  }
+  public getChargeAmount(): number {
+    return this.charge_amount;
+  }
+  public getPhotoUrl(): string | undefined {
+    return this.photo_url;
+  }
 }

@@ -127,9 +127,12 @@ export class ProductController {
       Pagination<ProductDto> | ProductDto[]
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : (result as ProductDto[]);
-    const totalItems = result instanceof Pagination ? result.getTotalItems() : items.length;
-    const totalPages = result instanceof Pagination ? result.getTotalPages() : 1;
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
 
     const httpDtos = items.map((c: ProductDto) => ProductHttpDto.fromDto(c));
     const response = new HttpPaginatedResponseDto<ProductHttpDto>(

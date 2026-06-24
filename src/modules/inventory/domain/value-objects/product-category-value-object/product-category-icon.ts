@@ -11,7 +11,10 @@ export class ProductCategoryIcon {
         (msg) => new InvalidValueObjectException('ProductCategoryIcon', msg),
       )
         .string('Product category icon must be a string')
-        .maxLength(255, 'Product category icon must be at most 255 characters long')
+        .maxLength(
+          255,
+          'Product category icon must be at most 255 characters long',
+        )
         .getValue();
     }
     this._value = value;

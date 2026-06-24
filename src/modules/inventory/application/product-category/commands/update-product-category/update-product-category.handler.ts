@@ -6,9 +6,7 @@ import { ProductCategory } from '@/modules/inventory/domain/entities/product-cat
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 
 @CommandHandler(UpdateProductCategoryCommand)
-export class UpdateProductCategoryHandler
-  implements ICommandHandler<UpdateProductCategoryCommand>
-{
+export class UpdateProductCategoryHandler implements ICommandHandler<UpdateProductCategoryCommand> {
   constructor(
     private readonly repository: ProductCategoryRepository,
     private readonly queryRepository: ProductCategoryQueriesRepository,

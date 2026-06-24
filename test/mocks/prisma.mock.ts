@@ -8,13 +8,15 @@ export const createPrismaMock = (): MockPrismaClient => {
   return mockDeep<PrismaClient>();
 };
 
-export const createPrismaServiceMock = (mockClient: MockPrismaClient): PrismaService => {
+export const createPrismaServiceMock = (
+  mockClient: MockPrismaClient,
+): PrismaService => {
   const service = mockClient as unknown as PrismaService;
   (service as any).onModuleInit = jest.fn();
   (service as any).onModuleDestroy = jest.fn();
   Object.defineProperty(service, 'client', {
     get: jest.fn(() => mockClient),
-    configurable: true
+    configurable: true,
   });
   service.$transaction = jest.fn().mockImplementation(async (callback) => {
     if (typeof callback === 'function') {

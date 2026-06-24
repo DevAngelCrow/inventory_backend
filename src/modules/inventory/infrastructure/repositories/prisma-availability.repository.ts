@@ -20,27 +20,28 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
       return 0;
     }
 
-    const overlappingReservations = await this.prisma.client.mnt_reservation_item.aggregate({
-      _sum: {
-        quantity: true,
-      },
-      where: {
-        id_product: productId,
-        mnt_reservation: {
-          ctl_status: {
-            code: {
-              notIn: ['CANCELLED', 'RETURNED'],
+    const overlappingReservations =
+      await this.prisma.client.mnt_reservation_item.aggregate({
+        _sum: {
+          quantity: true,
+        },
+        where: {
+          id_product: productId,
+          mnt_reservation: {
+            ctl_status: {
+              code: {
+                notIn: ['CANCELLED', 'RETURNED'],
+              },
+            },
+            event_start: {
+              lt: dateEnd,
+            },
+            event_end: {
+              gt: dateStart,
             },
           },
-          event_start: {
-            lt: dateEnd,
-          },
-          event_end: {
-            gt: dateStart,
-          },
         },
-      },
-    });
+      });
 
     const reservedQuantity = overlappingReservations._sum?.quantity || 0;
     const availableStock = product.total_stock - reservedQuantity;
@@ -54,7 +55,11 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
     dateStart: Date,
     dateEnd: Date,
   ): Promise<boolean> {
-    const available = await this.getAvailableStock(productId, dateStart, dateEnd);
+    const available = await this.getAvailableStock(
+      productId,
+      dateStart,
+      dateEnd,
+    );
     return available >= quantity;
   }
 }

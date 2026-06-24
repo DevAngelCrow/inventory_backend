@@ -41,6 +41,11 @@ export interface DashboardRawData {
 }
 
 export interface IReportsReadRepository {
-  getRevenueSummary(startDate: Date, endDate: Date): Promise<{ totalRevenue: number; totalInvoices: number }>;
-  getDashboardSummaryData(dates: DashboardDateParams): Promise<DashboardRawData>;
+  getRevenueSummary(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{ totalRevenue: number; totalInvoices: number }>;
+  getDashboardSummaryData(
+    dates: DashboardDateParams,
+  ): Promise<DashboardRawData>;
 }

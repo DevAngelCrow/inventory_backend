@@ -14,13 +14,21 @@ import { AvailabilityService } from './application/services/availability.service
     RouterModule.register([{ path: 'inventory', module: InventoryModule }]),
     CqrsModule,
   ],
-  controllers: [ProductCategoryController, ProductController, ProductMaintenanceController],
+  controllers: [
+    ProductCategoryController,
+    ProductController,
+    ProductMaintenanceController,
+  ],
   providers: [
     ...repositories,
     ...commandHandlerProviders,
     ...queryHandlerProviders,
     AvailabilityService,
   ],
-  exports: [...commandHandlerProviders, ...queryHandlerProviders, AvailabilityService],
+  exports: [
+    ...commandHandlerProviders,
+    ...queryHandlerProviders,
+    AvailabilityService,
+  ],
 })
 export class InventoryModule {}

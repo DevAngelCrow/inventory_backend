@@ -21,7 +21,7 @@ export class GenerateInvoiceHandler implements ICommandHandler<GenerateInvoiceCo
       customer: {
         id: command.id_customer,
       },
-      lines: command.lines.map(l => ({
+      lines: command.lines.map((l) => ({
         description: l.description,
         quantity: l.quantity,
         unitPrice: l.unit_price,
@@ -65,7 +65,7 @@ export class GenerateInvoiceHandler implements ICommandHandler<GenerateInvoiceCo
       fiscal_response: result.fiscalResponse,
       pdf_path: result.pdfPath,
       id_created_by: command.id_created_by,
-      lines: command.lines.map(l => ({
+      lines: command.lines.map((l) => ({
         description: l.description,
         quantity: l.quantity,
         unit_price: l.unit_price,

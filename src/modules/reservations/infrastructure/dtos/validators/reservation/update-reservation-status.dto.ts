@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsNotEmpty, IsOptional, IsString, IsDateString } from 'class-validator';
+import {
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsDateString,
+} from 'class-validator';
 import { ReservationStatusType } from '@/modules/reservations/domain/value-objects/reservation-status';
 
 export class UpdateReservationStatusDto {

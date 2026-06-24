@@ -5,14 +5,12 @@ import { ProductCategory } from '@/modules/inventory/domain/entities/product-cat
 import { ProductCategoryId } from '@/modules/inventory/domain/value-objects/product-category-value-object/product-category-id';
 
 @CommandHandler(DeleteProductCategoryCommand)
-export class DeleteProductCategoryHandler
-  implements ICommandHandler<DeleteProductCategoryCommand>
-{
-  constructor(
-    private readonly repository: ProductCategoryRepository,
-  ) {}
+export class DeleteProductCategoryHandler implements ICommandHandler<DeleteProductCategoryCommand> {
+  constructor(private readonly repository: ProductCategoryRepository) {}
 
-  async execute(command: DeleteProductCategoryCommand): Promise<ProductCategory> {
+  async execute(
+    command: DeleteProductCategoryCommand,
+  ): Promise<ProductCategory> {
     const id = new ProductCategoryId(command.id);
     return await this.repository.toggleStatus(id);
   }

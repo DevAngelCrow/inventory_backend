@@ -6,9 +6,7 @@ import { commandHandlerProviders } from './infrastructure/config/commands-handle
 import { queryHandlerProviders } from './infrastructure/config/queries-handlers.config';
 
 @Module({
-  imports: [
-    CqrsModule,
-  ],
+  imports: [CqrsModule],
   controllers: [CustomerController],
   providers: [
     ...repositories,

@@ -44,7 +44,7 @@ describe('CreateCustomerHandler', () => {
     await handler.execute(command);
 
     expect(repository.create).toHaveBeenCalledTimes(1);
-    const createdCustomer = repository.create.mock.calls[0][0] as Customer;
+    const createdCustomer = repository.create.mock.calls[0][0];
     expect(createdCustomer.getName().firstName).toBe('John');
     expect(createdCustomer.getName().lastName).toBe('Doe');
     expect(createdCustomer.getContact().phone).toBe('+123456789');

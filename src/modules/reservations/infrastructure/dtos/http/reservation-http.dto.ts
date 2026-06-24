@@ -1,4 +1,7 @@
-import { ReservationDto, ReservationItemDto } from '@/modules/reservations/application/dtos/reservation.dto';
+import {
+  ReservationDto,
+  ReservationItemDto,
+} from '@/modules/reservations/application/dtos/reservation.dto';
 
 export class ReservationItemHttpDto {
   constructor(
@@ -31,7 +34,13 @@ export class ReservationHttpDto {
     public readonly id_customer: string,
     public readonly event_start: Date,
     public readonly event_end: Date,
-    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
+    public readonly status: {
+      id: string;
+      code: string;
+      name: string;
+      state_color: string;
+      text_color: string;
+    },
     public readonly total_amount: number,
     public readonly delivery_address: string | undefined,
     public readonly delivery_address_line2: string | undefined,
@@ -76,7 +85,7 @@ export class ReservationHttpDto {
       dto.deposit_amount,
       dto.balance_due,
       dto.notes,
-      dto.items.map(i => ReservationItemHttpDto.fromDto(i)),
+      dto.items.map((i) => ReservationItemHttpDto.fromDto(i)),
       dto.created_at,
       dto.updated_at,
       dto.reservation_number,

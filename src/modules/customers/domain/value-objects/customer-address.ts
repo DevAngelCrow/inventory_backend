@@ -62,12 +62,28 @@ export class CustomerAddress {
     this._active = active ?? true;
   }
 
-  public get id(): string | undefined { return this._id; }
-  public get label(): string { return this._label; }
-  public get addressLine1(): string { return this._addressLine1; }
-  public get addressLine2(): string | undefined { return this._addressLine2; }
-  public get zipCode(): string | undefined { return this._zipCode; }
-  public get isPrimary(): boolean { return this._isPrimary; }
-  public get idGeographicDivision(): string | undefined { return this._idGeographicDivision; }
-  public get active(): boolean { return this._active; }
+  public get id(): string | undefined {
+    return this._id;
+  }
+  public get label(): string {
+    return this._label;
+  }
+  public get addressLine1(): string {
+    return this._addressLine1;
+  }
+  public get addressLine2(): string | undefined {
+    return this._addressLine2;
+  }
+  public get zipCode(): string | undefined {
+    return this._zipCode;
+  }
+  public get isPrimary(): boolean {
+    return this._isPrimary;
+  }
+  public get idGeographicDivision(): string | undefined {
+    return this._idGeographicDivision;
+  }
+  public get active(): boolean {
+    return this._active;
+  }
 }

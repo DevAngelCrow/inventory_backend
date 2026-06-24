@@ -30,9 +30,19 @@ export class ReservationItem {
     );
   }
 
-  public getId(): ReservationItemId | undefined { return this.id; }
-  public getIdReservation(): ReservationId | undefined { return this.id_reservation; }
-  public getIdProduct(): ReservationProductId { return this.id_product; }
-  public getQuantity(): ReservationItemQuantity { return this.quantity; }
-  public getPrice(): ReservationItemPrice { return this.price; }
+  public getId(): ReservationItemId | undefined {
+    return this.id;
+  }
+  public getIdReservation(): ReservationId | undefined {
+    return this.id_reservation;
+  }
+  public getIdProduct(): ReservationProductId {
+    return this.id_product;
+  }
+  public getQuantity(): ReservationItemQuantity {
+    return this.quantity;
+  }
+  public getPrice(): ReservationItemPrice {
+    return this.price;
+  }
 }

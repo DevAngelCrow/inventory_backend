@@ -91,34 +91,78 @@ export class Invoice {
       new InvoiceStatus(data.status),
       data.due_date ? new InvoiceDueDate(data.due_date) : undefined,
       data.notes ? new InvoiceNotes(data.notes) : undefined,
-      data.fiscal_provider ? new InvoiceFiscalProvider(data.fiscal_provider) : undefined,
+      data.fiscal_provider
+        ? new InvoiceFiscalProvider(data.fiscal_provider)
+        : undefined,
       data.fiscal_id ? new InvoiceFiscalId(data.fiscal_id) : undefined,
-      data.fiscal_status ? new InvoiceFiscalStatus(data.fiscal_status) : undefined,
-      data.fiscal_response ? new InvoiceFiscalResponse(data.fiscal_response) : undefined,
+      data.fiscal_status
+        ? new InvoiceFiscalStatus(data.fiscal_status)
+        : undefined,
+      data.fiscal_response
+        ? new InvoiceFiscalResponse(data.fiscal_response)
+        : undefined,
       data.pdf_path ? new InvoicePdfPath(data.pdf_path) : undefined,
-      data.id_created_by ? new InvoiceIdCreatedBy(data.id_created_by) : undefined,
-      data.lines?.map((line) => InvoiceLine.create({ ...line, id_invoice: data.id })) ?? [],
+      data.id_created_by
+        ? new InvoiceIdCreatedBy(data.id_created_by)
+        : undefined,
+      data.lines?.map((line) =>
+        InvoiceLine.create({ ...line, id_invoice: data.id }),
+      ) ?? [],
       data.id ? new InvoiceId(data.id) : undefined,
     );
   }
 
-  public getId(): InvoiceId | undefined { return this.id; }
-  public getIdReservation(): InvoiceIdReservation { return this.id_reservation; }
-  public getIdCustomer(): InvoiceIdCustomer { return this.id_customer; }
-  public getIdCurrency(): InvoiceIdCurrency { return this.id_currency; }
-  public getInvoiceNumber(): InvoiceNumber { return this.invoice_number; }
-  public getIssueDate(): InvoiceIssueDate { return this.issue_date; }
-  public getAmount(): InvoiceAmount { return this.amount; }
-  public getStatus(): InvoiceStatus { return this.status; }
-  public getDueDate(): InvoiceDueDate | undefined { return this.due_date; }
-  public getNotes(): InvoiceNotes | undefined { return this.notes; }
-  public getFiscalProvider(): InvoiceFiscalProvider | undefined { return this.fiscal_provider; }
-  public getFiscalId(): InvoiceFiscalId | undefined { return this.fiscal_id; }
-  public getFiscalStatus(): InvoiceFiscalStatus | undefined { return this.fiscal_status; }
-  public getFiscalResponse(): InvoiceFiscalResponse | undefined { return this.fiscal_response; }
-  public getPdfPath(): InvoicePdfPath | undefined { return this.pdf_path; }
-  public getIdCreatedBy(): InvoiceIdCreatedBy | undefined { return this.id_created_by; }
-  public getLines(): InvoiceLine[] { return this.lines; }
+  public getId(): InvoiceId | undefined {
+    return this.id;
+  }
+  public getIdReservation(): InvoiceIdReservation {
+    return this.id_reservation;
+  }
+  public getIdCustomer(): InvoiceIdCustomer {
+    return this.id_customer;
+  }
+  public getIdCurrency(): InvoiceIdCurrency {
+    return this.id_currency;
+  }
+  public getInvoiceNumber(): InvoiceNumber {
+    return this.invoice_number;
+  }
+  public getIssueDate(): InvoiceIssueDate {
+    return this.issue_date;
+  }
+  public getAmount(): InvoiceAmount {
+    return this.amount;
+  }
+  public getStatus(): InvoiceStatus {
+    return this.status;
+  }
+  public getDueDate(): InvoiceDueDate | undefined {
+    return this.due_date;
+  }
+  public getNotes(): InvoiceNotes | undefined {
+    return this.notes;
+  }
+  public getFiscalProvider(): InvoiceFiscalProvider | undefined {
+    return this.fiscal_provider;
+  }
+  public getFiscalId(): InvoiceFiscalId | undefined {
+    return this.fiscal_id;
+  }
+  public getFiscalStatus(): InvoiceFiscalStatus | undefined {
+    return this.fiscal_status;
+  }
+  public getFiscalResponse(): InvoiceFiscalResponse | undefined {
+    return this.fiscal_response;
+  }
+  public getPdfPath(): InvoicePdfPath | undefined {
+    return this.pdf_path;
+  }
+  public getIdCreatedBy(): InvoiceIdCreatedBy | undefined {
+    return this.id_created_by;
+  }
+  public getLines(): InvoiceLine[] {
+    return this.lines;
+  }
 
   public void(): void {
     this.status = new InvoiceStatus('VOIDED');

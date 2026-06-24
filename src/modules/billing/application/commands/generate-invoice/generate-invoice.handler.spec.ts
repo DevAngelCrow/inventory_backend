@@ -14,7 +14,7 @@ describe('GenerateInvoiceHandler', () => {
     const mockRepository = {
       save: jest.fn().mockImplementation((invoice) => invoice),
     };
-    
+
     const mockInvoiceProvider = {
       generate: jest.fn().mockResolvedValue({
         fiscalProvider: 'INTERNAL',
@@ -74,23 +74,27 @@ describe('GenerateInvoiceHandler', () => {
           subtotal: 100,
           tax_amount: 16,
           total: 116,
-        }
-      ]
+        },
+      ],
     );
 
     const result = await handler.execute(command);
 
     expect(invoiceProvider.generate).toHaveBeenCalledTimes(1);
     expect(repository.save).toHaveBeenCalledTimes(1);
-    
-    const savedInvoice = repository.save.mock.calls[0][0] as Invoice;
-    
-    expect(savedInvoice.getIdReservation()).toBe('123e4567-e89b-12d3-a456-426614174000');
-    expect(savedInvoice.getIdCustomer()).toBe('123e4567-e89b-12d3-a456-426614174001');
+
+    const savedInvoice = repository.save.mock.calls[0][0];
+
+    expect(savedInvoice.getIdReservation()).toBe(
+      '123e4567-e89b-12d3-a456-426614174000',
+    );
+    expect(savedInvoice.getIdCustomer()).toBe(
+      '123e4567-e89b-12d3-a456-426614174001',
+    );
     expect(savedInvoice.getAmount().total).toBe(116);
     expect(savedInvoice.getStatus().value()).toBe('ISSUED');
     expect(savedInvoice.getFiscalProvider()).toBe('INTERNAL');
-    
+
     expect(result).toBe(savedInvoice);
   });
 });

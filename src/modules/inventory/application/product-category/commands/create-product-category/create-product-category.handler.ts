@@ -4,12 +4,8 @@ import { ProductCategoryRepository } from '@/modules/inventory/domain/repositori
 import { ProductCategory } from '@/modules/inventory/domain/entities/product-category';
 
 @CommandHandler(CreateProductCategoryCommand)
-export class CreateProductCategoryHandler
-  implements ICommandHandler<CreateProductCategoryCommand>
-{
-  constructor(
-    private readonly repository: ProductCategoryRepository,
-  ) {}
+export class CreateProductCategoryHandler implements ICommandHandler<CreateProductCategoryCommand> {
+  constructor(private readonly repository: ProductCategoryRepository) {}
 
   async execute(command: CreateProductCategoryCommand): Promise<void> {
     const productCategory = ProductCategory.create({

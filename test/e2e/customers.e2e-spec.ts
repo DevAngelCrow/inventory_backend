@@ -5,7 +5,11 @@ import { AppModule } from '../../src/app.module';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from '@/modules/security/infrastructure/guards/permissions.guard';
-import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../mocks/prisma.mock';
+import {
+  createPrismaMock,
+  createPrismaServiceMock,
+  MockPrismaClient,
+} from '../mocks/prisma.mock';
 
 describe('Customers (e2e)', () => {
   let app: INestApplication;
@@ -19,9 +23,7 @@ describe('Customers (e2e)', () => {
       .spyOn(JwtPassportAuthGuard.prototype, 'canActivate')
       .mockReturnValue(true);
 
-    jest
-      .spyOn(PermissionsGuard.prototype, 'canActivate')
-      .mockReturnValue(true);
+    jest.spyOn(PermissionsGuard.prototype, 'canActivate').mockReturnValue(true);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -92,7 +94,7 @@ describe('Customers (e2e)', () => {
         deleted_at: null,
       },
     ] as any);
-    
+
     mockPrismaClient.mnt_customer.count.mockResolvedValue(1);
 
     return request(app.getHttpServer())

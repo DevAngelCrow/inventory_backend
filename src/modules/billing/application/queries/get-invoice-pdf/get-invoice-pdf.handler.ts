@@ -12,9 +12,12 @@ export class GetInvoicePdfHandler implements IQueryHandler<GetInvoicePdfQuery> {
     private readonly queryBus: QueryBus,
   ) {}
 
-  async execute(query: GetInvoicePdfQuery): Promise<{ buffer: Buffer; fileName: string }> {
+  async execute(
+    query: GetInvoicePdfQuery,
+  ): Promise<{ buffer: Buffer; fileName: string }> {
     const getInvoiceQuery = new GetInvoiceQuery(query.id_invoice);
-    const invoice: InvoiceDto | null = await this.queryBus.execute(getInvoiceQuery);
+    const invoice: InvoiceDto | null =
+      await this.queryBus.execute(getInvoiceQuery);
 
     if (!invoice) {
       throw new NotFoundException('Invoice', query.id_invoice);

@@ -29,16 +29,18 @@ export class UpdateCustomerHandler implements ICommandHandler<UpdateCustomerComm
       tax_id: command.tax_id,
       notes: command.notes,
       id_country: command.id_country,
-      addresses: existing.addresses ? existing.addresses.map(a => ({
-        id: a.id,
-        label: a.label,
-        address_line1: a.address_line1,
-        address_line2: a.address_line2,
-        zip_code: a.zip_code,
-        is_primary: a.is_primary,
-        id_geographic_division: a.id_geographic_division,
-        active: a.active,
-      })) : [],
+      addresses: existing.addresses
+        ? existing.addresses.map((a) => ({
+            id: a.id,
+            label: a.label,
+            address_line1: a.address_line1,
+            address_line2: a.address_line2,
+            zip_code: a.zip_code,
+            is_primary: a.is_primary,
+            id_geographic_division: a.id_geographic_division,
+            active: a.active,
+          }))
+        : [],
       active: existing.active ?? true,
     });
     await this.repository.update(customer);

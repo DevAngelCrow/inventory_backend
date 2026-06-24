@@ -6,7 +6,10 @@ export type InvoiceStatusType = 'DRAFT' | 'ISSUED' | 'PAID' | 'VOIDED';
 export class InvoiceStatus {
   private readonly _value: InvoiceStatusType;
   private readonly allowedStatuses: InvoiceStatusType[] = [
-    'DRAFT', 'ISSUED', 'PAID', 'VOIDED'
+    'DRAFT',
+    'ISSUED',
+    'PAID',
+    'VOIDED',
   ];
 
   constructor(value: string) {
@@ -16,7 +19,10 @@ export class InvoiceStatus {
     )
       .required('Status is required')
       .string('Status must be a string')
-      .custom((v) => this.allowedStatuses.includes(v as InvoiceStatusType), 'Invalid status value')
+      .custom(
+        (v) => this.allowedStatuses.includes(v as InvoiceStatusType),
+        'Invalid status value',
+      )
       .getValue() as InvoiceStatusType;
   }
 

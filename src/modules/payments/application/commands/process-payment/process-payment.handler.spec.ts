@@ -14,7 +14,7 @@ describe('ProcessPaymentHandler', () => {
     const mockRepository = {
       save: jest.fn().mockImplementation((payment) => payment),
     };
-    
+
     const mockPaymentGateway = {
       process: jest.fn().mockResolvedValue({
         status: 'COMPLETED',
@@ -72,14 +72,16 @@ describe('ProcessPaymentHandler', () => {
     });
 
     expect(repository.save).toHaveBeenCalledTimes(1);
-    const savedPayment = repository.save.mock.calls[0][0] as Payment;
-    
-    expect(savedPayment.getIdReservation()).toBe('123e4567-e89b-12d3-a456-426614174000');
+    const savedPayment = repository.save.mock.calls[0][0];
+
+    expect(savedPayment.getIdReservation()).toBe(
+      '123e4567-e89b-12d3-a456-426614174000',
+    );
     expect(savedPayment.getAmount().value()).toBe(100);
     expect(savedPayment.getStatus().value()).toBe('COMPLETED');
     expect(savedPayment.getGatewayProvider()).toBe('TEST_GATEWAY');
     expect(savedPayment.getGatewayTxId()).toBe('tx-12345');
-    
+
     // Result should be the saved payment
     expect(result).toBe(savedPayment);
   });

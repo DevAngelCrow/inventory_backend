@@ -8,9 +8,13 @@ export class ProductCategoryDescription {
     if (value !== undefined && value !== null) {
       this._value = Validator.of(
         value,
-        (msg) => new InvalidValueObjectException('ProductCategoryDescription', msg),
+        (msg) =>
+          new InvalidValueObjectException('ProductCategoryDescription', msg),
       )
-        .maxLength(255, 'Product category description must not exceed 255 characters')
+        .maxLength(
+          255,
+          'Product category description must not exceed 255 characters',
+        )
         .getValue();
     } else {
       this._value = undefined;

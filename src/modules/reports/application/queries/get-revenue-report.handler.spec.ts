@@ -37,7 +37,7 @@ describe('GetRevenueReportHandler', () => {
   it('should calculate revenue correctly', async () => {
     const startDate = new Date('2023-01-01');
     const endDate = new Date('2023-12-31');
-    
+
     (prismaService.client.mnt_invoice.findMany as jest.Mock).mockResolvedValue([
       { total: 100 },
       { total: 200 },

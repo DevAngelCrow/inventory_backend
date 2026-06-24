@@ -40,7 +40,9 @@ export class CustomerHttpDto {
       dto.id_country,
       dto.country_name,
       dto.country_phone_code,
-      dto.addresses ? dto.addresses.map(a => CustomerAddressHttpDto.fromDto(a)) : [],
+      dto.addresses
+        ? dto.addresses.map((a) => CustomerAddressHttpDto.fromDto(a))
+        : [],
       dto.created_at,
       dto.updated_at,
       dto.status,

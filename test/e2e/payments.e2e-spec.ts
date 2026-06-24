@@ -5,7 +5,11 @@ import { AppModule } from '../../src/app.module';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from '@/modules/security/infrastructure/guards/permissions.guard';
-import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../mocks/prisma.mock';
+import {
+  createPrismaMock,
+  createPrismaServiceMock,
+  MockPrismaClient,
+} from '../mocks/prisma.mock';
 
 describe('Payments (e2e)', () => {
   let app: INestApplication;
@@ -19,9 +23,7 @@ describe('Payments (e2e)', () => {
       .spyOn(JwtPassportAuthGuard.prototype, 'canActivate')
       .mockReturnValue(true);
 
-    jest
-      .spyOn(PermissionsGuard.prototype, 'canActivate')
-      .mockReturnValue(true);
+    jest.spyOn(PermissionsGuard.prototype, 'canActivate').mockReturnValue(true);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -97,7 +99,7 @@ describe('Payments (e2e)', () => {
         deleted_at: null,
       },
     ] as any);
-    
+
     mockPrismaClient.mnt_payment.count.mockResolvedValue(1);
 
     return request(app.getHttpServer())
@@ -107,7 +109,9 @@ describe('Payments (e2e)', () => {
         expect(res.body.statusCode).toBe(200);
         expect(res.body.data.data).toBeInstanceOf(Array);
         expect(res.body.data.data.length).toBe(1);
-        expect(res.body.data.data[0].id_reservation).toBe('123e4567-e89b-12d3-a456-426614174000');
+        expect(res.body.data.data[0].id_reservation).toBe(
+          '123e4567-e89b-12d3-a456-426614174000',
+        );
       });
   });
 });

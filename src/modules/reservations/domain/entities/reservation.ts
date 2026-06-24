@@ -61,7 +61,11 @@ export class Reservation {
         idCustomerAddress: data.id_customer_address,
         idGeographicDivision: data.id_geographic_division,
       }),
-      new ReservationAmount(data.total_amount, data.deposit_amount, data.balance_due),
+      new ReservationAmount(
+        data.total_amount,
+        data.deposit_amount,
+        data.balance_due,
+      ),
       new ReservationNotes(data.notes),
       data.items.map((i) =>
         ReservationItem.create({
@@ -73,20 +77,44 @@ export class Reservation {
           id: i.id,
         }),
       ),
-      data.delivery_datetime ? new ReservationDeliveryDatetime(data.delivery_datetime) : undefined,
-      data.pickup_datetime ? new ReservationPickupDatetime(data.pickup_datetime) : undefined,
+      data.delivery_datetime
+        ? new ReservationDeliveryDatetime(data.delivery_datetime)
+        : undefined,
+      data.pickup_datetime
+        ? new ReservationPickupDatetime(data.pickup_datetime)
+        : undefined,
       data.id ? new ReservationId(data.id) : undefined,
     );
   }
 
-  public getId(): ReservationId | undefined { return this.id; }
-  public getIdCustomer(): ReservationCustomerId { return this.id_customer; }
-  public getStatus(): ReservationStatus { return this.status; }
-  public getDateRange(): ReservationDateRange { return this.dateRange; }
-  public getDeliveryAddress(): ReservationAddress { return this.deliveryAddress; }
-  public getAmount(): ReservationAmount { return this.amount; }
-  public getNotes(): ReservationNotes { return this.notes; }
-  public getItems(): ReservationItem[] { return this.items; }
-  public getDeliveryDatetime(): ReservationDeliveryDatetime | undefined { return this.deliveryDatetime; }
-  public getPickupDatetime(): ReservationPickupDatetime | undefined { return this.pickupDatetime; }
+  public getId(): ReservationId | undefined {
+    return this.id;
+  }
+  public getIdCustomer(): ReservationCustomerId {
+    return this.id_customer;
+  }
+  public getStatus(): ReservationStatus {
+    return this.status;
+  }
+  public getDateRange(): ReservationDateRange {
+    return this.dateRange;
+  }
+  public getDeliveryAddress(): ReservationAddress {
+    return this.deliveryAddress;
+  }
+  public getAmount(): ReservationAmount {
+    return this.amount;
+  }
+  public getNotes(): ReservationNotes {
+    return this.notes;
+  }
+  public getItems(): ReservationItem[] {
+    return this.items;
+  }
+  public getDeliveryDatetime(): ReservationDeliveryDatetime | undefined {
+    return this.deliveryDatetime;
+  }
+  public getPickupDatetime(): ReservationPickupDatetime | undefined {
+    return this.pickupDatetime;
+  }
 }

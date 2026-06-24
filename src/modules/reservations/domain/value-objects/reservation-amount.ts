@@ -19,7 +19,8 @@ export class ReservationAmount {
     if (deposit !== undefined && deposit !== null) {
       this._deposit = Validator.of(
         deposit,
-        (msg) => new InvalidValueObjectException('ReservationDepositAmount', msg),
+        (msg) =>
+          new InvalidValueObjectException('ReservationDepositAmount', msg),
       )
         .number()
         .min(0, 'Deposit amount cannot be negative')
@@ -41,7 +42,13 @@ export class ReservationAmount {
     }
   }
 
-  public get total(): number { return this._total; }
-  public get deposit(): number | undefined { return this._deposit; }
-  public get balance(): number | undefined { return this._balance; }
+  public get total(): number {
+    return this._total;
+  }
+  public get deposit(): number | undefined {
+    return this._deposit;
+  }
+  public get balance(): number | undefined {
+    return this._balance;
+  }
 }

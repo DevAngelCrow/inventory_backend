@@ -15,7 +15,7 @@ export class UpdateReservationStatusHandler implements ICommandHandler<UpdateRes
     private readonly repository: ReservationRepository,
     private readonly queriesRepository: ReservationQueriesRepository,
     private readonly commandBus: CommandBus,
-  ) { }
+  ) {}
 
   async execute(command: UpdateReservationStatusCommand): Promise<Reservation> {
     const updated = await this.repository.updateStatus(
@@ -46,7 +46,7 @@ export class UpdateReservationStatusHandler implements ICommandHandler<UpdateRes
           'DRAFT', // status
           'Auto-generated from reservation confirmation',
           undefined,
-          reservation.items.map(i => ({
+          reservation.items.map((i) => ({
             description: i.mnt_product?.name || 'Item',
             quantity: i.quantity,
             unit_price: i.unit_price,
@@ -54,14 +54,19 @@ export class UpdateReservationStatusHandler implements ICommandHandler<UpdateRes
             tax_amount: 0,
             total: i.total_price,
             id_product: i.id_product,
-          }))
+          })),
         );
         // We catch errors so the status update doesn't fail if billing fails
         try {
           await this.commandBus.execute(generateInvoiceCmd);
-          this.logger.log(`Invoice generated successfully for ${reservation.id}`);
+          this.logger.log(
+            `Invoice generated successfully for ${reservation.id}`,
+          );
         } catch (e: any) {
-          this.logger.error(`Failed to auto-generate invoice for ${reservation.id}`, e.stack);
+          this.logger.error(
+            `Failed to auto-generate invoice for ${reservation.id}`,
+            e.stack,
+          );
         }
       }
     }

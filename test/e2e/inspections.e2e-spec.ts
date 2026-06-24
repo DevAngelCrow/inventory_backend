@@ -5,7 +5,11 @@ import { AppModule } from '../../src/app.module';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from '@/modules/security/infrastructure/guards/permissions.guard';
-import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../mocks/prisma.mock';
+import {
+  createPrismaMock,
+  createPrismaServiceMock,
+  MockPrismaClient,
+} from '../mocks/prisma.mock';
 
 describe('Inspections (e2e)', () => {
   let app: INestApplication;
@@ -19,9 +23,7 @@ describe('Inspections (e2e)', () => {
       .spyOn(JwtPassportAuthGuard.prototype, 'canActivate')
       .mockReturnValue(true);
 
-    jest
-      .spyOn(PermissionsGuard.prototype, 'canActivate')
-      .mockReturnValue(true);
+    jest.spyOn(PermissionsGuard.prototype, 'canActivate').mockReturnValue(true);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -50,7 +52,9 @@ describe('Inspections (e2e)', () => {
   });
 
   it('/inspections (POST) - should record an inspection', () => {
-    mockPrismaClient.mnt_reservation_inspection.create.mockResolvedValue({} as any);
+    mockPrismaClient.mnt_reservation_inspection.create.mockResolvedValue(
+      {} as any,
+    );
 
     return request(app.getHttpServer())
       .post('/inspections')
@@ -66,11 +70,11 @@ describe('Inspections (e2e)', () => {
             description: 'test',
             quantity_affected: 1,
             charge_amount: 0,
-          }
+          },
         ],
         general_notes: 'Looks fine',
         total_charges: 0,
-        id_inspected_by: '123e4567-e89b-12d3-a456-426614174002'
+        id_inspected_by: '123e4567-e89b-12d3-a456-426614174002',
       })
       .expect(201)
       .expect((res) => {
@@ -95,7 +99,7 @@ describe('Inspections (e2e)', () => {
         deleted_at: null,
       },
     ] as any);
-    
+
     mockPrismaClient.mnt_reservation_inspection.count.mockResolvedValue(1);
 
     return request(app.getHttpServer())
@@ -105,7 +109,9 @@ describe('Inspections (e2e)', () => {
         expect(res.body.statusCode).toBe(200);
         expect(res.body.data.data).toBeInstanceOf(Array);
         expect(res.body.data.data.length).toBe(1);
-        expect(res.body.data.data[0].id_reservation).toBe('123e4567-e89b-12d3-a456-426614174000');
+        expect(res.body.data.data[0].id_reservation).toBe(
+          '123e4567-e89b-12d3-a456-426614174000',
+        );
       });
   });
 });

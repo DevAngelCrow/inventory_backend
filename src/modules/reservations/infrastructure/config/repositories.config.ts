@@ -4,5 +4,8 @@ import { ImplReservationRepository } from '../implementation/reservation/impl-re
 
 export const repositories = [
   { provide: ReservationRepository, useClass: ImplReservationRepository },
-  { provide: ReservationQueriesRepository, useClass: ImplReservationRepository },
+  {
+    provide: ReservationQueriesRepository,
+    useClass: ImplReservationRepository,
+  },
 ];

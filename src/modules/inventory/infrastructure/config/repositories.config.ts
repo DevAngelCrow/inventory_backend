@@ -12,11 +12,20 @@ import { MaintenanceQueriesRepository } from '../../application/repositories/mai
 import { ImplMaintenanceQueriesRepository } from '../implementation/maintenance/impl-maintenance-queries.repository';
 
 export const repositories = [
-  { provide: ProductCategoryRepository, useClass: ImplProductCategoryRepository },
-  { provide: ProductCategoryQueriesRepository, useClass: ImplProductCategoryRepository },
+  {
+    provide: ProductCategoryRepository,
+    useClass: ImplProductCategoryRepository,
+  },
+  {
+    provide: ProductCategoryQueriesRepository,
+    useClass: ImplProductCategoryRepository,
+  },
   { provide: ProductRepository, useClass: ImplProductRepository },
   { provide: ProductQueriesRepository, useClass: ImplProductRepository },
   { provide: MAINTENANCE_REPOSITORY, useClass: PrismaMaintenanceRepository },
-  { provide: MaintenanceQueriesRepository, useClass: ImplMaintenanceQueriesRepository },
+  {
+    provide: MaintenanceQueriesRepository,
+    useClass: ImplMaintenanceQueriesRepository,
+  },
   { provide: AVAILABILITY_REPOSITORY, useClass: PrismaAvailabilityRepository },
 ];

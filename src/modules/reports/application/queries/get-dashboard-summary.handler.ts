@@ -3,7 +3,10 @@ import { GetDashboardSummaryQuery } from './get-dashboard-summary.query';
 import { DashboardSummaryDto } from '../dtos/dashboard-summary.dto';
 import { DateService } from '@/shared/application/services/date.service';
 import { Inject } from '@nestjs/common';
-import { IReportsReadRepository, REPORTS_READ_REPOSITORY } from '../repositories/reports-read.repository';
+import {
+  IReportsReadRepository,
+  REPORTS_READ_REPOSITORY,
+} from '../repositories/reports-read.repository';
 
 @QueryHandler(GetDashboardSummaryQuery)
 export class GetDashboardSummaryHandler implements IQueryHandler<GetDashboardSummaryQuery> {
@@ -32,7 +35,7 @@ export class GetDashboardSummaryHandler implements IQueryHandler<GetDashboardSum
       tomorrowEnd,
     });
 
-    const proximos_eventos = data.eventosRaw.map(ev => ({
+    const proximos_eventos = data.eventosRaw.map((ev) => ({
       cliente: `${ev.first_name} ${ev.last_name}`,
       direccion: ev.delivery_address || 'Recogida en tienda',
       fecha: this.dateService.format(ev.event_start, 'DD/MM/YYYY HH:mm'),
@@ -40,10 +43,25 @@ export class GetDashboardSummaryHandler implements IQueryHandler<GetDashboardSum
     }));
 
     return {
-      reservas: { hoy: data.reservasHoy, semana: data.reservasSemana, mes: data.reservasMes },
-      ingresos: { hoy: data.ingresosHoy, semana: data.ingresosSemana, mes: data.ingresosMes },
-      logistica: { en_progreso: data.enProgreso, finalizadas: data.finalizadas, en_mantenimiento: data.enMantenimiento },
-      cuentas_por_cobrar: { balance_pendiente: data.balancePendiente, facturas_draft: data.facturasDraft },
+      reservas: {
+        hoy: data.reservasHoy,
+        semana: data.reservasSemana,
+        mes: data.reservasMes,
+      },
+      ingresos: {
+        hoy: data.ingresosHoy,
+        semana: data.ingresosSemana,
+        mes: data.ingresosMes,
+      },
+      logistica: {
+        en_progreso: data.enProgreso,
+        finalizadas: data.finalizadas,
+        en_mantenimiento: data.enMantenimiento,
+      },
+      cuentas_por_cobrar: {
+        balance_pendiente: data.balancePendiente,
+        facturas_draft: data.facturasDraft,
+      },
       top_productos: data.top_productos,
       proximos_eventos,
     };

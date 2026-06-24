@@ -164,14 +164,15 @@ export class ImplCategoryStatusRepository
       if (!categoryStatus) {
         throw new NotFoundException('CategoryStatus', id.value().toString());
       }
-      const categoryStatusDb = await this.prisma.client.ctl_category_status.update({
-        where: {
-          id: id.value(),
-        },
-        data: {
-          active: !categoryStatus.active,
-        },
-      });
+      const categoryStatusDb =
+        await this.prisma.client.ctl_category_status.update({
+          where: {
+            id: id.value(),
+          },
+          data: {
+            active: !categoryStatus.active,
+          },
+        });
 
       const categoryStatusEntity = this.mapToDomain(categoryStatusDb);
 

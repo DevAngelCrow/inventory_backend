@@ -3,7 +3,10 @@ import { InvoiceRepository } from '@/modules/billing/domain/repositories/invoice
 import { InvoiceQueriesRepository } from '@/modules/billing/application/repositories/invoice-read.repository';
 import { Invoice } from '@/modules/billing/domain/entities/invoice';
 import { InvoiceId } from '@/modules/billing/domain/value-objects/invoice-value-object/invoice-id';
-import { InvoiceDto, InvoiceLineDto } from '@/modules/billing/application/dtos/invoice.dto';
+import {
+  InvoiceDto,
+  InvoiceLineDto,
+} from '@/modules/billing/application/dtos/invoice.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
@@ -22,126 +25,134 @@ export class ImplInvoiceRepository
     try {
       const invoiceId = invoice.getId()?.value();
 
-      const savedInvoice = await this.prisma.client.$transaction(async (prisma) => {
-        const statusId = (await prisma.ctl_status.findFirstOrThrow({ 
-          where: { code: invoice.getStatus().value(), ctl_category_status: { code: 'INV' } } 
-        })).id;
+      const savedInvoice = await this.prisma.client.$transaction(
+        async (prisma) => {
+          const statusId = (
+            await prisma.ctl_status.findFirstOrThrow({
+              where: {
+                code: invoice.getStatus().value(),
+                ctl_category_status: { code: 'INV' },
+              },
+            })
+          ).id;
 
-        if (invoiceId) {
-          // Update existing invoice
-          const existing = await prisma.mnt_invoice.findUnique({
-            where: { id: invoiceId },
-          });
-          
-          if (!existing) {
-            throw new Error(`Invoice with ID ${invoiceId} not found for update`);
-          }
+          if (invoiceId) {
+            // Update existing invoice
+            const existing = await prisma.mnt_invoice.findUnique({
+              where: { id: invoiceId },
+            });
 
-          await prisma.mnt_invoice.update({
-            where: { id: invoiceId },
-            data: {
-              id_reservation: invoice.getIdReservation().value(),
-              id_customer: invoice.getIdCustomer().value(),
-              id_currency: invoice.getIdCurrency().value(),
-              invoice_number: invoice.getInvoiceNumber().value(),
-              issue_date: invoice.getIssueDate().value(),
-              due_date: invoice.getDueDate()?.value() ?? null,
-              subtotal: invoice.getAmount().subtotal,
-              tax_rate: invoice.getAmount().taxRate,
-              tax_amount: invoice.getAmount().taxAmount,
-              discount_amount: invoice.getAmount().discountAmount,
-              delivery_fee: invoice.getAmount().deliveryFee,
-              damage_charges: invoice.getAmount().damageCharges,
-              total: invoice.getAmount().total,
-              id_status: statusId,
-              notes: invoice.getNotes()?.value() ?? null,
-              fiscal_provider: invoice.getFiscalProvider()?.value() ?? null,
-              fiscal_id: invoice.getFiscalId()?.value() ?? null,
-              fiscal_status: invoice.getFiscalStatus()?.value() ?? null,
-              fiscal_response: invoice.getFiscalResponse()?.value() ?? null,
-              pdf_path: invoice.getPdfPath()?.value() ?? null,
-              id_created_by: invoice.getIdCreatedBy()?.value() ?? null,
-              updated_at: new Date(),
-            },
-          });
+            if (!existing) {
+              throw new Error(
+                `Invoice with ID ${invoiceId} not found for update`,
+              );
+            }
 
-          // Delete existing lines and recreate them
-          await prisma.mnt_invoice_line.deleteMany({
-            where: { id_invoice: invoiceId }
-          });
+            await prisma.mnt_invoice.update({
+              where: { id: invoiceId },
+              data: {
+                id_reservation: invoice.getIdReservation().value(),
+                id_customer: invoice.getIdCustomer().value(),
+                id_currency: invoice.getIdCurrency().value(),
+                invoice_number: invoice.getInvoiceNumber().value(),
+                issue_date: invoice.getIssueDate().value(),
+                due_date: invoice.getDueDate()?.value() ?? null,
+                subtotal: invoice.getAmount().subtotal,
+                tax_rate: invoice.getAmount().taxRate,
+                tax_amount: invoice.getAmount().taxAmount,
+                discount_amount: invoice.getAmount().discountAmount,
+                delivery_fee: invoice.getAmount().deliveryFee,
+                damage_charges: invoice.getAmount().damageCharges,
+                total: invoice.getAmount().total,
+                id_status: statusId,
+                notes: invoice.getNotes()?.value() ?? null,
+                fiscal_provider: invoice.getFiscalProvider()?.value() ?? null,
+                fiscal_id: invoice.getFiscalId()?.value() ?? null,
+                fiscal_status: invoice.getFiscalStatus()?.value() ?? null,
+                fiscal_response: invoice.getFiscalResponse()?.value() ?? null,
+                pdf_path: invoice.getPdfPath()?.value() ?? null,
+                id_created_by: invoice.getIdCreatedBy()?.value() ?? null,
+                updated_at: new Date(),
+              },
+            });
 
-          const invoiceLines = invoice.getLines().map((line, index) => ({
-            id_invoice: invoiceId,
-            description: line.getDescription().value(),
-            quantity: line.getQuantity().value(),
-            unit_price: line.getUnitPrice().value(),
-            subtotal: line.getSubtotal().value(),
-            id_product: line.getIdProduct()?.value() ?? null,
-            sort_order: index,
-          }));
+            // Delete existing lines and recreate them
+            await prisma.mnt_invoice_line.deleteMany({
+              where: { id_invoice: invoiceId },
+            });
 
-          if (invoiceLines.length > 0) {
-            await prisma.mnt_invoice_line.createMany({
-              data: invoiceLines,
+            const invoiceLines = invoice.getLines().map((line, index) => ({
+              id_invoice: invoiceId,
+              description: line.getDescription().value(),
+              quantity: line.getQuantity().value(),
+              unit_price: line.getUnitPrice().value(),
+              subtotal: line.getSubtotal().value(),
+              id_product: line.getIdProduct()?.value() ?? null,
+              sort_order: index,
+            }));
+
+            if (invoiceLines.length > 0) {
+              await prisma.mnt_invoice_line.createMany({
+                data: invoiceLines,
+              });
+            }
+
+            return await prisma.mnt_invoice.findUniqueOrThrow({
+              where: { id: invoiceId },
+              include: { mnt_invoice_line: true, ctl_status: true },
+            });
+          } else {
+            // Create new invoice
+            const createdInvoice = await prisma.mnt_invoice.create({
+              data: {
+                id_reservation: invoice.getIdReservation().value(),
+                id_customer: invoice.getIdCustomer().value(),
+                id_currency: invoice.getIdCurrency().value(),
+                invoice_number: invoice.getInvoiceNumber().value(),
+                issue_date: invoice.getIssueDate().value(),
+                due_date: invoice.getDueDate()?.value() ?? null,
+                subtotal: invoice.getAmount().subtotal,
+                tax_rate: invoice.getAmount().taxRate,
+                tax_amount: invoice.getAmount().taxAmount,
+                discount_amount: invoice.getAmount().discountAmount,
+                delivery_fee: invoice.getAmount().deliveryFee,
+                damage_charges: invoice.getAmount().damageCharges,
+                total: invoice.getAmount().total,
+                id_status: statusId,
+                notes: invoice.getNotes()?.value() ?? null,
+                fiscal_provider: invoice.getFiscalProvider()?.value() ?? null,
+                fiscal_id: invoice.getFiscalId()?.value() ?? null,
+                fiscal_status: invoice.getFiscalStatus()?.value() ?? null,
+                fiscal_response: invoice.getFiscalResponse()?.value() ?? null,
+                pdf_path: invoice.getPdfPath()?.value() ?? null,
+                id_created_by: invoice.getIdCreatedBy()?.value() ?? null,
+                created_at: new Date(),
+              },
+            });
+
+            const invoiceLines = invoice.getLines().map((line, index) => ({
+              id_invoice: createdInvoice.id,
+              description: line.getDescription().value(),
+              quantity: line.getQuantity().value(),
+              unit_price: line.getUnitPrice().value(),
+              subtotal: line.getSubtotal().value(),
+              id_product: line.getIdProduct()?.value() ?? null,
+              sort_order: index,
+            }));
+
+            if (invoiceLines.length > 0) {
+              await prisma.mnt_invoice_line.createMany({
+                data: invoiceLines,
+              });
+            }
+
+            return await prisma.mnt_invoice.findUniqueOrThrow({
+              where: { id: createdInvoice.id },
+              include: { mnt_invoice_line: true, ctl_status: true },
             });
           }
-
-          return await prisma.mnt_invoice.findUniqueOrThrow({
-            where: { id: invoiceId },
-            include: { mnt_invoice_line: true, ctl_status: true },
-          });
-
-        } else {
-          // Create new invoice
-          const createdInvoice = await prisma.mnt_invoice.create({
-            data: {
-              id_reservation: invoice.getIdReservation().value(),
-              id_customer: invoice.getIdCustomer().value(),
-              id_currency: invoice.getIdCurrency().value(),
-              invoice_number: invoice.getInvoiceNumber().value(),
-              issue_date: invoice.getIssueDate().value(),
-              due_date: invoice.getDueDate()?.value() ?? null,
-              subtotal: invoice.getAmount().subtotal,
-              tax_rate: invoice.getAmount().taxRate,
-              tax_amount: invoice.getAmount().taxAmount,
-              discount_amount: invoice.getAmount().discountAmount,
-              delivery_fee: invoice.getAmount().deliveryFee,
-              damage_charges: invoice.getAmount().damageCharges,
-              total: invoice.getAmount().total,
-              id_status: statusId,
-              notes: invoice.getNotes()?.value() ?? null,
-              fiscal_provider: invoice.getFiscalProvider()?.value() ?? null,
-              fiscal_id: invoice.getFiscalId()?.value() ?? null,
-              fiscal_status: invoice.getFiscalStatus()?.value() ?? null,
-              fiscal_response: invoice.getFiscalResponse()?.value() ?? null,
-              pdf_path: invoice.getPdfPath()?.value() ?? null,
-              id_created_by: invoice.getIdCreatedBy()?.value() ?? null,
-              created_at: new Date(),
-            },
-          });
-
-          const invoiceLines = invoice.getLines().map((line, index) => ({
-            id_invoice: createdInvoice.id,
-            description: line.getDescription().value(),
-            quantity: line.getQuantity().value(),
-            unit_price: line.getUnitPrice().value(),
-            subtotal: line.getSubtotal().value(),
-            id_product: line.getIdProduct()?.value() ?? null,
-            sort_order: index,
-          }));
-
-          if (invoiceLines.length > 0) {
-            await prisma.mnt_invoice_line.createMany({
-              data: invoiceLines,
-            });
-          }
-
-          return await prisma.mnt_invoice.findUniqueOrThrow({
-            where: { id: createdInvoice.id },
-            include: { mnt_invoice_line: true, ctl_status: true },
-          });
-        }
-      });
+        },
+      );
 
       return this.mapToDomain(savedInvoice);
     } catch (error: any) {
@@ -203,7 +214,9 @@ export class ImplInvoiceRepository
         pagination_params.getPage(),
         pagination_params.getPerPage(),
         new TotalItems(total),
-        new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
+        new TotalPages(
+          Math.ceil(total / pagination_params.getPerPage().value()),
+        ),
       );
     } catch (error) {
       throw new DatabaseException('Error getting invoices', 'getAll');
@@ -215,7 +228,7 @@ export class ImplInvoiceRepository
   async findById(id: string | InvoiceId): Promise<InvoiceDto | Invoice | null> {
     try {
       const isDomainId = id instanceof InvoiceId;
-      const idString = isDomainId ? id.value() : id as string;
+      const idString = isDomainId ? id.value() : id;
 
       const invoice = await this.prisma.client.mnt_invoice.findUnique({
         where: { id: idString },
@@ -226,7 +239,7 @@ export class ImplInvoiceRepository
         },
       });
       if (!invoice) return null;
-      
+
       if (isDomainId) {
         return this.mapToDomain(invoice);
       }
@@ -262,16 +275,18 @@ export class ImplInvoiceRepository
       fiscal_response: i.fiscal_response ?? undefined,
       pdf_path: i.pdf_path ?? undefined,
       id_created_by: i.id_created_by ?? undefined,
-      lines: i.mnt_invoice_line ? i.mnt_invoice_line.map((l: any) => ({
-        id: l.id,
-        description: l.description,
-        quantity: l.quantity,
-        unit_price: Number(l.unit_price),
-        subtotal: Number(l.subtotal),
-        tax_amount: 0,
-        total: Number(l.subtotal),
-        id_product: l.id_product ?? undefined,
-      })) : [],
+      lines: i.mnt_invoice_line
+        ? i.mnt_invoice_line.map((l: any) => ({
+            id: l.id,
+            description: l.description,
+            quantity: l.quantity,
+            unit_price: Number(l.unit_price),
+            subtotal: Number(l.subtotal),
+            tax_amount: 0,
+            total: Number(l.subtotal),
+            id_product: l.id_product ?? undefined,
+          }))
+        : [],
     });
   }
 
@@ -298,26 +313,33 @@ export class ImplInvoiceRepository
       i.fiscal_response ?? undefined,
       i.pdf_path ?? undefined,
       i.id_created_by ?? undefined,
-      i.mnt_invoice_line ? i.mnt_invoice_line.map((l: any) => new InvoiceLineDto(
-        l.description,
-        l.quantity,
-        Number(l.unit_price),
-        Number(l.subtotal),
-        0,
-        Number(l.subtotal),
-        l.id_product ?? undefined,
-        l.id_invoice,
-        l.id,
-      )) : [],
+      i.mnt_invoice_line
+        ? i.mnt_invoice_line.map(
+            (l: any) =>
+              new InvoiceLineDto(
+                l.description,
+                l.quantity,
+                Number(l.unit_price),
+                Number(l.subtotal),
+                0,
+                Number(l.subtotal),
+                l.id_product ?? undefined,
+                l.id_invoice,
+                l.id,
+              ),
+          )
+        : [],
       i.id,
       i.created_at,
       i.updated_at,
-      i.mnt_customer ? {
-        first_name: i.mnt_customer.first_name,
-        last_name: i.mnt_customer.last_name,
-        email: i.mnt_customer.email,
-        phone: i.mnt_customer.phone,
-      } : undefined,
+      i.mnt_customer
+        ? {
+            first_name: i.mnt_customer.first_name,
+            last_name: i.mnt_customer.last_name,
+            email: i.mnt_customer.email,
+            phone: i.mnt_customer.phone,
+          }
+        : undefined,
     );
   }
 }

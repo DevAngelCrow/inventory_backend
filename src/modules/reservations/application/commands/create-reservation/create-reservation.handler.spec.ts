@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateReservationHandler } from './create-reservation.handler';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
-import { CreateReservationCommand, CreateReservationItemCommand } from './create-reservation.command';
+import {
+  CreateReservationCommand,
+  CreateReservationItemCommand,
+} from './create-reservation.command';
 import { Reservation } from '@/modules/reservations/domain/entities/reservation';
 
 describe('CreateReservationHandler', () => {
@@ -54,8 +57,8 @@ describe('CreateReservationHandler', () => {
     await handler.execute(command);
 
     expect(repository.create).toHaveBeenCalledTimes(1);
-    const createdReservation = repository.create.mock.calls[0][0] as Reservation;
-    
+    const createdReservation = repository.create.mock.calls[0][0];
+
     expect(createdReservation.getIdCustomer().value()).toBe('cust-123');
     expect(createdReservation.getStatus().value()).toBe('PENDING');
     expect(createdReservation.getAmount().total).toBe(100);
@@ -63,7 +66,7 @@ describe('CreateReservationHandler', () => {
     expect(createdReservation.getAmount().balance).toBe(80);
     expect(createdReservation.getDeliveryAddress().value()).toBe('123 Main St');
     expect(createdReservation.getNotes().value()).toBe('Handle with care');
-    
+
     const items = createdReservation.getItems();
     expect(items.length).toBe(1);
     expect(items[0].getIdProduct().value()).toBe('prod-1');

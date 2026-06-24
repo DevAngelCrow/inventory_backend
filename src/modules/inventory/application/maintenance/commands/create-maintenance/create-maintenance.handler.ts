@@ -2,7 +2,10 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { CreateMaintenanceCommand } from './create-maintenance.command';
 import { Maintenance } from '../../../../domain/entities/maintenance';
-import { MAINTENANCE_REPOSITORY, MaintenanceRepository } from '../../../../domain/repositories/maintenance.repository';
+import {
+  MAINTENANCE_REPOSITORY,
+  MaintenanceRepository,
+} from '../../../../domain/repositories/maintenance.repository';
 
 @CommandHandler(CreateMaintenanceCommand)
 export class CreateMaintenanceHandler implements ICommandHandler<CreateMaintenanceCommand> {

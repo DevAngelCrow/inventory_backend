@@ -25,7 +25,7 @@ export class Payment {
     private readonly gateway_response?: PaymentGatewayResponse,
     private readonly id_received_by?: PaymentReceivedById,
     private readonly id?: PaymentId,
-  ) { }
+  ) {}
 
   static create(data: {
     id_reservation: string;
@@ -47,12 +47,22 @@ export class Payment {
       new PaymentAmount(data.amount),
       new PaymentDate(data.payment_date),
       new PaymentStatus(data.status),
-      data.reference_number ? new PaymentReferenceNumber(data.reference_number) : undefined,
+      data.reference_number
+        ? new PaymentReferenceNumber(data.reference_number)
+        : undefined,
       data.notes ? new PaymentNotes(data.notes) : undefined,
-      data.gateway_provider ? new PaymentGatewayProvider(data.gateway_provider) : undefined,
-      data.gateway_tx_id ? new PaymentGatewayTxId(data.gateway_tx_id) : undefined,
-      data.gateway_response !== undefined ? new PaymentGatewayResponse(data.gateway_response) : undefined,
-      data.id_received_by ? new PaymentReceivedById(data.id_received_by) : undefined,
+      data.gateway_provider
+        ? new PaymentGatewayProvider(data.gateway_provider)
+        : undefined,
+      data.gateway_tx_id
+        ? new PaymentGatewayTxId(data.gateway_tx_id)
+        : undefined,
+      data.gateway_response !== undefined
+        ? new PaymentGatewayResponse(data.gateway_response)
+        : undefined,
+      data.id_received_by
+        ? new PaymentReceivedById(data.id_received_by)
+        : undefined,
       data.id ? new PaymentId(data.id) : undefined,
     );
   }

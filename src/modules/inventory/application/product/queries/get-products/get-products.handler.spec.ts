@@ -56,7 +56,13 @@ describe('GetProductsHandler', () => {
   it('should call repository.getAll without pagination params', async () => {
     repository.getAll.mockResolvedValue([]);
 
-    const query = new GetProductsQuery(undefined, undefined, undefined, undefined, true);
+    const query = new GetProductsQuery(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
 
     await handler.execute(query);
 

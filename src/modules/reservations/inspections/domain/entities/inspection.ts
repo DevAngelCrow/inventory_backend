@@ -42,18 +42,38 @@ export class Inspection {
       data.general_notes,
       data.total_charges ?? 0,
       data.id_inspected_by,
-      data.damage_items?.map((item) => DamageItem.create({ ...item, id_inspection: data.id })) ?? [],
+      data.damage_items?.map((item) =>
+        DamageItem.create({ ...item, id_inspection: data.id }),
+      ) ?? [],
       data.id ? new InspectionId(data.id) : undefined,
     );
   }
 
-  public getId(): InspectionId | undefined { return this.id; }
-  public getIdReservation(): string { return this.id_reservation; }
-  public getInspectionDate(): Date { return this.inspection_date; }
-  public getOverallCondition(): string { return this.overall_condition; }
-  public getStatus(): InspectionStatus { return this.status; }
-  public getGeneralNotes(): string | undefined { return this.general_notes; }
-  public getTotalCharges(): number { return this.total_charges ?? 0; }
-  public getIdInspectedBy(): string | undefined { return this.id_inspected_by; }
-  public getDamageItems(): DamageItem[] { return this.damage_items; }
+  public getId(): InspectionId | undefined {
+    return this.id;
+  }
+  public getIdReservation(): string {
+    return this.id_reservation;
+  }
+  public getInspectionDate(): Date {
+    return this.inspection_date;
+  }
+  public getOverallCondition(): string {
+    return this.overall_condition;
+  }
+  public getStatus(): InspectionStatus {
+    return this.status;
+  }
+  public getGeneralNotes(): string | undefined {
+    return this.general_notes;
+  }
+  public getTotalCharges(): number {
+    return this.total_charges ?? 0;
+  }
+  public getIdInspectedBy(): string | undefined {
+    return this.id_inspected_by;
+  }
+  public getDamageItems(): DamageItem[] {
+    return this.damage_items;
+  }
 }

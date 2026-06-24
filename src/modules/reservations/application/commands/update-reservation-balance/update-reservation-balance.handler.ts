@@ -9,6 +9,10 @@ export class UpdateReservationBalanceHandler implements ICommandHandler<UpdateRe
 
   async execute(command: UpdateReservationBalanceCommand): Promise<void> {
     const id = new ReservationId(command.id);
-    await this.repository.updateBalance(id, command.balance_due_delta, command.deposit_amount_delta);
+    await this.repository.updateBalance(
+      id,
+      command.balance_due_delta,
+      command.deposit_amount_delta,
+    );
   }
 }

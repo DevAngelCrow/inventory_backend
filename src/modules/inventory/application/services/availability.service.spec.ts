@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AvailabilityService } from './availability.service';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
-import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../../../../../test/mocks/prisma.mock';
+import {
+  createPrismaMock,
+  createPrismaServiceMock,
+  MockPrismaClient,
+} from '../../../../../test/mocks/prisma.mock';
 
 describe('AvailabilityService', () => {
   let service: AvailabilityService;
@@ -92,7 +96,9 @@ describe('AvailabilityService', () => {
       );
 
       expect(available).toBe(70);
-      expect(mockPrismaClient.mnt_reservation_item.aggregate).toHaveBeenCalledWith(
+      expect(
+        mockPrismaClient.mnt_reservation_item.aggregate,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             id_product: 'prod-1',

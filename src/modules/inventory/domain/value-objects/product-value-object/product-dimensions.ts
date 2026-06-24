@@ -11,7 +11,10 @@ export class ProductDimensions {
         (msg) => new InvalidValueObjectException('ProductDimensions', msg),
       )
         .string('Product dimensions must be a string')
-        .maxLength(100, 'Product dimensions must be at most 100 characters long')
+        .maxLength(
+          100,
+          'Product dimensions must be at most 100 characters long',
+        )
         .getValue();
     }
     this._value = value;

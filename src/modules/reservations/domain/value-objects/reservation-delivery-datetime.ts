@@ -7,7 +7,8 @@ export class ReservationDeliveryDatetime {
   constructor(value: Date) {
     this._value = Validator.of(
       value,
-      (msg) => new InvalidValueObjectException('ReservationDeliveryDatetime', msg),
+      (msg) =>
+        new InvalidValueObjectException('ReservationDeliveryDatetime', msg),
     )
       .required()
       .date()

@@ -19,10 +19,12 @@ export class CreateCustomerHandler implements ICommandHandler<CreateCustomerComm
       tax_id: command.tax_id,
       notes: command.notes,
       id_country: command.id_country,
-      addresses: command.addresses ? command.addresses.map(a => ({
-        ...a,
-        is_primary: a.is_primary ?? false,
-      })) : [],
+      addresses: command.addresses
+        ? command.addresses.map((a) => ({
+            ...a,
+            is_primary: a.is_primary ?? false,
+          }))
+        : [],
       active: true,
     });
     await this.repository.create(customer);

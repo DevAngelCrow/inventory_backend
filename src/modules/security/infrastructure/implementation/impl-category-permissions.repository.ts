@@ -106,7 +106,9 @@ export class ImplCategoryPermissionsRepository
             name: 'asc',
           },
         });
-      const total = await this.prisma.client.ctl_category_permissions.count({ where });
+      const total = await this.prisma.client.ctl_category_permissions.count({
+        where,
+      });
       const catalog_status = await GetBooleanStatusCatalogService.getStatus(
         this.prisma,
       );

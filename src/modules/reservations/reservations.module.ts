@@ -9,7 +9,9 @@ import { InspectionsModule } from './inspections/inspections.module';
 
 @Module({
   imports: [
-    RouterModule.register([{ path: 'reservations', module: ReservationsModule }]),
+    RouterModule.register([
+      { path: 'reservations', module: ReservationsModule },
+    ]),
     CqrsModule,
     InspectionsModule,
   ],

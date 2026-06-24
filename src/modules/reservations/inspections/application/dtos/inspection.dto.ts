@@ -16,7 +16,13 @@ export class InspectionDto {
     public readonly id_reservation: string,
     public readonly inspection_date: Date,
     public readonly overall_condition: string,
-    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
+    public readonly status: {
+      id: string;
+      code: string;
+      name: string;
+      state_color: string;
+      text_color: string;
+    },
     public readonly general_notes?: string,
     public readonly total_charges?: number,
     public readonly id_inspected_by?: string,

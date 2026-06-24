@@ -54,7 +54,7 @@ export class ReservationController {
       dto.event_start,
       dto.event_end,
       dto.total_amount,
-      dto.items.map(i => ({
+      dto.items.map((i) => ({
         id_product: i.id_product,
         quantity: i.quantity,
         unit_price: i.unit_price,
@@ -93,7 +93,7 @@ export class ReservationController {
       dto.event_start,
       dto.event_end,
       dto.total_amount,
-      dto.items.map(i => ({
+      dto.items.map((i) => ({
         id_product: i.id_product,
         quantity: i.quantity,
         unit_price: i.unit_price,
@@ -163,11 +163,16 @@ export class ReservationController {
       Pagination<ReservationDto> | ReservationDto[]
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : (result as ReservationDto[]);
-    const totalItems = result instanceof Pagination ? result.getTotalItems() : items.length;
-    const totalPages = result instanceof Pagination ? result.getTotalPages() : 1;
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
 
-    const httpDtos = items.map((c: ReservationDto) => ReservationHttpDto.fromDto(c));
+    const httpDtos = items.map((c: ReservationDto) =>
+      ReservationHttpDto.fromDto(c),
+    );
     const response = new HttpPaginatedResponseDto<ReservationHttpDto>(
       httpDtos,
       totalItems,

@@ -35,16 +35,16 @@ export class VoidPaymentHandler implements ICommandHandler<VoidPaymentCommand> {
     });
 
     payment.void();
-    
+
     const savedPayment = await this.repository.save(payment);
 
     // Revert reservation balance via CommandBus
     await this.commandBus.execute(
       new UpdateReservationBalanceCommand(
         paymentDto.id_reservation,
-        paymentDto.amount,  // balance_due_delta (increment)
-        -paymentDto.amount  // deposit_amount_delta (decrement)
-      )
+        paymentDto.amount, // balance_due_delta (increment)
+        -paymentDto.amount, // deposit_amount_delta (decrement)
+      ),
     );
 
     return savedPayment;

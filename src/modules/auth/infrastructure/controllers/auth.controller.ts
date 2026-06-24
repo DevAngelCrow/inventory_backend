@@ -198,29 +198,29 @@ export class AuthController {
   ): Promise<SuccessResponseDto<AuthLoginHttpDto>> {
     const ip = this.getClientIp(req);
     const ua = this.getUserAgent(req);
-      const loginCommand = new LoginCommand(
-        request.user_name,
-        request.password,
-        ip,
-        ua,
-      );
-      const authLogin = await this.commandBus.execute<
-        LoginCommand,
-        { id: string; user_name: string; token: string; refresh_token: string }
-      >(loginCommand);
-      const authLoginHttpDto: AuthLoginHttpDto = new AuthLoginHttpDto(
-        authLogin.user_name,
-        authLogin.id,
-        authLogin.token,
-        'Bearer',
-        authLogin.user_name,
-        authLogin.refresh_token,
-      );
-      return new SuccessResponseDto<AuthLoginHttpDto>(
-        authLoginHttpDto,
-        HttpStatus.OK,
-        'Successfully logged in',
-      );
+    const loginCommand = new LoginCommand(
+      request.user_name,
+      request.password,
+      ip,
+      ua,
+    );
+    const authLogin = await this.commandBus.execute<
+      LoginCommand,
+      { id: string; user_name: string; token: string; refresh_token: string }
+    >(loginCommand);
+    const authLoginHttpDto: AuthLoginHttpDto = new AuthLoginHttpDto(
+      authLogin.user_name,
+      authLogin.id,
+      authLogin.token,
+      'Bearer',
+      authLogin.user_name,
+      authLogin.refresh_token,
+    );
+    return new SuccessResponseDto<AuthLoginHttpDto>(
+      authLoginHttpDto,
+      HttpStatus.OK,
+      'Successfully logged in',
+    );
   }
   @SkipAuth()
   @Throttle({ global: { ttl: 3_600_000, limit: 10 } })
@@ -254,7 +254,7 @@ export class AuthController {
     const token = request.headers.authorization?.replace('Bearer ', '') || '';
     const logoutCommand = new LogoutCommand(token);
     await this.commandBus.execute(logoutCommand);
-    
+
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,
@@ -275,9 +275,12 @@ export class AuthController {
   ): Promise<SuccessResponseDto<null>> {
     const payload = request.user as JwtPayload;
     const token = request.headers.authorization?.replace('Bearer ', '') || '';
-    const revokeAllSessionsCommand = new RevokeAllSessionsCommand(payload.id, token);
+    const revokeAllSessionsCommand = new RevokeAllSessionsCommand(
+      payload.id,
+      token,
+    );
     await this.commandBus.execute(revokeAllSessionsCommand);
-    
+
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,
@@ -408,7 +411,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: ExpressResponse,
   ): Promise<SuccessResponseDto<null>> {
     const { cookieToken, maxAge } = await this.commandBus.execute(
-      new GrantDocsAccessCommand(body.access_token)
+      new GrantDocsAccessCommand(body.access_token),
     );
 
     const isProduction =
@@ -469,7 +472,7 @@ export class AuthController {
     const generateTokenForForgottenPasswordCommand =
       new GenerateTokenForgottenPasswordCommand(request.email);
     await this.commandBus.execute(generateTokenForForgottenPasswordCommand);
-    
+
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,
@@ -498,7 +501,7 @@ export class AuthController {
       ua,
     );
     await this.commandBus.execute(resetPasswordCommand);
-    
+
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,

@@ -83,10 +83,12 @@ export class PrismaMaintenanceRepository implements MaintenanceRepository {
     if (resolved !== undefined) where.resolved = resolved;
 
     if (!params.page || !params.per_page) {
-      const records = await this.prisma.client.mnt_product_maintenance.findMany({
-        where,
-        orderBy: { date_start: 'desc' },
-      });
+      const records = await this.prisma.client.mnt_product_maintenance.findMany(
+        {
+          where,
+          orderBy: { date_start: 'desc' },
+        },
+      );
       return records.map(this.mapToEntity);
     }
 
@@ -109,7 +111,7 @@ export class PrismaMaintenanceRepository implements MaintenanceRepository {
       new Page(page),
       new PerPage(per_page),
       new TotalItems(total),
-      new TotalPages(Math.ceil(total / per_page))
+      new TotalPages(Math.ceil(total / per_page)),
     );
   }
 }

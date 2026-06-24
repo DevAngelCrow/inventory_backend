@@ -6,11 +6,11 @@ import { MaintenanceQueriesRepository } from '../../../repositories/maintenance-
 
 @QueryHandler(GetMaintenancesQuery)
 export class GetMaintenancesHandler implements IQueryHandler<GetMaintenancesQuery> {
-  constructor(
-    private readonly repository: MaintenanceQueriesRepository,
-  ) {}
+  constructor(private readonly repository: MaintenanceQueriesRepository) {}
 
-  async execute(query: GetMaintenancesQuery): Promise<Pagination<MaintenanceDto> | MaintenanceDto[]> {
+  async execute(
+    query: GetMaintenancesQuery,
+  ): Promise<Pagination<MaintenanceDto> | MaintenanceDto[]> {
     return await this.repository.getAll(
       query.paginationParams,
       query.id_product,

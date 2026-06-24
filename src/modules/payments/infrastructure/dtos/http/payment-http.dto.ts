@@ -7,7 +7,13 @@ export class PaymentHttpDto {
     public readonly id_payment_method: string,
     public readonly amount: number,
     public readonly payment_date: Date,
-    public readonly status: { id: string; code: string; name: string; state_color: string; text_color: string; },
+    public readonly status: {
+      id: string;
+      code: string;
+      name: string;
+      state_color: string;
+      text_color: string;
+    },
     public readonly payment_number?: string,
     public readonly reference_number?: string,
     public readonly notes?: string,

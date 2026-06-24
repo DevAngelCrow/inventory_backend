@@ -4,7 +4,10 @@ import { ReservationQueriesRepository } from '@/modules/reservations/application
 import { Reservation } from '@/modules/reservations/domain/entities/reservation';
 import { ReservationId } from '@/modules/reservations/domain/value-objects/reservation-id';
 import { ReservationStatusType } from '@/modules/reservations/domain/value-objects/reservation-status';
-import { ReservationDto, ReservationItemDto } from '@/modules/reservations/application/dtos/reservation.dto';
+import {
+  ReservationDto,
+  ReservationItemDto,
+} from '@/modules/reservations/application/dtos/reservation.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
@@ -24,28 +27,41 @@ export class ImplReservationRepository
     try {
       await this.prisma.client.$transaction(async (prisma) => {
         const defaultCurrency = await prisma.ctl_currency.findFirst({
-            where: { active: true },
+          where: { active: true },
         });
-        const id_currency = defaultCurrency?.id || '00000000-0000-0000-0000-000000000000'; // Fallback if no currency found
+        const id_currency =
+          defaultCurrency?.id || '00000000-0000-0000-0000-000000000000'; // Fallback if no currency found
 
         const createdReservation = await prisma.mnt_reservation.create({
           data: {
             reservation_number: `RES-${Date.now().toString().slice(-6)}`,
             id_customer: reservation.getIdCustomer().value(),
             id_currency: id_currency,
-            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: reservation.getStatus().value(), ctl_category_status: { code: 'RES' } } })).id,
+            id_status: (
+              await prisma.ctl_status.findFirstOrThrow({
+                where: {
+                  code: reservation.getStatus().value(),
+                  ctl_category_status: { code: 'RES' },
+                },
+              })
+            ).id,
             event_start: reservation.getDateRange().start,
             event_end: reservation.getDateRange().end,
-            delivery_address: reservation.getDeliveryAddress().addressLine1 ?? null,
-            delivery_address_line2: reservation.getDeliveryAddress().addressLine2 ?? null,
+            delivery_address:
+              reservation.getDeliveryAddress().addressLine1 ?? null,
+            delivery_address_line2:
+              reservation.getDeliveryAddress().addressLine2 ?? null,
             delivery_zip: reservation.getDeliveryAddress().zip ?? null,
             delivery_notes: reservation.getDeliveryAddress().notes ?? null,
-            id_customer_address: reservation.getDeliveryAddress().idCustomerAddress ?? null,
-            id_geographic_division: reservation.getDeliveryAddress().idGeographicDivision ?? null,
+            id_customer_address:
+              reservation.getDeliveryAddress().idCustomerAddress ?? null,
+            id_geographic_division:
+              reservation.getDeliveryAddress().idGeographicDivision ?? null,
             subtotal: reservation.getAmount().total,
             total: reservation.getAmount().total,
             deposit_amount: reservation.getAmount().deposit ?? 0,
-            balance_due: reservation.getAmount().balance ?? reservation.getAmount().total,
+            balance_due:
+              reservation.getAmount().balance ?? reservation.getAmount().total,
             notes: reservation.getNotes().value() ?? null,
             created_at: new Date(),
           },
@@ -68,7 +84,10 @@ export class ImplReservationRepository
       });
     } catch (error: any) {
       console.error('DATABASE ERROR (create reservation):', error);
-      throw new DatabaseException(`Error creating reservation: ${error.message || error}`, 'create');
+      throw new DatabaseException(
+        `Error creating reservation: ${error.message || error}`,
+        'create',
+      );
     }
   }
 
@@ -86,14 +105,18 @@ export class ImplReservationRepository
         },
       });
     } catch (error) {
-      throw new DatabaseException('Error updating reservation balance', 'updateBalance');
+      throw new DatabaseException(
+        'Error updating reservation balance',
+        'updateBalance',
+      );
     }
   }
 
   async update(reservation: Reservation): Promise<void> {
     try {
       const reservationId = reservation.getId()?.value();
-      if (!reservationId) throw new Error('Reservation ID is required for update');
+      if (!reservationId)
+        throw new Error('Reservation ID is required for update');
 
       await this.prisma.client.$transaction(async (prisma) => {
         const existing = await prisma.mnt_reservation.findUnique({
@@ -107,19 +130,31 @@ export class ImplReservationRepository
           where: { id: reservationId },
           data: {
             id_customer: reservation.getIdCustomer().value(),
-            id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: reservation.getStatus().value(), ctl_category_status: { code: 'RES' } } })).id,
+            id_status: (
+              await prisma.ctl_status.findFirstOrThrow({
+                where: {
+                  code: reservation.getStatus().value(),
+                  ctl_category_status: { code: 'RES' },
+                },
+              })
+            ).id,
             event_start: reservation.getDateRange().start,
             event_end: reservation.getDateRange().end,
-            delivery_address: reservation.getDeliveryAddress().addressLine1 ?? null,
-            delivery_address_line2: reservation.getDeliveryAddress().addressLine2 ?? null,
+            delivery_address:
+              reservation.getDeliveryAddress().addressLine1 ?? null,
+            delivery_address_line2:
+              reservation.getDeliveryAddress().addressLine2 ?? null,
             delivery_zip: reservation.getDeliveryAddress().zip ?? null,
             delivery_notes: reservation.getDeliveryAddress().notes ?? null,
-            id_customer_address: reservation.getDeliveryAddress().idCustomerAddress ?? null,
-            id_geographic_division: reservation.getDeliveryAddress().idGeographicDivision ?? null,
+            id_customer_address:
+              reservation.getDeliveryAddress().idCustomerAddress ?? null,
+            id_geographic_division:
+              reservation.getDeliveryAddress().idGeographicDivision ?? null,
             subtotal: reservation.getAmount().total,
             total: reservation.getAmount().total,
             deposit_amount: reservation.getAmount().deposit ?? 0,
-            balance_due: reservation.getAmount().balance ?? reservation.getAmount().total,
+            balance_due:
+              reservation.getAmount().balance ?? reservation.getAmount().total,
             notes: reservation.getNotes().value() ?? null,
             updated_at: new Date(),
           },
@@ -151,7 +186,12 @@ export class ImplReservationRepository
     }
   }
 
-  async updateStatus(id: ReservationId, status: ReservationStatusType, deliveryDatetime?: Date, pickupDatetime?: Date): Promise<Reservation> {
+  async updateStatus(
+    id: ReservationId,
+    status: ReservationStatusType,
+    deliveryDatetime?: Date,
+    pickupDatetime?: Date,
+  ): Promise<Reservation> {
     try {
       const existing = await this.prisma.client.mnt_reservation.findUnique({
         where: { id: id.value() },
@@ -163,7 +203,11 @@ export class ImplReservationRepository
       const updated = await this.prisma.client.mnt_reservation.update({
         where: { id: id.value() },
         data: {
-          id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: status, ctl_category_status: { code: 'RES' } } })).id,
+          id_status: (
+            await this.prisma.client.ctl_status.findFirstOrThrow({
+              where: { code: status, ctl_category_status: { code: 'RES' } },
+            })
+          ).id,
           updated_at: new Date(),
           ...(deliveryDatetime ? { delivery_datetime: deliveryDatetime } : {}),
           ...(pickupDatetime ? { pickup_datetime: pickupDatetime } : {}),
@@ -173,7 +217,10 @@ export class ImplReservationRepository
       return this.mapToDomain(updated);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new DatabaseException('Error updating reservation status', 'updateStatus');
+      throw new DatabaseException(
+        'Error updating reservation status',
+        'updateStatus',
+      );
     }
   }
 
@@ -189,7 +236,14 @@ export class ImplReservationRepository
         where: { id: id.value() },
         data: {
           deleted_at: new Date(),
-          id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: 'CANCELLED', ctl_category_status: { code: 'RES' } } })).id,
+          id_status: (
+            await this.prisma.client.ctl_status.findFirstOrThrow({
+              where: {
+                code: 'CANCELLED',
+                ctl_category_status: { code: 'RES' },
+              },
+            })
+          ).id,
         },
       });
     } catch (error) {
@@ -233,7 +287,7 @@ export class ImplReservationRepository
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
-          include: { 
+          include: {
             mnt_reservation_item: { include: { mnt_product: true } },
             mnt_customer: true,
             ctl_status: true,
@@ -258,7 +312,9 @@ export class ImplReservationRepository
         pagination_params.getPage(),
         pagination_params.getPerPage(),
         new TotalItems(total),
-        new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
+        new TotalPages(
+          Math.ceil(total / pagination_params.getPerPage().value()),
+        ),
       );
     } catch (error) {
       throw new DatabaseException('Error getting reservations', 'getAll');
@@ -269,7 +325,7 @@ export class ImplReservationRepository
     try {
       const reservation = await this.prisma.client.mnt_reservation.findUnique({
         where: { id },
-        include: { 
+        include: {
           mnt_reservation_item: { include: { mnt_product: true } },
           mnt_customer: true,
           ctl_status: true,
@@ -286,7 +342,7 @@ export class ImplReservationRepository
   async getDefaultCurrencyId(): Promise<string> {
     try {
       const defaultCurrency = await this.prisma.client.ctl_currency.findFirst({
-          where: { active: true },
+        where: { active: true },
       });
       return defaultCurrency?.id || '00000000-0000-0000-0000-000000000000';
     } catch (e) {
@@ -311,13 +367,15 @@ export class ImplReservationRepository
       deposit_amount: r.deposit_amount ? Number(r.deposit_amount) : undefined,
       balance_due: r.balance_due ? Number(r.balance_due) : undefined,
       notes: r.notes ?? undefined,
-      items: r.mnt_reservation_item ? r.mnt_reservation_item.map((i: any) => ({
-        id: i.id,
-        id_product: i.id_product,
-        quantity: i.quantity,
-        unit_price: Number(i.unit_price),
-        total_price: Number(i.subtotal),
-      })) : [],
+      items: r.mnt_reservation_item
+        ? r.mnt_reservation_item.map((i: any) => ({
+            id: i.id,
+            id_product: i.id_product,
+            quantity: i.quantity,
+            unit_price: Number(i.unit_price),
+            total_price: Number(i.subtotal),
+          }))
+        : [],
       delivery_datetime: r.delivery_datetime ?? undefined,
       pickup_datetime: r.pickup_datetime ?? undefined,
     });
@@ -340,15 +398,22 @@ export class ImplReservationRepository
       r.deposit_amount ? Number(r.deposit_amount) : undefined,
       r.balance_due ? Number(r.balance_due) : undefined,
       r.notes ?? undefined,
-      r.mnt_reservation_item ? r.mnt_reservation_item.map((i: any) => new ReservationItemDto(
-        i.id_product,
-        i.quantity,
-        Number(i.unit_price),
-        Number(i.subtotal),
-        i.id_reservation,
-        i.id,
-        i.mnt_product ? { name: i.mnt_product.name, sku: i.mnt_product.sku } : undefined,
-      )) : [],
+      r.mnt_reservation_item
+        ? r.mnt_reservation_item.map(
+            (i: any) =>
+              new ReservationItemDto(
+                i.id_product,
+                i.quantity,
+                Number(i.unit_price),
+                Number(i.subtotal),
+                i.id_reservation,
+                i.id,
+                i.mnt_product
+                  ? { name: i.mnt_product.name, sku: i.mnt_product.sku }
+                  : undefined,
+              ),
+          )
+        : [],
       r.id,
       r.created_at,
       r.updated_at,
@@ -356,12 +421,14 @@ export class ImplReservationRepository
       r.delivery_datetime,
       r.pickup_datetime,
       r.transit_time_minutes,
-      r.mnt_customer ? {
-        first_name: r.mnt_customer.first_name,
-        last_name: r.mnt_customer.last_name,
-        email: r.mnt_customer.email,
-        phone: r.mnt_customer.phone,
-      } : undefined,
+      r.mnt_customer
+        ? {
+            first_name: r.mnt_customer.first_name,
+            last_name: r.mnt_customer.last_name,
+            email: r.mnt_customer.email,
+            phone: r.mnt_customer.phone,
+          }
+        : undefined,
     );
   }
 }

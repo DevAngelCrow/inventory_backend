@@ -56,7 +56,13 @@ describe('GetReservationsHandler', () => {
   it('should call repository.getAll without pagination params', async () => {
     repository.getAll.mockResolvedValue([]);
 
-    const query = new GetReservationsQuery(undefined, undefined, undefined, undefined, undefined);
+    const query = new GetReservationsQuery(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
 
     await handler.execute(query);
 

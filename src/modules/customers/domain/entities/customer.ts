@@ -45,22 +45,29 @@ export class Customer {
     }[];
     id?: string;
   }): Customer {
-    const addresses = data.addresses ? data.addresses.map(a => new CustomerAddress(
-      a.label,
-      a.address_line1,
-      a.is_primary,
-      a.address_line2,
-      a.zip_code,
-      a.id_geographic_division,
-      a.id,
-      a.active,
-    )) : [];
+    const addresses = data.addresses
+      ? data.addresses.map(
+          (a) =>
+            new CustomerAddress(
+              a.label,
+              a.address_line1,
+              a.is_primary,
+              a.address_line2,
+              a.zip_code,
+              a.id_geographic_division,
+              a.id,
+              a.active,
+            ),
+        )
+      : [];
 
     return new Customer(
       new CustomerName(data.first_name, data.last_name, data.middle_name),
       new CustomerContact(data.phone, data.email, data.phone_secondary),
       new CustomerCountryId(data.id_country),
-      data.company_name ? new CustomerCompanyName(data.company_name) : undefined,
+      data.company_name
+        ? new CustomerCompanyName(data.company_name)
+        : undefined,
       data.tax_id ? new CustomerTaxId(data.tax_id) : undefined,
       addresses,
       data.notes ? new CustomerNotes(data.notes) : undefined,
@@ -69,13 +76,31 @@ export class Customer {
     );
   }
 
-  public getId(): CustomerId | undefined { return this.id; }
-  public getName(): CustomerName { return this.name; }
-  public getContact(): CustomerContact { return this.contact; }
-  public getAddresses(): CustomerAddress[] { return this.addresses; }
-  public getCompanyName(): CustomerCompanyName | undefined { return this.company_name; }
-  public getTaxId(): CustomerTaxId | undefined { return this.tax_id; }
-  public getNotes(): CustomerNotes | undefined { return this.notes; }
-  public getActive(): CustomerActive { return this.active; }
-  public getIdCountry(): CustomerCountryId { return this.id_country; }
+  public getId(): CustomerId | undefined {
+    return this.id;
+  }
+  public getName(): CustomerName {
+    return this.name;
+  }
+  public getContact(): CustomerContact {
+    return this.contact;
+  }
+  public getAddresses(): CustomerAddress[] {
+    return this.addresses;
+  }
+  public getCompanyName(): CustomerCompanyName | undefined {
+    return this.company_name;
+  }
+  public getTaxId(): CustomerTaxId | undefined {
+    return this.tax_id;
+  }
+  public getNotes(): CustomerNotes | undefined {
+    return this.notes;
+  }
+  public getActive(): CustomerActive {
+    return this.active;
+  }
+  public getIdCountry(): CustomerCountryId {
+    return this.id_country;
+  }
 }

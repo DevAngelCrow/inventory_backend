@@ -24,7 +24,7 @@ export class UpdateReservationHandler implements ICommandHandler<UpdateReservati
       deposit_amount: command.deposit_amount,
       balance_due: command.balance_due,
       notes: command.notes,
-      items: command.items.map(i => ({
+      items: command.items.map((i) => ({
         id_product: i.id_product,
         quantity: i.quantity,
         unit_price: i.unit_price,

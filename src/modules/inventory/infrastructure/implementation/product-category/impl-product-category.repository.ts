@@ -69,9 +69,11 @@ export class ImplProductCategoryRepository
 
   async toggleStatus(id: ProductCategoryId): Promise<ProductCategory> {
     try {
-      const existing = await this.prisma.client.ctl_product_category.findUnique({
-        where: { id: id.value() },
-      });
+      const existing = await this.prisma.client.ctl_product_category.findUnique(
+        {
+          where: { id: id.value() },
+        },
+      );
       if (!existing) {
         throw new NotFoundException('ProductCategory', id.value());
       }
@@ -85,7 +87,10 @@ export class ImplProductCategoryRepository
       return this.mapToDomain(updated);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new DatabaseException('Error toggling product category status', 'toggleStatus');
+      throw new DatabaseException(
+        'Error toggling product category status',
+        'toggleStatus',
+      );
     }
   }
 
@@ -119,7 +124,9 @@ export class ImplProductCategoryRepository
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const categories = categoriesDb.map((cat) => this.mapToDto(cat, catalog_status));
+      const categories = categoriesDb.map((cat) =>
+        this.mapToDto(cat, catalog_status),
+      );
 
       if (!pagination_params) return categories;
 
@@ -133,7 +140,9 @@ export class ImplProductCategoryRepository
         pagination_params.getPage(),
         pagination_params.getPerPage(),
         new TotalItems(total),
-        new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
+        new TotalPages(
+          Math.ceil(total / pagination_params.getPerPage().value()),
+        ),
       );
     } catch (error) {
       if (error instanceof Error) {

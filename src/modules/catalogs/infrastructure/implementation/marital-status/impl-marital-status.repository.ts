@@ -115,11 +115,12 @@ export class ImplMaritalStatusRepository
   }
   async getOneById(id: string): Promise<MaritalStatusDto | null> {
     try {
-      const maritalStatusDb = await this.prisma.client.ctl_marital_status.findFirst({
-        where: {
-          id: id,
-        },
-      });
+      const maritalStatusDb =
+        await this.prisma.client.ctl_marital_status.findFirst({
+          where: {
+            id: id,
+          },
+        });
       if (!maritalStatusDb) {
         return null;
       }

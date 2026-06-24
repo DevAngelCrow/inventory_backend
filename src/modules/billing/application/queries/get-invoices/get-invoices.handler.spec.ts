@@ -54,7 +54,12 @@ describe('GetInvoicesHandler', () => {
   it('should call repository.getAll without pagination params', async () => {
     repository.getAll.mockResolvedValue([]);
 
-    const query = new GetInvoicesQuery(undefined, undefined, undefined, undefined);
+    const query = new GetInvoicesQuery(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
 
     await handler.execute(query);
 

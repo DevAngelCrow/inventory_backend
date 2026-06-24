@@ -2,7 +2,10 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { ResolveMaintenanceCommand } from './resolve-maintenance.command';
 import { Maintenance } from '../../../../domain/entities/maintenance';
-import { MAINTENANCE_REPOSITORY, MaintenanceRepository } from '../../../../domain/repositories/maintenance.repository';
+import {
+  MAINTENANCE_REPOSITORY,
+  MaintenanceRepository,
+} from '../../../../domain/repositories/maintenance.repository';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 
 @CommandHandler(ResolveMaintenanceCommand)

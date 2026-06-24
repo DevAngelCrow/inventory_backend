@@ -105,7 +105,10 @@ export class ImplProductRepository
       return this.mapToDomain(updated);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new DatabaseException('Error toggling product status', 'toggleStatus');
+      throw new DatabaseException(
+        'Error toggling product status',
+        'toggleStatus',
+      );
     }
   }
 
@@ -120,7 +123,7 @@ export class ImplProductRepository
       const where: any = {
         deleted_at: null,
       };
-      
+
       if (filter_name) {
         where.name = { contains: filter_name, mode: 'insensitive' };
       }
@@ -150,7 +153,9 @@ export class ImplProductRepository
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const products = productsDb.map((p: any) => this.mapToDto(p, catalog_status));
+      const products = productsDb.map((p: any) =>
+        this.mapToDto(p, catalog_status),
+      );
 
       if (!pagination_params) return products;
 
@@ -164,7 +169,9 @@ export class ImplProductRepository
         pagination_params.getPage(),
         pagination_params.getPerPage(),
         new TotalItems(total),
-        new TotalPages(Math.ceil(total / pagination_params.getPerPage().value())),
+        new TotalPages(
+          Math.ceil(total / pagination_params.getPerPage().value()),
+        ),
       );
     } catch (error) {
       console.error('Prisma Error in Products:', error);
@@ -203,7 +210,9 @@ export class ImplProductRepository
       name: p.name,
       description: p.description ?? undefined,
       rental_price: Number(p.rental_price),
-      replacement_cost: p.replacement_cost ? Number(p.replacement_cost) : undefined,
+      replacement_cost: p.replacement_cost
+        ? Number(p.replacement_cost)
+        : undefined,
       total_stock: p.total_stock,
       min_stock_alert: p.min_stock_alert,
       category_id: p.id_category,

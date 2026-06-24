@@ -5,7 +5,11 @@ import { AppModule } from '../../src/app.module';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from '@/modules/security/infrastructure/guards/permissions.guard';
-import { createPrismaMock, createPrismaServiceMock, MockPrismaClient } from '../mocks/prisma.mock';
+import {
+  createPrismaMock,
+  createPrismaServiceMock,
+  MockPrismaClient,
+} from '../mocks/prisma.mock';
 
 describe('Inventory Categories (e2e)', () => {
   let app: INestApplication;
@@ -15,11 +19,19 @@ describe('Inventory Categories (e2e)', () => {
     mockPrismaClient = createPrismaMock();
     const mockPrismaService = createPrismaServiceMock(mockPrismaClient);
 
-    jest.spyOn(JwtPassportAuthGuard.prototype, 'canActivate').mockImplementation((context) => {
-      const req = context.switchToHttp().getRequest();
-      req.user = { id: 'test-user', permissions: ['crear-categoria-producto', 'listar-categorias-producto'] };
-      return true;
-    });
+    jest
+      .spyOn(JwtPassportAuthGuard.prototype, 'canActivate')
+      .mockImplementation((context) => {
+        const req = context.switchToHttp().getRequest();
+        req.user = {
+          id: 'test-user',
+          permissions: [
+            'crear-categoria-producto',
+            'listar-categorias-producto',
+          ],
+        };
+        return true;
+      });
     jest.spyOn(PermissionsGuard.prototype, 'canActivate').mockReturnValue(true);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -82,7 +94,7 @@ describe('Inventory Categories (e2e)', () => {
         updated_at: new Date(),
       },
     ] as any);
-    
+
     mockPrismaClient.ctl_product_category.count.mockResolvedValue(1);
 
     return request(app.getHttpServer())

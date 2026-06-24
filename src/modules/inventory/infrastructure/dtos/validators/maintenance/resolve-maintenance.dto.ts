@@ -1,4 +1,10 @@
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  Min,
+} from 'class-validator';
 
 export class ResolveMaintenanceDto {
   @IsDateString()

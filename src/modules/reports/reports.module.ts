@@ -6,17 +6,9 @@ import { reportsQueryHandlerProviders } from './infrastructure/config/queries-ha
 import { reportsRepositoryProviders } from './infrastructure/config/repositories.config';
 
 @Module({
-  imports: [
-    CqrsModule,
-  ],
+  imports: [CqrsModule],
   controllers: [ReportsController],
-  providers: [
-    ...reportsQueryHandlerProviders,
-    ...reportsRepositoryProviders,
-  ],
-  exports: [
-    ...reportsQueryHandlerProviders,
-    ...reportsRepositoryProviders,
-  ],
+  providers: [...reportsQueryHandlerProviders, ...reportsRepositoryProviders],
+  exports: [...reportsQueryHandlerProviders, ...reportsRepositoryProviders],
 })
-export class ReportsModule { }
+export class ReportsModule {}
