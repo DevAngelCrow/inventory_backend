@@ -5,18 +5,21 @@ import { ReservationAddress } from '../value-objects/reservation-address';
 import { ReservationAmount } from '../value-objects/reservation-amount';
 import { ReservationNotes } from '../value-objects/reservation-notes';
 import { ReservationItem } from './reservation-item';
+import { ReservationCustomerId } from '../value-objects/reservation-customer-id';
+import { ReservationDeliveryDatetime } from '../value-objects/reservation-delivery-datetime';
+import { ReservationPickupDatetime } from '../value-objects/reservation-pickup-datetime';
 
 export class Reservation {
   constructor(
-    private readonly id_customer: string,
+    private readonly id_customer: ReservationCustomerId,
     private readonly status: ReservationStatus,
     private readonly dateRange: ReservationDateRange,
     private readonly deliveryAddress: ReservationAddress,
     private readonly amount: ReservationAmount,
     private readonly notes: ReservationNotes,
     private readonly items: ReservationItem[],
-    private readonly deliveryDatetime?: Date,
-    private readonly pickupDatetime?: Date,
+    private readonly deliveryDatetime?: ReservationDeliveryDatetime,
+    private readonly pickupDatetime?: ReservationPickupDatetime,
     private readonly id?: ReservationId,
   ) {}
 
@@ -47,7 +50,7 @@ export class Reservation {
     id?: string;
   }): Reservation {
     return new Reservation(
-      data.id_customer,
+      new ReservationCustomerId(data.id_customer),
       new ReservationStatus(data.status),
       new ReservationDateRange(data.event_start, data.event_end),
       new ReservationAddress({
@@ -70,20 +73,20 @@ export class Reservation {
           id: i.id,
         }),
       ),
-      data.delivery_datetime,
-      data.pickup_datetime,
+      data.delivery_datetime ? new ReservationDeliveryDatetime(data.delivery_datetime) : undefined,
+      data.pickup_datetime ? new ReservationPickupDatetime(data.pickup_datetime) : undefined,
       data.id ? new ReservationId(data.id) : undefined,
     );
   }
 
   public getId(): ReservationId | undefined { return this.id; }
-  public getIdCustomer(): string { return this.id_customer; }
+  public getIdCustomer(): ReservationCustomerId { return this.id_customer; }
   public getStatus(): ReservationStatus { return this.status; }
   public getDateRange(): ReservationDateRange { return this.dateRange; }
   public getDeliveryAddress(): ReservationAddress { return this.deliveryAddress; }
   public getAmount(): ReservationAmount { return this.amount; }
   public getNotes(): ReservationNotes { return this.notes; }
   public getItems(): ReservationItem[] { return this.items; }
-  public getDeliveryDatetime(): Date | undefined { return this.deliveryDatetime; }
-  public getPickupDatetime(): Date | undefined { return this.pickupDatetime; }
+  public getDeliveryDatetime(): ReservationDeliveryDatetime | undefined { return this.deliveryDatetime; }
+  public getPickupDatetime(): ReservationPickupDatetime | undefined { return this.pickupDatetime; }
 }

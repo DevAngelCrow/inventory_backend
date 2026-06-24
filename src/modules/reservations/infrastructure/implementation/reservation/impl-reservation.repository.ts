@@ -31,7 +31,7 @@ export class ImplReservationRepository
         const createdReservation = await prisma.mnt_reservation.create({
           data: {
             reservation_number: `RES-${Date.now().toString().slice(-6)}`,
-            id_customer: reservation.getIdCustomer(),
+            id_customer: reservation.getIdCustomer().value(),
             id_currency: id_currency,
             id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: reservation.getStatus().value(), ctl_category_status: { code: 'RES' } } })).id,
             event_start: reservation.getDateRange().start,
@@ -53,7 +53,7 @@ export class ImplReservationRepository
 
         const itemsData = reservation.getItems().map((item) => ({
           id_reservation: createdReservation.id,
-          id_product: item.getIdProduct(),
+          id_product: item.getIdProduct().value(),
           quantity: item.getQuantity().value(),
           unit_price: item.getPrice().unitPrice,
           subtotal: item.getPrice().totalPrice,
@@ -106,7 +106,7 @@ export class ImplReservationRepository
         await prisma.mnt_reservation.update({
           where: { id: reservationId },
           data: {
-            id_customer: reservation.getIdCustomer(),
+            id_customer: reservation.getIdCustomer().value(),
             id_status: (await prisma.ctl_status.findFirstOrThrow({ where: { code: reservation.getStatus().value(), ctl_category_status: { code: 'RES' } } })).id,
             event_start: reservation.getDateRange().start,
             event_end: reservation.getDateRange().end,
@@ -132,7 +132,7 @@ export class ImplReservationRepository
 
         const itemsData = reservation.getItems().map((item) => ({
           id_reservation: reservationId,
-          id_product: item.getIdProduct(),
+          id_product: item.getIdProduct().value(),
           quantity: item.getQuantity().value(),
           unit_price: item.getPrice().unitPrice,
           subtotal: item.getPrice().totalPrice,

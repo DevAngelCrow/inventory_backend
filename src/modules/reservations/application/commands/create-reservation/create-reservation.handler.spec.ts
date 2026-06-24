@@ -56,7 +56,7 @@ describe('CreateReservationHandler', () => {
     expect(repository.create).toHaveBeenCalledTimes(1);
     const createdReservation = repository.create.mock.calls[0][0] as Reservation;
     
-    expect(createdReservation.getIdCustomer()).toBe('cust-123');
+    expect(createdReservation.getIdCustomer().value()).toBe('cust-123');
     expect(createdReservation.getStatus().value()).toBe('PENDING');
     expect(createdReservation.getAmount().total).toBe(100);
     expect(createdReservation.getAmount().deposit).toBe(20);
@@ -66,7 +66,7 @@ describe('CreateReservationHandler', () => {
     
     const items = createdReservation.getItems();
     expect(items.length).toBe(1);
-    expect(items[0].getIdProduct()).toBe('prod-1');
+    expect(items[0].getIdProduct().value()).toBe('prod-1');
     expect(items[0].getQuantity().value()).toBe(2);
     expect(items[0].getPrice().unitPrice).toBe(50);
     expect(items[0].getPrice().totalPrice).toBe(100);
