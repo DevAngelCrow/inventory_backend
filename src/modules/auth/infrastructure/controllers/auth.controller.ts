@@ -51,10 +51,6 @@ import { JwtPayload } from '../strategies/jwt.strategy';
 
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GetAddressByIdQuery } from '@/modules/profile/application/address/queries/get-address-by-id/get-address-by-id.query';
-import { GetDocumentByIdQuery } from '@/modules/profile/application/document/queries/get-document-by-id/get-document-by-id.query';
-import { Address } from '@/modules/profile/domain/entities/address';
-import { Document } from '@/modules/profile/domain/entities/document';
 import { RegisterCommand } from '../../application/commands/register/register.command';
 import { LoginCommand } from '../../application/commands/login/login.command';
 import { VerifyEmailCommand } from '../../application/commands/email-verification/verify-email.command';
@@ -67,6 +63,7 @@ import { RefreshCommand } from '../../application/commands/refresh/refresh.comma
 import { UpdateProfileDto } from '../../application/dtos/update-profile.dto';
 import { UpdateProfileCommand } from '../../application/commands/update-profile/update-profile.command';
 import { ResetPasswordDto } from '../dtos/validators/auth/reset-password.dto';
+import { GrantDocsAccessCommand } from '../../application/commands/docs-access/grant-docs-access.command';
 import { EmailForgotPasswordDto } from '../dtos/validators/auth/email-forgot-password.dto';
 import { GenerateTokenForgottenPasswordCommand } from '../../application/commands/generate-token-forgotten-password/generate-token-forgotten-password.command';
 import { ResetForgottenPasswordCommand } from '../../application/commands/reset-forgotten-password/reset-forgotten-password.command';
@@ -88,8 +85,6 @@ export class AuthController {
     private readonly queryBus: QueryBus,
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly userReadRepository: UserReadRepository,
-    private readonly auditLog: AuditLogService,
   ) {}
 
   private getClientIp(req: Request): string | null {
@@ -203,7 +198,6 @@ export class AuthController {
   ): Promise<SuccessResponseDto<AuthLoginHttpDto>> {
     const ip = this.getClientIp(req);
     const ua = this.getUserAgent(req);
-    try {
       const loginCommand = new LoginCommand(
         request.user_name,
         request.password,
@@ -214,13 +208,6 @@ export class AuthController {
         LoginCommand,
         { id: string; user_name: string; token: string; refresh_token: string }
       >(loginCommand);
-      this.auditLog.log({
-        action: AuditAction.LOGIN_SUCCESS,
-        user_name: request.user_name,
-        user_id: authLogin.id,
-        ip_address: ip,
-        user_agent: ua,
-      });
       const authLoginHttpDto: AuthLoginHttpDto = new AuthLoginHttpDto(
         authLogin.user_name,
         authLogin.id,
@@ -234,15 +221,6 @@ export class AuthController {
         HttpStatus.OK,
         'Successfully logged in',
       );
-    } catch (err) {
-      this.auditLog.log({
-        action: AuditAction.LOGIN_FAILED,
-        user_name: request.user_name,
-        ip_address: ip,
-        user_agent: ua,
-      });
-      throw err;
-    }
   }
   @SkipAuth()
   @Throttle({ global: { ttl: 3_600_000, limit: 10 } })
@@ -261,6 +239,7 @@ export class AuthController {
       'Email verified successfully',
     );
   }
+  @Auditable({ action: AuditAction.LOGOUT })
   @Permissions('cerrar-sesion')
   @Throttle({ global: { ttl: 60000, limit: 5 } })
   @Post('logout')
@@ -275,22 +254,14 @@ export class AuthController {
     const token = request.headers.authorization?.replace('Bearer ', '') || '';
     const logoutCommand = new LogoutCommand(token);
     await this.commandBus.execute(logoutCommand);
-    const user = (
-      request as unknown as { user?: { id?: string; user_name?: string } }
-    ).user;
-    this.auditLog.log({
-      action: AuditAction.LOGOUT,
-      user_name: user?.user_name ?? null,
-      user_id: user?.id ?? null,
-      ip_address: this.getClientIp(request as unknown as Request),
-      user_agent: this.getUserAgent(request as unknown as Request),
-    });
+    
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,
       'Successfully logged out',
     );
   }
+  @Auditable({ action: AuditAction.REVOKE_ALL_SESSIONS })
   @Permissions('cerrar-sesion')
   @Throttle({ global: { ttl: 60000, limit: 5 } })
   @Delete('sessions')
@@ -302,29 +273,18 @@ export class AuthController {
   async revokeAllSessions(
     @Req() request: Request<{ headers: { authorization: string } }>,
   ): Promise<SuccessResponseDto<null>> {
+    const payload = request.user as JwtPayload;
     const token = request.headers.authorization?.replace('Bearer ', '') || '';
-    const userId = (
-      request as unknown as { user: { id: string; user_name?: string } }
-    ).user.id;
-    const revokeCommand = new RevokeAllSessionsCommand(userId, token);
-    await this.commandBus.execute(revokeCommand);
-    const user = (
-      request as unknown as { user?: { id?: string; user_name?: string } }
-    ).user;
-    this.auditLog.log({
-      action: AuditAction.REVOKE_ALL_SESSIONS,
-      user_name: user?.user_name ?? null,
-      user_id: userId,
-      ip_address: this.getClientIp(request as unknown as Request),
-      user_agent: this.getUserAgent(request as unknown as Request),
-    });
+    const revokeAllSessionsCommand = new RevokeAllSessionsCommand(payload.id, token);
+    await this.commandBus.execute(revokeAllSessionsCommand);
+    
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,
       'All sessions revoked successfully',
     );
   }
-  @SkipAuth()
+  @Auditable({ action: AuditAction.TOKEN_REFRESH })
   @UseGuards(JwtRefreshGuard)
   @Post('refresh-token')
   @HttpCode(200)
@@ -340,11 +300,11 @@ export class AuthController {
     @Req() request: Request<{ headers: { authorization: string } }>,
   ): Promise<SuccessResponseDto<AuthLoginHttpDto>> {
     const token = request.headers.authorization?.replace('Bearer ', '') || '';
-    const refreshTokenCommand = new RefreshCommand(token);
+    const refreshCommand = new RefreshCommand(token);
     const tokens = await this.commandBus.execute<
       RefreshCommand,
       { id: string; user_name: string; token: string; refresh_token: string }
-    >(refreshTokenCommand);
+    >(refreshCommand);
 
     const authLoginHttpDto = new AuthLoginHttpDto(
       tokens.user_name,
@@ -354,15 +314,10 @@ export class AuthController {
       tokens.user_name,
       tokens.refresh_token,
     );
-    this.auditLog.log({
-      action: AuditAction.TOKEN_REFRESH,
-      user_name: tokens.user_name,
-      user_id: tokens.id,
-    });
     return new SuccessResponseDto<AuthLoginHttpDto>(
       authLoginHttpDto,
       HttpStatus.OK,
-      'Successfully refreshed session',
+      'Token refreshed successfully',
     );
   }
   @Permissions('editar-mi-perfil')
@@ -385,48 +340,6 @@ export class AuthController {
       );
     }
 
-    // Resolve id_people and current id_status / is_validated SERVER-SIDE from
-    // the authenticated user. Never accept these from the body — doing so
-    // would allow IDOR (modifying another person's record) and mass-assignment
-    // (self-validating email, self-promoting status).
-    const user = await this.userReadRepository.getOneById(id);
-    if (!user) {
-      throw new NotFoundException('User', id);
-    }
-    const idPeople = user.id_people;
-
-    // If the request targets an address/document, verify it belongs to this
-    // user before forwarding to the update handler. Prevents IDOR via
-    // body-supplied id_address / id_document.
-    if (request.id_address) {
-      const address = await this.queryBus.execute<
-        GetAddressByIdQuery,
-        Address | null
-      >(new GetAddressByIdQuery(request.id_address));
-      if (!address) {
-        throw new NotFoundException('Address', request.id_address);
-      }
-      if (address.getIdPeople().value() !== idPeople) {
-        throw new ForbiddenException(
-          'You are not allowed to modify this address.',
-        );
-      }
-    }
-    if (request.id_document) {
-      const document = await this.queryBus.execute<
-        GetDocumentByIdQuery,
-        Document | null
-      >(new GetDocumentByIdQuery(request.id_document));
-      if (!document) {
-        throw new NotFoundException('Document', request.id_document);
-      }
-      if (document.getIdPeople().value() !== idPeople) {
-        throw new ForbiddenException(
-          'You are not allowed to modify this document.',
-        );
-      }
-    }
-
     const updateProfileDto = new UpdateProfileDto(
       request.first_name ?? null,
       request.middle_name ?? null,
@@ -436,21 +349,21 @@ export class AuthController {
       request.id_gender ?? null,
       request.id_marital_status ?? null,
       request.phone ?? null,
-      // id_status: preserved from the user's current record (admin-only field)
-      user.id_status,
-      // img_path: only set via the validated file upload — never from the body
+      // id_status: resolved server-side in the handler
+      null,
+      // img_path: only set via the validated file upload
       null,
       request.nationalities,
       file ?? null,
-      // id_people: derived from the authenticated user — never from the body
-      idPeople,
+      // id_people: derived from the authenticated user in the handler
+      null,
       request.user_name ?? '',
       // password: handled by the dedicated password-change endpoint
       '',
       // last_access: server-side timestamp, not editable by the user
       new Date(),
       // is_validated: governed by the email-verification flow only
-      user.is_validated,
+      null,
       id,
       request.street ?? null,
       request.street_number ?? null,
@@ -494,28 +407,9 @@ export class AuthController {
     @Body() body: DocsAccessDto,
     @Res({ passthrough: true }) res: ExpressResponse,
   ): Promise<SuccessResponseDto<null>> {
-    let payload: JwtPayload;
-    try {
-      payload = this.jwtService.verify<JwtPayload>(body.access_token);
-    } catch {
-      throw new ForbiddenException('Token inválido o expirado');
-    }
-
-    const user = await this.userReadRepository.getOneByIdForAuth(payload.id);
-    if (!user || !user.permissions.includes('ver-documentacion-api')) {
-      throw new ForbiddenException(
-        'No posee permiso para acceder a la documentación de la API',
-      );
-    }
-
-    const cookieToken = this.jwtService.sign({
-      id: payload.id,
-      user_name: payload.user_name,
-    });
-    const decoded = this.jwtService.decode<{ exp?: number }>(cookieToken);
-    const maxAge = decoded?.exp
-      ? (decoded.exp - Math.floor(Date.now() / 1000)) * 1000
-      : 3_600_000;
+    const { cookieToken, maxAge } = await this.commandBus.execute(
+      new GrantDocsAccessCommand(body.access_token)
+    );
 
     const isProduction =
       this.config.get<string>('NODE_ENV')?.trim() !== 'development';
@@ -526,12 +420,6 @@ export class AuthController {
       secure: isProduction,
       path: '/',
       maxAge,
-    });
-
-    this.auditLog.log({
-      action: AuditAction.DOCS_ACCESS_GRANTED,
-      user_name: payload.user_name,
-      user_id: payload.id,
     });
 
     return new SuccessResponseDto<null>(
@@ -581,12 +469,7 @@ export class AuthController {
     const generateTokenForForgottenPasswordCommand =
       new GenerateTokenForgottenPasswordCommand(request.email);
     await this.commandBus.execute(generateTokenForForgottenPasswordCommand);
-    this.auditLog.log({
-      action: AuditAction.PASSWORD_RESET_REQUESTED,
-      ip_address: this.getClientIp(req),
-      user_agent: this.getUserAgent(req),
-      metadata: { email: request.email },
-    });
+    
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,
@@ -611,28 +494,11 @@ export class AuthController {
       request.token,
       request.password,
       request.id,
+      ip,
+      ua,
     );
-    // The handler returns the real user_id resolved from the token — request.id
-    // holds the TOKEN id, not the user id, so auditing it directly would store
-    // useless data.
-    const { user_id } = await this.commandBus.execute<
-      ResetForgottenPasswordCommand,
-      { user_id: string }
-    >(resetPasswordCommand);
-    this.auditLog.log({
-      action: AuditAction.PASSWORD_RESET_COMPLETED,
-      user_id,
-      ip_address: ip,
-      user_agent: ua,
-      // Stamp the token id and the IP/UA explicitly so security can correlate
-      // this consumption against the PASSWORD_RESET_REQUESTED entry that was
-      // logged when the user originally asked for the email.
-      metadata: {
-        token_id: request.id,
-        consumed_ip: ip,
-        consumed_user_agent: ua,
-      },
-    });
+    await this.commandBus.execute(resetPasswordCommand);
+    
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,

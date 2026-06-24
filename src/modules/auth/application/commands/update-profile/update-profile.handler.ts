@@ -1,5 +1,12 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { StorageUploadService } from '@/modules/storage/application/services/storage/storage-upload.service';
+import { UserReadRepository } from '@/modules/identity-access-management/application/repositories/user-read.repository';
+import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
+import { ForbiddenException } from '@/shared/application/exceptions/forbidden.exception';
+import { GetAddressByIdQuery } from '@/modules/profile/application/address/queries/get-address-by-id/get-address-by-id.query';
+import { GetDocumentByIdQuery } from '@/modules/profile/application/document/queries/get-document-by-id/get-document-by-id.query';
+import { Address } from '@/modules/profile/domain/entities/address';
+import { Document } from '@/modules/profile/domain/entities/document';
 import { UpdateProfileCommand } from './update-profile.command';
 import { StorageFilesContentFile } from '@/modules/storage/domain/value-objects/storage-files-value-object/storage-files-content-file';
 import { StorageFiles } from '@/modules/storage/domain/entities/storage-files';
@@ -28,9 +35,42 @@ export class UpdateProfileHandler<
     private readonly userNameUpdateService: UpdateUserNameService,
     public readonly addressUpdateService: AddressUpdateService,
     public readonly documentUpdateService: DocumentUpdateService,
+    private readonly userReadRepository: UserReadRepository,
+    private readonly queryBus: QueryBus,
   ) {}
 
   async execute(command: UpdateProfileCommand<T>): Promise<void> {
+    const idUser = command.update_profile_dto.id_user;
+    const user = await this.userReadRepository.getOneById(idUser);
+    if (!user) {
+      throw new NotFoundException('User', idUser);
+    }
+    const idPeople = user.id_people;
+
+    if (command.update_profile_dto.id_address) {
+      const address = await this.queryBus.execute<GetAddressByIdQuery, Address | null>(
+        new GetAddressByIdQuery(command.update_profile_dto.id_address)
+      );
+      if (!address) {
+        throw new NotFoundException('Address', command.update_profile_dto.id_address);
+      }
+      if (address.getIdPeople().value() !== idPeople) {
+        throw new ForbiddenException('You are not allowed to modify this address.');
+      }
+    }
+
+    if (command.update_profile_dto.id_document) {
+      const document = await this.queryBus.execute<GetDocumentByIdQuery, Document | null>(
+        new GetDocumentByIdQuery(command.update_profile_dto.id_document)
+      );
+      if (!document) {
+        throw new NotFoundException('Document', command.update_profile_dto.id_document);
+      }
+      if (document.getIdPeople().value() !== idPeople) {
+        throw new ForbiddenException('You are not allowed to modify this document.');
+      }
+    }
+
     const { file_img } = command.update_profile_dto;
     let storageFiles: StorageFiles<T> | undefined = undefined;
     if (file_img) {
@@ -46,7 +86,7 @@ export class UpdateProfileHandler<
       : (command.update_profile_dto?.img_path ?? null);
 
     const personDto = new UpdatePersonDto(
-      command.update_profile_dto?.id_people,
+      idPeople,
       command.update_profile_dto?.first_name,
       command.update_profile_dto?.birthdate,
       command.update_profile_dto?.id_gender,
@@ -57,14 +97,14 @@ export class UpdateProfileHandler<
       command.update_profile_dto?.last_name,
       resolvedImgPath,
       command.update_profile_dto?.nationalities,
-      command.update_profile_dto?.id_status,
+      user.id_status,
     );
 
     await this.personUpdateService.run(personDto as unknown as PersonDto);
 
     const addressDto = new UpdateAddressDto(
       command.update_profile_dto?.id_address,
-      command.update_profile_dto?.id_people,
+      idPeople,
       command.update_profile_dto?.street ?? undefined,
       command.update_profile_dto?.street_number ?? undefined,
       command.update_profile_dto?.neighborhood ?? undefined,
@@ -80,7 +120,7 @@ export class UpdateProfileHandler<
 
     const documentDto = new UpdateDocumentDto(
       command.update_profile_dto.id_document,
-      command.update_profile_dto.id_people,
+      idPeople,
       command.update_profile_dto.document_number ?? undefined,
       command.update_profile_dto.description ?? undefined,
       command.update_profile_dto.id_type_document ?? undefined,
@@ -102,7 +142,6 @@ export class UpdateProfileHandler<
       );
     }
     const userName = command.update_profile_dto.user_name;
-    const idUser = command.update_profile_dto.id_user;
 
     await this.userNameUpdateService.run(userName, idUser);
   }

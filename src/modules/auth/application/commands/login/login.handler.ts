@@ -12,6 +12,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { authLoginTotal } from '@/shared/infrastructure/health/business-metrics';
 import { ErrorCode } from '@/shared/domain/enums/error-code.enum';
 import { AccountLockedException } from '@/shared/domain/exceptions/account-locked.exception';
+import { AuditLogService } from '@/modules/audit/application/services/audit-log.service';
+import { AuditAction } from '@/modules/audit/domain/enums/audit-action.enum';
 
 const PERMISSIONS_CACHE_TTL_MS = 3_600_000;
 
@@ -24,6 +26,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly findUserService: FindUserService,
     private readonly createUpdateRefreshTokenPort: CreateOrUpdateRefreshTokenPort,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly auditLog: AuditLogService,
   ) {}
   async execute(command: LoginCommand): Promise<AuthenticateDto> {
     const userExists = await this.findUserService.run(command.user_name);
@@ -37,6 +40,12 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
         dummyPasswordHash,
       );
       authLoginTotal.inc({ result: 'failure' });
+      this.auditLog.log({
+        action: AuditAction.LOGIN_FAILED,
+        user_name: command.user_name,
+        ip_address: command.ip_address,
+        user_agent: command.user_agent,
+      });
       throw new UnauthorizedException(
         'Invalid credentials',
         ErrorCode.AUTH_INVALID_CREDENTIALS,
@@ -45,6 +54,12 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     const userId = userExists.user.id;
     const userPassword = userExists.user.password;
     if (!userId || !userPassword) {
+      this.auditLog.log({
+        action: AuditAction.LOGIN_FAILED,
+        user_name: command.user_name,
+        ip_address: command.ip_address,
+        user_agent: command.user_agent,
+      });
       throw new UnauthorizedException(
         'Invalid credentials',
         ErrorCode.AUTH_INVALID_CREDENTIALS,
@@ -55,6 +70,12 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     const lockout = await this.authReadPort.getLockoutStatus(userId);
     if (lockout.locked_until && lockout.locked_until > new Date()) {
       authLoginTotal.inc({ result: 'failure' });
+      this.auditLog.log({
+        action: AuditAction.LOGIN_FAILED,
+        user_name: command.user_name,
+        ip_address: command.ip_address,
+        user_agent: command.user_agent,
+      });
       throw new AccountLockedException(lockout.locked_until);
     }
 
@@ -66,6 +87,12 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     if (!credentialsValid) {
       authLoginTotal.inc({ result: 'failure' });
       await this.authReadPort.incrementLoginFailures(userId);
+      this.auditLog.log({
+        action: AuditAction.LOGIN_FAILED,
+        user_name: command.user_name,
+        ip_address: command.ip_address,
+        user_agent: command.user_agent,
+      });
       throw new UnauthorizedException(
         'Invalid credentials',
         ErrorCode.AUTH_INVALID_CREDENTIALS,
@@ -76,6 +103,12 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     );
     if (!emailVerified) {
       authLoginTotal.inc({ result: 'failure' });
+      this.auditLog.log({
+        action: AuditAction.LOGIN_FAILED,
+        user_name: command.user_name,
+        ip_address: command.ip_address,
+        user_agent: command.user_agent,
+      });
       throw new UnauthorizedException(
         'Email not verified',
         ErrorCode.AUTH_EMAIL_NOT_VERIFIED,
@@ -111,6 +144,13 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
       { ip_address: command.ip_address, user_agent: command.user_agent },
     );
     authLoginTotal.inc({ result: 'success' });
+    this.auditLog.log({
+      action: AuditAction.LOGIN_SUCCESS,
+      user_name: command.user_name,
+      user_id: userId,
+      ip_address: command.ip_address,
+      user_agent: command.user_agent,
+    });
     try {
       await this.cacheManager.set(
         `user:${userId}:permissions`,

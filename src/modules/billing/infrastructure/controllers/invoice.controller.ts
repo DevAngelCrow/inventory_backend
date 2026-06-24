@@ -27,8 +27,8 @@ import { GenerateInvoiceCommand } from '../../application/commands/generate-invo
 import { UpdateInvoiceStatusCommand } from '../../application/commands/update-invoice-status/update-invoice-status.command';
 import { GetInvoicesQuery } from '../../application/queries/get-invoices/get-invoices.query';
 import { GetInvoiceQuery } from '../../application/queries/get-invoice/get-invoice.query';
+import { GetInvoicePdfQuery } from '../../application/queries/get-invoice-pdf/get-invoice-pdf.query';
 import { InvoiceDto } from '../../application/dtos/invoice.dto';
-import { PdfService } from '../services/pdf.service';
 
 @ApiTags('Billing')
 @Controller('invoices')
@@ -37,7 +37,6 @@ export class InvoiceController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly pdfService: PdfService,
   ) {}
 
   @Permissions('generar-factura')
@@ -153,23 +152,15 @@ export class InvoiceController {
     @Param('id', ParseUUIDPipe) id: string,
     @Res() res: Response,
   ) {
-    const query = new GetInvoiceQuery(id);
-    const invoice: InvoiceDto | null = await this.queryBus.execute(query);
-
-    if (!invoice) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        message: 'Invoice not found',
-      });
-    }
-
-    const pdfBuffer = await this.pdfService.generateInvoicePdf(invoice);
+    const query = new GetInvoicePdfQuery(id);
+    const result: { buffer: Buffer; fileName: string } = await this.queryBus.execute(query);
 
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="factura-${invoice.invoice_number}.pdf"`,
-      'Content-Length': pdfBuffer.length,
+      'Content-Disposition': `attachment; filename="${result.fileName}"`,
+      'Content-Length': result.buffer.length,
     });
 
-    res.end(pdfBuffer);
+    res.end(result.buffer);
   }
 }
