@@ -169,7 +169,7 @@ export class CustomerController {
     return new SuccessResponseDto<null>(
       null,
       HttpStatus.OK,
-      `Customer status updated to ${result.getActive() ? 'active' : 'inactive'}`,
+      `Customer status updated to ${result.getActive().value() ? 'active' : 'inactive'}`,
     );
   }
 }

@@ -2,6 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Maintenance } from '../../domain/entities/maintenance';
 import { MaintenanceRepository } from '../../domain/repositories/maintenance.repository';
+import { MaintenanceId } from '../../domain/value-objects/maintenance-value-object/maintenance-id';
+import { MaintenanceDescription } from '../../domain/value-objects/maintenance-value-object/maintenance-description';
+import { MaintenanceCost } from '../../domain/value-objects/maintenance-value-object/maintenance-cost';
+import { MaintenanceQuantity } from '../../domain/value-objects/maintenance-value-object/maintenance-quantity';
+import { MaintenanceDateStart } from '../../domain/value-objects/maintenance-value-object/maintenance-date-start';
+import { MaintenanceDateEnd } from '../../domain/value-objects/maintenance-value-object/maintenance-date-end';
+import { MaintenanceResolved } from '../../domain/value-objects/maintenance-value-object/maintenance-resolved';
+import { MaintenanceCreatedAt } from '../../domain/value-objects/maintenance-value-object/maintenance-created-at';
+import { MaintenanceUpdatedAt } from '../../domain/value-objects/maintenance-value-object/maintenance-updated-at';
+import { ProductId } from '../../domain/value-objects/product-value-object/product-id';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParamsDto } from '@/shared/application/dtos/pagination.dto';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -17,37 +27,37 @@ export class PrismaMaintenanceRepository implements MaintenanceRepository {
 
   private mapToEntity(record: mnt_product_maintenance): Maintenance {
     return new Maintenance(
-      record.id,
-      record.description,
-      record.cost ? Number(record.cost) : null,
-      record.quantity,
-      record.date_start,
-      record.date_end,
-      record.resolved,
-      record.created_at || new Date(),
-      record.updated_at,
-      record.id_product,
+      new MaintenanceId(record.id),
+      new MaintenanceDescription(record.description),
+      new MaintenanceCost(record.cost ? Number(record.cost) : null),
+      new MaintenanceQuantity(record.quantity),
+      new MaintenanceDateStart(record.date_start),
+      new MaintenanceDateEnd(record.date_end),
+      new MaintenanceResolved(record.resolved),
+      new MaintenanceCreatedAt(record.created_at || new Date()),
+      new MaintenanceUpdatedAt(record.updated_at),
+      new ProductId(record.id_product),
     );
   }
 
   async save(maintenance: Maintenance): Promise<Maintenance> {
     const data = {
-      id: maintenance.getId(),
-      description: maintenance.getDescription(),
-      cost: maintenance.getCost() !== null ? maintenance.getCost() : null,
-      quantity: maintenance.getQuantity(),
-      date_start: maintenance.getDateStart(),
-      date_end: maintenance.getDateEnd(),
-      resolved: maintenance.getResolved(),
-      id_product: maintenance.getIdProduct(),
-      updated_at: maintenance.getUpdatedAt(),
+      id: maintenance.getId().value(),
+      description: maintenance.getDescription().value(),
+      cost: maintenance.getCost().value(),
+      quantity: maintenance.getQuantity().value(),
+      date_start: maintenance.getDateStart().value(),
+      date_end: maintenance.getDateEnd().value(),
+      resolved: maintenance.getResolved().value(),
+      id_product: maintenance.getIdProduct().value(),
+      updated_at: maintenance.getUpdatedAt().value(),
     };
 
     const record = await this.prisma.client.mnt_product_maintenance.upsert({
-      where: { id: maintenance.getId() },
+      where: { id: maintenance.getId().value() },
       create: {
         ...data,
-        created_at: maintenance.getCreatedAt(),
+        created_at: maintenance.getCreatedAt().value(),
       },
       update: data,
     });

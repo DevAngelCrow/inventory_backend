@@ -1,13 +1,15 @@
 import { ProductCategoryId } from '../value-objects/product-category-value-object/product-category-id';
 import { ProductCategoryName } from '../value-objects/product-category-value-object/product-category-name';
 import { ProductCategoryDescription } from '../value-objects/product-category-value-object/product-category-description';
+import { ProductCategoryIcon } from '../value-objects/product-category-value-object/product-category-icon';
+import { ProductCategoryActive } from '../value-objects/product-category-value-object/product-category-active';
 
 export class ProductCategory {
   constructor(
     private readonly name: ProductCategoryName,
     private readonly description: ProductCategoryDescription,
-    private readonly icon: string | undefined,
-    private readonly active: boolean,
+    private readonly icon: ProductCategoryIcon,
+    private readonly active: ProductCategoryActive,
     private readonly id?: ProductCategoryId,
   ) {}
 
@@ -21,8 +23,8 @@ export class ProductCategory {
     return new ProductCategory(
       new ProductCategoryName(data.name),
       new ProductCategoryDescription(data.description),
-      data.icon,
-      data.active,
+      new ProductCategoryIcon(data.icon),
+      new ProductCategoryActive(data.active),
       data.id ? new ProductCategoryId(data.id) : undefined,
     );
   }
@@ -39,11 +41,11 @@ export class ProductCategory {
     return this.description;
   }
 
-  public getIcon(): string | undefined {
+  public getIcon(): ProductCategoryIcon {
     return this.icon;
   }
 
-  public getActive(): boolean {
+  public getActive(): ProductCategoryActive {
     return this.active;
   }
 }

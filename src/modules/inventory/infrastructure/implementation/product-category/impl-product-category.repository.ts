@@ -29,8 +29,8 @@ export class ImplProductCategoryRepository
         data: {
           name: productCategory.getName().value(),
           description: productCategory.getDescription().value() ?? null,
-          icon: productCategory.getIcon() ?? null,
-          active: productCategory.getActive(),
+          icon: productCategory.getIcon().value() ?? null,
+          active: productCategory.getActive().value(),
           created_at: new Date(),
         },
       });
@@ -52,7 +52,7 @@ export class ImplProductCategoryRepository
         data: {
           name: productCategory.getName().value(),
           description: productCategory.getDescription().value() ?? null,
-          icon: productCategory.getIcon() ?? null,
+          icon: productCategory.getIcon().value() ?? null,
           updated_at: new Date(),
         },
       });

@@ -5,6 +5,12 @@ import { ProductDescription } from '../value-objects/product-value-object/produc
 import { ProductPrice } from '../value-objects/product-value-object/product-price';
 import { ProductStock } from '../value-objects/product-value-object/product-stock';
 import { ProductCategoryId } from '../value-objects/product-category-value-object/product-category-id';
+import { ProductColor } from '../value-objects/product-value-object/product-color';
+import { ProductDimensions } from '../value-objects/product-value-object/product-dimensions';
+import { ProductWeightLbs } from '../value-objects/product-value-object/product-weight-lbs';
+import { ProductImageUrl } from '../value-objects/product-value-object/product-image-url';
+import { ProductNotes } from '../value-objects/product-value-object/product-notes';
+import { ProductActive } from '../value-objects/product-value-object/product-active';
 
 export class Product {
   constructor(
@@ -16,12 +22,12 @@ export class Product {
     private readonly total_stock: ProductStock,
     private readonly min_stock_alert: ProductStock,
     private readonly category_id: ProductCategoryId,
-    private readonly color: string | undefined,
-    private readonly dimensions: string | undefined,
-    private readonly weight_lbs: number | undefined,
-    private readonly image_url: string | undefined,
-    private readonly notes: string | undefined,
-    private readonly active: boolean,
+    private readonly color: ProductColor,
+    private readonly dimensions: ProductDimensions,
+    private readonly weight_lbs: ProductWeightLbs,
+    private readonly image_url: ProductImageUrl,
+    private readonly notes: ProductNotes,
+    private readonly active: ProductActive,
     private readonly id?: ProductId,
   ) {}
 
@@ -51,12 +57,12 @@ export class Product {
       new ProductStock(data.total_stock),
       new ProductStock(data.min_stock_alert ?? 0),
       new ProductCategoryId(data.category_id),
-      data.color,
-      data.dimensions,
-      data.weight_lbs,
-      data.image_url,
-      data.notes,
-      data.active,
+      new ProductColor(data.color),
+      new ProductDimensions(data.dimensions),
+      new ProductWeightLbs(data.weight_lbs),
+      new ProductImageUrl(data.image_url),
+      new ProductNotes(data.notes),
+      new ProductActive(data.active),
       data.id ? new ProductId(data.id) : undefined,
     );
   }
@@ -70,10 +76,10 @@ export class Product {
   public getTotalStock(): ProductStock { return this.total_stock; }
   public getMinStockAlert(): ProductStock { return this.min_stock_alert; }
   public getCategoryId(): ProductCategoryId { return this.category_id; }
-  public getColor(): string | undefined { return this.color; }
-  public getDimensions(): string | undefined { return this.dimensions; }
-  public getWeightLbs(): number | undefined { return this.weight_lbs; }
-  public getImageUrl(): string | undefined { return this.image_url; }
-  public getNotes(): string | undefined { return this.notes; }
-  public getActive(): boolean { return this.active; }
+  public getColor(): ProductColor { return this.color; }
+  public getDimensions(): ProductDimensions { return this.dimensions; }
+  public getWeightLbs(): ProductWeightLbs { return this.weight_lbs; }
+  public getImageUrl(): ProductImageUrl { return this.image_url; }
+  public getNotes(): ProductNotes { return this.notes; }
+  public getActive(): ProductActive { return this.active; }
 }

@@ -3,20 +3,27 @@ import { PaymentAmount } from '../value-objects/payment-amount';
 import { PaymentDate } from '../value-objects/payment-date';
 import { PaymentMethodId } from '../value-objects/payment-method-id';
 import { PaymentStatus } from '../value-objects/payment-status';
+import { PaymentReservationId } from '../value-objects/payment-reservation-id';
+import { PaymentReferenceNumber } from '../value-objects/payment-reference-number';
+import { PaymentNotes } from '../value-objects/payment-notes';
+import { PaymentGatewayProvider } from '../value-objects/payment-gateway-provider';
+import { PaymentGatewayTxId } from '../value-objects/payment-gateway-tx-id';
+import { PaymentGatewayResponse } from '../value-objects/payment-gateway-response';
+import { PaymentReceivedById } from '../value-objects/payment-received-by-id';
 
 export class Payment {
   constructor(
-    private readonly id_reservation: string,
+    private readonly id_reservation: PaymentReservationId,
     private readonly id_payment_method: PaymentMethodId,
     private readonly amount: PaymentAmount,
     private readonly payment_date: PaymentDate,
     private readonly status: PaymentStatus,
-    private readonly reference_number?: string,
-    private readonly notes?: string,
-    private readonly gateway_provider?: string,
-    private readonly gateway_tx_id?: string,
-    private readonly gateway_response?: any,
-    private readonly id_received_by?: string,
+    private readonly reference_number?: PaymentReferenceNumber,
+    private readonly notes?: PaymentNotes,
+    private readonly gateway_provider?: PaymentGatewayProvider,
+    private readonly gateway_tx_id?: PaymentGatewayTxId,
+    private readonly gateway_response?: PaymentGatewayResponse,
+    private readonly id_received_by?: PaymentReceivedById,
     private readonly id?: PaymentId,
   ) { }
 
@@ -35,17 +42,17 @@ export class Payment {
     id?: string;
   }): Payment {
     return new Payment(
-      data.id_reservation,
+      new PaymentReservationId(data.id_reservation),
       new PaymentMethodId(data.id_payment_method),
       new PaymentAmount(data.amount),
       new PaymentDate(data.payment_date),
       new PaymentStatus(data.status),
-      data.reference_number,
-      data.notes,
-      data.gateway_provider,
-      data.gateway_tx_id,
-      data.gateway_response,
-      data.id_received_by,
+      data.reference_number ? new PaymentReferenceNumber(data.reference_number) : undefined,
+      data.notes ? new PaymentNotes(data.notes) : undefined,
+      data.gateway_provider ? new PaymentGatewayProvider(data.gateway_provider) : undefined,
+      data.gateway_tx_id ? new PaymentGatewayTxId(data.gateway_tx_id) : undefined,
+      data.gateway_response !== undefined ? new PaymentGatewayResponse(data.gateway_response) : undefined,
+      data.id_received_by ? new PaymentReceivedById(data.id_received_by) : undefined,
       data.id ? new PaymentId(data.id) : undefined,
     );
   }
@@ -53,7 +60,7 @@ export class Payment {
   public getId(): PaymentId | undefined {
     return this.id;
   }
-  public getIdReservation(): string {
+  public getIdReservation(): PaymentReservationId {
     return this.id_reservation;
   }
   public getIdPaymentMethod(): PaymentMethodId {
@@ -68,22 +75,22 @@ export class Payment {
   public getStatus(): PaymentStatus {
     return this.status;
   }
-  public getReferenceNumber(): string | undefined {
+  public getReferenceNumber(): PaymentReferenceNumber | undefined {
     return this.reference_number;
   }
-  public getNotes(): string | undefined {
+  public getNotes(): PaymentNotes | undefined {
     return this.notes;
   }
-  public getGatewayProvider(): string | undefined {
+  public getGatewayProvider(): PaymentGatewayProvider | undefined {
     return this.gateway_provider;
   }
-  public getGatewayTxId(): string | undefined {
+  public getGatewayTxId(): PaymentGatewayTxId | undefined {
     return this.gateway_tx_id;
   }
-  public getGatewayResponse(): any {
+  public getGatewayResponse(): PaymentGatewayResponse | undefined {
     return this.gateway_response;
   }
-  public getIdReceivedBy(): string | undefined {
+  public getIdReceivedBy(): PaymentReceivedById | undefined {
     return this.id_received_by;
   }
 

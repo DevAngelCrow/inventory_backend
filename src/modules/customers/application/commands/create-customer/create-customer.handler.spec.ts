@@ -49,6 +49,6 @@ describe('CreateCustomerHandler', () => {
     expect(createdCustomer.getName().lastName).toBe('Doe');
     expect(createdCustomer.getContact().phone).toBe('+123456789');
     expect(createdCustomer.getContact().email).toBe('john.doe@example.com');
-    expect(createdCustomer.getCompanyName()).toBe('ACME Corp');
+    expect(createdCustomer.getCompanyName()?.value()).toBe('ACME Corp');
   });
 });

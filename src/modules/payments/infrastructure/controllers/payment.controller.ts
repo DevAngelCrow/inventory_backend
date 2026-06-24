@@ -59,18 +59,18 @@ export class PaymentController {
     
     // Convert entity to DTO for HTTP mapping
     const dtoResult = new PaymentDto(
-      result.getIdReservation(),
+      result.getIdReservation().value(),
       result.getIdPaymentMethod().value(),
       result.getAmount().value(),
       result.getPaymentDate().value(),
       { id: '', code: result.getStatus().value(), name: result.getStatus().value(), state_color: 'primary', text_color: 'primary-foreground' } as any, // Mock object for DTO compatibility
       undefined, // payment_number
-      result.getReferenceNumber(),
-      result.getNotes(),
-      result.getGatewayProvider(),
-      result.getGatewayTxId(),
-      result.getGatewayResponse(),
-      result.getIdReceivedBy(),
+      result.getReferenceNumber()?.value(),
+      result.getNotes()?.value(),
+      result.getGatewayProvider()?.value(),
+      result.getGatewayTxId()?.value(),
+      result.getGatewayResponse()?.value(),
+      result.getIdReceivedBy()?.value(),
       result.getId()?.value(),
     );
 

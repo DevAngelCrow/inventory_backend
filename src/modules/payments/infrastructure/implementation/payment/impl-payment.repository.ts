@@ -25,25 +25,25 @@ export class ImplPaymentRepository
           where: { id: payment.getId()?.value() },
           data: {
             id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: payment.getStatus().value(), ctl_category_status: { code: 'PAY' } } })).id,
-            notes: payment.getNotes() ?? null,
+            notes: payment.getNotes()?.value() ?? null,
             // Assuming we only really update status and notes when voiding
           },
         });
       } else {
         savedPayment = await this.prisma.client.mnt_payment.create({
           data: {
-            id_reservation: payment.getIdReservation(),
+            id_reservation: payment.getIdReservation().value(),
             id_payment_method: payment.getIdPaymentMethod().value(),
             payment_number: `PAY-${Date.now().toString().slice(-6)}`,
             amount: payment.getAmount().value(),
             payment_date: payment.getPaymentDate().value(),
-            reference_number: payment.getReferenceNumber() ?? null,
-            notes: payment.getNotes() ?? null,
+            reference_number: payment.getReferenceNumber()?.value() ?? null,
+            notes: payment.getNotes()?.value() ?? null,
             id_status: (await this.prisma.client.ctl_status.findFirstOrThrow({ where: { code: payment.getStatus().value(), ctl_category_status: { code: 'PAY' } } })).id,
-            gateway_provider: payment.getGatewayProvider() ?? null,
-            gateway_tx_id: payment.getGatewayTxId() ?? null,
-            gateway_response: payment.getGatewayResponse() ?? null,
-            id_received_by: payment.getIdReceivedBy() ?? null,
+            gateway_provider: payment.getGatewayProvider()?.value() ?? null,
+            gateway_tx_id: payment.getGatewayTxId()?.value() ?? null,
+            gateway_response: payment.getGatewayResponse()?.value() ?? null,
+            id_received_by: payment.getIdReceivedBy()?.value() ?? null,
             created_at: new Date(),
           },
         });

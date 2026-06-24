@@ -2,17 +2,22 @@ import { CustomerId } from '../value-objects/customer-id';
 import { CustomerName } from '../value-objects/customer-name';
 import { CustomerContact } from '../value-objects/customer-contact';
 import { CustomerAddress } from '../value-objects/customer-address';
+import { CustomerCountryId } from '../value-objects/customer-country-id';
+import { CustomerCompanyName } from '../value-objects/customer-company-name';
+import { CustomerTaxId } from '../value-objects/customer-tax-id';
+import { CustomerNotes } from '../value-objects/customer-notes';
+import { CustomerActive } from '../value-objects/customer-active';
 
 export class Customer {
   constructor(
     private readonly name: CustomerName,
     private readonly contact: CustomerContact,
-    private readonly id_country: string,
-    private readonly company_name: string | undefined,
-    private readonly tax_id: string | undefined,
+    private readonly id_country: CustomerCountryId,
+    private readonly company_name: CustomerCompanyName | undefined,
+    private readonly tax_id: CustomerTaxId | undefined,
     private readonly addresses: CustomerAddress[],
-    private readonly notes: string | undefined,
-    private readonly active: boolean,
+    private readonly notes: CustomerNotes | undefined,
+    private readonly active: CustomerActive,
     private readonly id?: CustomerId,
   ) {}
 
@@ -54,12 +59,12 @@ export class Customer {
     return new Customer(
       new CustomerName(data.first_name, data.last_name, data.middle_name),
       new CustomerContact(data.phone, data.email, data.phone_secondary),
-      data.id_country,
-      data.company_name,
-      data.tax_id,
+      new CustomerCountryId(data.id_country),
+      data.company_name ? new CustomerCompanyName(data.company_name) : undefined,
+      data.tax_id ? new CustomerTaxId(data.tax_id) : undefined,
       addresses,
-      data.notes,
-      data.active,
+      data.notes ? new CustomerNotes(data.notes) : undefined,
+      new CustomerActive(data.active),
       data.id ? new CustomerId(data.id) : undefined,
     );
   }
@@ -68,9 +73,9 @@ export class Customer {
   public getName(): CustomerName { return this.name; }
   public getContact(): CustomerContact { return this.contact; }
   public getAddresses(): CustomerAddress[] { return this.addresses; }
-  public getCompanyName(): string | undefined { return this.company_name; }
-  public getTaxId(): string | undefined { return this.tax_id; }
-  public getNotes(): string | undefined { return this.notes; }
-  public getActive(): boolean { return this.active; }
-  public getIdCountry(): string { return this.id_country; }
+  public getCompanyName(): CustomerCompanyName | undefined { return this.company_name; }
+  public getTaxId(): CustomerTaxId | undefined { return this.tax_id; }
+  public getNotes(): CustomerNotes | undefined { return this.notes; }
+  public getActive(): CustomerActive { return this.active; }
+  public getIdCountry(): CustomerCountryId { return this.id_country; }
 }
