@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateInvoiceStatusCommand } from './update-invoice-status.command';
 import { InvoiceRepository } from '../../../domain/repositories/invoice-repository';
-import { InvoiceId } from '../../../domain/value-objects/invoice-id';
+import { InvoiceId } from '../../../domain/value-objects/invoice-value-object/invoice-id';
 
 @CommandHandler(UpdateInvoiceStatusCommand)
 export class UpdateInvoiceStatusHandler implements ICommandHandler<UpdateInvoiceStatusCommand> {

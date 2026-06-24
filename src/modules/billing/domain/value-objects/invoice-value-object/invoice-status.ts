@@ -1,4 +1,5 @@
 import { InvalidValueObjectException } from '@/shared/domain/exceptions/invalid-value-object.exception';
+import { Validator } from '@/shared/domain/validator/validator-value-object';
 
 export type InvoiceStatusType = 'DRAFT' | 'ISSUED' | 'PAID' | 'VOIDED';
 
@@ -9,10 +10,14 @@ export class InvoiceStatus {
   ];
 
   constructor(value: string) {
-    if (!this.allowedStatuses.includes(value as InvoiceStatusType)) {
-      throw new InvalidValueObjectException('InvoiceStatus', 'Invalid status value');
-    }
-    this._value = value as InvoiceStatusType;
+    this._value = Validator.of(
+      value,
+      (msg) => new InvalidValueObjectException('InvoiceStatus', msg),
+    )
+      .required('Status is required')
+      .string('Status must be a string')
+      .custom((v) => this.allowedStatuses.includes(v as InvoiceStatusType), 'Invalid status value')
+      .getValue() as InvoiceStatusType;
   }
 
   public value(): InvoiceStatusType {

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InvoiceRepository } from '@/modules/billing/domain/repositories/invoice-repository';
 import { InvoiceQueriesRepository } from '@/modules/billing/application/repositories/invoice-read.repository';
 import { Invoice } from '@/modules/billing/domain/entities/invoice';
-import { InvoiceId } from '@/modules/billing/domain/value-objects/invoice-id';
+import { InvoiceId } from '@/modules/billing/domain/value-objects/invoice-value-object/invoice-id';
 import { InvoiceDto, InvoiceLineDto } from '@/modules/billing/application/dtos/invoice.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Pagination } from '@/shared/domain/value-object/pagination';
@@ -40,12 +40,12 @@ export class ImplInvoiceRepository
           await prisma.mnt_invoice.update({
             where: { id: invoiceId },
             data: {
-              id_reservation: invoice.getIdReservation(),
-              id_customer: invoice.getIdCustomer(),
-              id_currency: invoice.getIdCurrency(),
-              invoice_number: invoice.getInvoiceNumber(),
-              issue_date: invoice.getIssueDate(),
-              due_date: invoice.getDueDate() ?? null,
+              id_reservation: invoice.getIdReservation().value(),
+              id_customer: invoice.getIdCustomer().value(),
+              id_currency: invoice.getIdCurrency().value(),
+              invoice_number: invoice.getInvoiceNumber().value(),
+              issue_date: invoice.getIssueDate().value(),
+              due_date: invoice.getDueDate()?.value() ?? null,
               subtotal: invoice.getAmount().subtotal,
               tax_rate: invoice.getAmount().taxRate,
               tax_amount: invoice.getAmount().taxAmount,
@@ -54,13 +54,13 @@ export class ImplInvoiceRepository
               damage_charges: invoice.getAmount().damageCharges,
               total: invoice.getAmount().total,
               id_status: statusId,
-              notes: invoice.getNotes() ?? null,
-              fiscal_provider: invoice.getFiscalProvider() ?? null,
-              fiscal_id: invoice.getFiscalId() ?? null,
-              fiscal_status: invoice.getFiscalStatus() ?? null,
-              fiscal_response: invoice.getFiscalResponse() ?? null,
-              pdf_path: invoice.getPdfPath() ?? null,
-              id_created_by: invoice.getIdCreatedBy() ?? null,
+              notes: invoice.getNotes()?.value() ?? null,
+              fiscal_provider: invoice.getFiscalProvider()?.value() ?? null,
+              fiscal_id: invoice.getFiscalId()?.value() ?? null,
+              fiscal_status: invoice.getFiscalStatus()?.value() ?? null,
+              fiscal_response: invoice.getFiscalResponse()?.value() ?? null,
+              pdf_path: invoice.getPdfPath()?.value() ?? null,
+              id_created_by: invoice.getIdCreatedBy()?.value() ?? null,
               updated_at: new Date(),
             },
           });
@@ -72,11 +72,11 @@ export class ImplInvoiceRepository
 
           const invoiceLines = invoice.getLines().map((line, index) => ({
             id_invoice: invoiceId,
-            description: line.getDescription(),
-            quantity: line.getQuantity(),
-            unit_price: line.getUnitPrice(),
-            subtotal: line.getSubtotal(),
-            id_product: line.getIdProduct() ?? null,
+            description: line.getDescription().value(),
+            quantity: line.getQuantity().value(),
+            unit_price: line.getUnitPrice().value(),
+            subtotal: line.getSubtotal().value(),
+            id_product: line.getIdProduct()?.value() ?? null,
             sort_order: index,
           }));
 
@@ -95,12 +95,12 @@ export class ImplInvoiceRepository
           // Create new invoice
           const createdInvoice = await prisma.mnt_invoice.create({
             data: {
-              id_reservation: invoice.getIdReservation(),
-              id_customer: invoice.getIdCustomer(),
-              id_currency: invoice.getIdCurrency(),
-              invoice_number: invoice.getInvoiceNumber(),
-              issue_date: invoice.getIssueDate(),
-              due_date: invoice.getDueDate() ?? null,
+              id_reservation: invoice.getIdReservation().value(),
+              id_customer: invoice.getIdCustomer().value(),
+              id_currency: invoice.getIdCurrency().value(),
+              invoice_number: invoice.getInvoiceNumber().value(),
+              issue_date: invoice.getIssueDate().value(),
+              due_date: invoice.getDueDate()?.value() ?? null,
               subtotal: invoice.getAmount().subtotal,
               tax_rate: invoice.getAmount().taxRate,
               tax_amount: invoice.getAmount().taxAmount,
@@ -109,24 +109,24 @@ export class ImplInvoiceRepository
               damage_charges: invoice.getAmount().damageCharges,
               total: invoice.getAmount().total,
               id_status: statusId,
-              notes: invoice.getNotes() ?? null,
-              fiscal_provider: invoice.getFiscalProvider() ?? null,
-              fiscal_id: invoice.getFiscalId() ?? null,
-              fiscal_status: invoice.getFiscalStatus() ?? null,
-              fiscal_response: invoice.getFiscalResponse() ?? null,
-              pdf_path: invoice.getPdfPath() ?? null,
-              id_created_by: invoice.getIdCreatedBy() ?? null,
+              notes: invoice.getNotes()?.value() ?? null,
+              fiscal_provider: invoice.getFiscalProvider()?.value() ?? null,
+              fiscal_id: invoice.getFiscalId()?.value() ?? null,
+              fiscal_status: invoice.getFiscalStatus()?.value() ?? null,
+              fiscal_response: invoice.getFiscalResponse()?.value() ?? null,
+              pdf_path: invoice.getPdfPath()?.value() ?? null,
+              id_created_by: invoice.getIdCreatedBy()?.value() ?? null,
               created_at: new Date(),
             },
           });
 
           const invoiceLines = invoice.getLines().map((line, index) => ({
             id_invoice: createdInvoice.id,
-            description: line.getDescription(),
-            quantity: line.getQuantity(),
-            unit_price: line.getUnitPrice(),
-            subtotal: line.getSubtotal(),
-            id_product: line.getIdProduct() ?? null,
+            description: line.getDescription().value(),
+            quantity: line.getQuantity().value(),
+            unit_price: line.getUnitPrice().value(),
+            subtotal: line.getSubtotal().value(),
+            id_product: line.getIdProduct()?.value() ?? null,
             sort_order: index,
           }));
 

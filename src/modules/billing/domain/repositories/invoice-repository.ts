@@ -1,5 +1,5 @@
 import { Invoice } from '../entities/invoice';
-import { InvoiceId } from '../value-objects/invoice-id';
+import { InvoiceId } from '../value-objects/invoice-value-object/invoice-id';
 
 export abstract class InvoiceRepository {
   abstract save(invoice: Invoice): Promise<Invoice>;
