@@ -7,6 +7,7 @@ export abstract class PaymentQueriesRepository {
     pagination_params?: PaginationParams,
     filter_reservation?: string,
     filter_status?: string,
+    id_reservation?: string,
   ): Promise<Pagination<PaymentDto> | PaymentDto[]>;
   abstract findById(id: string): Promise<PaymentDto | null>;
   abstract getMethods(): Promise<any[]>;

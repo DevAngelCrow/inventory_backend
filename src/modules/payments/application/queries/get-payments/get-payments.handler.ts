@@ -20,12 +20,14 @@ export class GetPaymentsHandler implements IQueryHandler<GetPaymentsQuery> {
         paginationParams,
         query.filter_reservation,
         query.filter_status,
+        query.id_reservation,
       );
     }
     return await this.repository.getAll(
       undefined,
       query.filter_reservation,
       query.filter_status,
+      query.id_reservation,
     );
   }
 }

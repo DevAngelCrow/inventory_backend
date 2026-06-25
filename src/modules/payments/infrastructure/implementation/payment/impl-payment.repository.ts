@@ -77,9 +77,14 @@ export class ImplPaymentRepository
     pagination_params?: PaginationParams,
     filter_reservation?: string,
     filter_status?: string,
+    id_reservation?: string,
   ): Promise<Pagination<PaymentDto> | PaymentDto[]> {
     try {
       const where: any = {};
+
+      if (id_reservation) {
+        where.id_reservation = id_reservation;
+      }
 
       if (filter_reservation) {
         where.mnt_reservation = {

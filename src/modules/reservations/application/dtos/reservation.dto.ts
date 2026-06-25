@@ -35,6 +35,8 @@ export class ReservationDto {
     public readonly geographic_division_name?: string,
     public readonly deposit_amount?: number,
     public readonly balance_due?: number,
+    public readonly delivery_fee?: number,
+    public readonly discount_amount?: number,
     public readonly notes?: string,
     public readonly items: ReservationItemDto[] = [],
     public readonly id?: string,

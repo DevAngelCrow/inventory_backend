@@ -22,6 +22,8 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
       id_geographic_division: command.id_geographic_division,
       deposit_amount: command.deposit_amount,
       balance_due: command.balance_due,
+      delivery_fee: command.delivery_fee,
+      discount_amount: command.discount_amount,
       notes: command.notes,
       items: command.items.map((i) => ({
         id_product: i.id_product,

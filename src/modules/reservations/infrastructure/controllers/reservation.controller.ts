@@ -68,6 +68,8 @@ export class ReservationController {
       dto.id_geographic_division,
       dto.deposit_amount,
       dto.balance_due,
+      dto.delivery_fee,
+      dto.discount_amount,
       dto.notes,
     );
     await this.commandBus.execute(command);
@@ -107,6 +109,8 @@ export class ReservationController {
       dto.id_geographic_division,
       dto.deposit_amount,
       dto.balance_due,
+      dto.delivery_fee,
+      dto.discount_amount,
       dto.notes,
     );
     await this.commandBus.execute(command);

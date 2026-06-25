@@ -62,6 +62,8 @@ export class ImplReservationRepository
             deposit_amount: reservation.getAmount().deposit ?? 0,
             balance_due:
               reservation.getAmount().balance ?? reservation.getAmount().total,
+            delivery_fee: reservation.getAmount().deliveryFee,
+            discount_amount: reservation.getAmount().discountAmount,
             notes: reservation.getNotes().value() ?? null,
             created_at: new Date(),
           },
@@ -155,6 +157,8 @@ export class ImplReservationRepository
             deposit_amount: reservation.getAmount().deposit ?? 0,
             balance_due:
               reservation.getAmount().balance ?? reservation.getAmount().total,
+            delivery_fee: reservation.getAmount().deliveryFee,
+            discount_amount: reservation.getAmount().discountAmount,
             notes: reservation.getNotes().value() ?? null,
             updated_at: new Date(),
           },
@@ -366,6 +370,8 @@ export class ImplReservationRepository
       total_amount: Number(r.total),
       deposit_amount: r.deposit_amount ? Number(r.deposit_amount) : undefined,
       balance_due: r.balance_due ? Number(r.balance_due) : undefined,
+      delivery_fee: r.delivery_fee ? Number(r.delivery_fee) : undefined,
+      discount_amount: r.discount_amount ? Number(r.discount_amount) : undefined,
       notes: r.notes ?? undefined,
       items: r.mnt_reservation_item
         ? r.mnt_reservation_item.map((i: any) => ({
@@ -397,6 +403,8 @@ export class ImplReservationRepository
       r.ctl_geographic_division?.name ?? undefined,
       r.deposit_amount ? Number(r.deposit_amount) : undefined,
       r.balance_due ? Number(r.balance_due) : undefined,
+      r.delivery_fee ? Number(r.delivery_fee) : undefined,
+      r.discount_amount ? Number(r.discount_amount) : undefined,
       r.notes ?? undefined,
       r.mnt_reservation_item
         ? r.mnt_reservation_item.map(

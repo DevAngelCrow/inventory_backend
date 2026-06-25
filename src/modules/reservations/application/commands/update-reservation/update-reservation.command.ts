@@ -24,6 +24,8 @@ export class UpdateReservationCommand {
     public readonly id_geographic_division?: string,
     public readonly deposit_amount?: number,
     public readonly balance_due?: number,
+    public readonly delivery_fee?: number,
+    public readonly discount_amount?: number,
     public readonly notes?: string,
   ) {}
 }

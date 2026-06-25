@@ -37,6 +37,8 @@ export class Reservation {
     total_amount: number;
     deposit_amount?: number;
     balance_due?: number;
+    delivery_fee?: number;
+    discount_amount?: number;
     notes?: string;
     items: {
       id_product: string;
@@ -65,6 +67,8 @@ export class Reservation {
         data.total_amount,
         data.deposit_amount,
         data.balance_due,
+        data.delivery_fee,
+        data.discount_amount,
       ),
       new ReservationNotes(data.notes),
       data.items.map((i) =>

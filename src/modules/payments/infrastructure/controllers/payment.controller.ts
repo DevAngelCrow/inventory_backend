@@ -94,6 +94,7 @@ export class PaymentController {
   @ApiQuery({ name: 'per_page', required: false, type: Number })
   @ApiQuery({ name: 'filter_reservation', required: false, type: String })
   @ApiQuery({ name: 'filter_status', required: false, type: String })
+  @ApiQuery({ name: 'id_reservation', required: false, type: String })
   async getAll(
     @Query() query: GetPaymentsQueryDto,
   ): Promise<SuccessResponseDto<HttpPaginatedResponseDto<PaymentHttpDto>>> {
@@ -101,6 +102,7 @@ export class PaymentController {
       query,
       query.filter_reservation,
       query.filter_status,
+      query.id_reservation,
     );
     const result = await this.queryBus.execute<
       GetPaymentsQuery,

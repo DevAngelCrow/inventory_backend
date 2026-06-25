@@ -115,6 +115,18 @@ export class UpdateReservationDto {
   @ApiProperty({ example: 'Entregar en la puerta trasera', required: false })
   notes?: string;
 
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @ApiProperty({ example: 10.0, required: false })
+  delivery_fee?: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @ApiProperty({ example: 5.0, required: false })
+  discount_amount?: number;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateReservationItemDto)
