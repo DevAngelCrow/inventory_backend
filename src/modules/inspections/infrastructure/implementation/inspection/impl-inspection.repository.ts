@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InspectionRepository } from '@/modules/reservations/inspections/domain/repositories/inspection-repository';
-import { InspectionQueriesRepository } from '@/modules/reservations/inspections/application/repositories/inspection-read.repository';
-import { Inspection } from '@/modules/reservations/inspections/domain/entities/inspection';
+import { InspectionRepository } from '@/modules/inspections/domain/repositories/inspection-repository';
+import { InspectionQueriesRepository } from '@/modules/inspections/application/repositories/inspection-read.repository';
+import { Inspection } from '@/modules/inspections/domain/entities/inspection';
 import {
   InspectionDto,
   DamageItemDto,
-} from '@/modules/reservations/inspections/application/dtos/inspection.dto';
+} from '@/modules/inspections/application/dtos/inspection.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';

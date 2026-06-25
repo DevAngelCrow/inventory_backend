@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GetInspectionsHandler } from './get-inspections.handler';
-import { InspectionQueriesRepository } from '@/modules/reservations/inspections/application/repositories/inspection-read.repository';
+import { InspectionQueriesRepository } from '@/modules/inspections/application/repositories/inspection-read.repository';
 import { GetInspectionsQuery } from './get-inspections.query';
 
 describe('GetInspectionsHandler', () => {

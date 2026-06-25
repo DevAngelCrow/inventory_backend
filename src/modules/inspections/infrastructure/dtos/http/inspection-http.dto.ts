@@ -1,7 +1,7 @@
 import {
   InspectionDto,
   DamageItemDto,
-} from '@/modules/reservations/inspections/application/dtos/inspection.dto';
+} from '@/modules/inspections/application/dtos/inspection.dto';
 
 export class DamageItemHttpDto {
   constructor(

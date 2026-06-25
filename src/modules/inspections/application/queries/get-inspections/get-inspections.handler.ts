@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetInspectionsQuery } from './get-inspections.query';
-import { InspectionQueriesRepository } from '@/modules/reservations/inspections/application/repositories/inspection-read.repository';
-import { InspectionDto } from '@/modules/reservations/inspections/application/dtos/inspection.dto';
+import { InspectionQueriesRepository } from '@/modules/inspections/application/repositories/inspection-read.repository';
+import { InspectionDto } from '@/modules/inspections/application/dtos/inspection.dto';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 

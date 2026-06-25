@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RecordInspectionHandler } from './record-inspection.handler';
-import { InspectionRepository } from '@/modules/reservations/inspections/domain/repositories/inspection-repository';
+import { InspectionRepository } from '@/modules/inspections/domain/repositories/inspection-repository';
 import { RecordInspectionCommand } from './record-inspection.command';
-import { Inspection } from '@/modules/reservations/inspections/domain/entities/inspection';
+import { Inspection } from '@/modules/inspections/domain/entities/inspection';
 
 describe('RecordInspectionHandler', () => {
   let handler: RecordInspectionHandler;

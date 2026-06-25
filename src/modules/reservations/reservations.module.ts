@@ -5,7 +5,6 @@ import { ReservationController } from './infrastructure/controllers/reservation.
 import { repositories } from './infrastructure/config/repositories.config';
 import { commandHandlerProviders } from './infrastructure/config/commands-handlers.config';
 import { queryHandlerProviders } from './infrastructure/config/queries-handlers.config';
-import { InspectionsModule } from './inspections/inspections.module';
 
 @Module({
   imports: [
@@ -13,7 +12,6 @@ import { InspectionsModule } from './inspections/inspections.module';
       { path: 'reservations', module: ReservationsModule },
     ]),
     CqrsModule,
-    InspectionsModule,
   ],
   controllers: [ReservationController],
   providers: [

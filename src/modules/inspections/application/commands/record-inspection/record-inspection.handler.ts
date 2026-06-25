@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RecordInspectionCommand } from './record-inspection.command';
-import { InspectionRepository } from '@/modules/reservations/inspections/domain/repositories/inspection-repository';
-import { Inspection } from '@/modules/reservations/inspections/domain/entities/inspection';
+import { InspectionRepository } from '@/modules/inspections/domain/repositories/inspection-repository';
+import { Inspection } from '@/modules/inspections/domain/entities/inspection';
 
 @CommandHandler(RecordInspectionCommand)
 export class RecordInspectionHandler implements ICommandHandler<RecordInspectionCommand> {
