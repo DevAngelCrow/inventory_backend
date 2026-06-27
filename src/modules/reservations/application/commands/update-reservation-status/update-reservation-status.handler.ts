@@ -4,7 +4,7 @@ import { UpdateReservationStatusCommand } from './update-reservation-status.comm
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
 import { ReservationQueriesRepository } from '../../repositories/reservation-read.repository';
 import { ReservationId } from '@/modules/reservations/domain/value-objects/reservation-id';
-import { Reservation } from '@/modules/reservations/domain/entities/reservation';
+import { ReservationAggregate as Reservation } from '@/modules/reservations/domain/aggregates/reservation.aggregate';
 import { GenerateInvoiceCommand } from '@/modules/billing/application/commands/generate-invoice/generate-invoice.command';
 
 @CommandHandler(UpdateReservationStatusCommand)

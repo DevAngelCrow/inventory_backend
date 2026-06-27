@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateReservationCommand } from './update-reservation.command';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
-import { Reservation } from '@/modules/reservations/domain/entities/reservation';
+import { ReservationAggregate as Reservation } from '@/modules/reservations/domain/aggregates/reservation.aggregate';
 
 @CommandHandler(UpdateReservationCommand)
 export class UpdateReservationHandler implements ICommandHandler<UpdateReservationCommand> {

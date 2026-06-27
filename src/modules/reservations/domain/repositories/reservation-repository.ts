@@ -1,4 +1,4 @@
-import { Reservation } from '../entities/reservation';
+import { ReservationAggregate as Reservation } from '../aggregates/reservation.aggregate';
 import { ReservationId } from '../value-objects/reservation-id';
 import { ReservationStatusType } from '../value-objects/reservation-status';
 

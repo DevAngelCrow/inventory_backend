@@ -1,15 +1,17 @@
+import { AggregateRoot } from '@nestjs/cqrs';
 import { ReservationId } from '../value-objects/reservation-id';
 import { ReservationStatus } from '../value-objects/reservation-status';
 import { ReservationDateRange } from '../value-objects/reservation-date-range';
 import { ReservationAddress } from '../value-objects/reservation-address';
 import { ReservationAmount } from '../value-objects/reservation-amount';
 import { ReservationNotes } from '../value-objects/reservation-notes';
-import { ReservationItem } from './reservation-item';
+import { ReservationItem } from '../entities/reservation-item';
 import { ReservationCustomerId } from '../value-objects/reservation-customer-id';
 import { ReservationDeliveryDatetime } from '../value-objects/reservation-delivery-datetime';
 import { ReservationPickupDatetime } from '../value-objects/reservation-pickup-datetime';
+import { ReservationCreatedEvent } from '../events/reservation-created.event';
 
-export class Reservation {
+export class ReservationAggregate extends AggregateRoot {
   constructor(
     private readonly id_customer: ReservationCustomerId,
     private readonly status: ReservationStatus,
@@ -21,7 +23,9 @@ export class Reservation {
     private readonly deliveryDatetime?: ReservationDeliveryDatetime,
     private readonly pickupDatetime?: ReservationPickupDatetime,
     private readonly id?: ReservationId,
-  ) {}
+  ) {
+    super();
+  }
 
   static create(data: {
     id_customer: string;
@@ -50,8 +54,8 @@ export class Reservation {
     delivery_datetime?: Date;
     pickup_datetime?: Date;
     id?: string;
-  }): Reservation {
-    return new Reservation(
+  }): ReservationAggregate {
+    const reservation = new ReservationAggregate(
       new ReservationCustomerId(data.id_customer),
       new ReservationStatus(data.status),
       new ReservationDateRange(data.event_start, data.event_end),
@@ -89,6 +93,18 @@ export class Reservation {
         : undefined,
       data.id ? new ReservationId(data.id) : undefined,
     );
+    
+    if (reservation.getId()) {
+      reservation.apply(
+        new ReservationCreatedEvent(
+          reservation.getId()!.value(),
+          reservation.getIdCustomer().value(),
+          reservation.getAmount().total,
+        ),
+      );
+    }
+    
+    return reservation;
   }
 
   public getId(): ReservationId | undefined {

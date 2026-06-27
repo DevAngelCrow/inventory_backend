@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
 import { ReservationQueriesRepository } from '@/modules/reservations/application/repositories/reservation-read.repository';
-import { Reservation } from '@/modules/reservations/domain/entities/reservation';
+import { ReservationAggregate as Reservation } from '@/modules/reservations/domain/aggregates/reservation.aggregate';
 import { ReservationId } from '@/modules/reservations/domain/value-objects/reservation-id';
 import { ReservationStatusType } from '@/modules/reservations/domain/value-objects/reservation-status';
 import {
@@ -34,6 +34,7 @@ export class ImplReservationRepository
 
         const createdReservation = await prisma.mnt_reservation.create({
           data: {
+            id: reservation.getId()?.value(),
             reservation_number: `RES-${Date.now().toString().slice(-6)}`,
             id_customer: reservation.getIdCustomer().value(),
             id_currency: id_currency,

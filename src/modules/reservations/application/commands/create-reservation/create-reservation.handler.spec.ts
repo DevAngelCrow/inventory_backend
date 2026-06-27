@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateReservationHandler } from './create-reservation.handler';
+import { EventPublisher } from '@nestjs/cqrs';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
 import {
   CreateReservationCommand,
   CreateReservationItemCommand,
 } from './create-reservation.command';
-import { Reservation } from '@/modules/reservations/domain/entities/reservation';
+import { ReservationAggregate as Reservation } from '@/modules/reservations/domain/aggregates/reservation.aggregate';
 
 describe('CreateReservationHandler', () => {
   let handler: CreateReservationHandler;
@@ -15,6 +16,13 @@ describe('CreateReservationHandler', () => {
     const mockRepository = {
       create: jest.fn(),
     };
+    
+    const mockEventPublisher = {
+      mergeObjectContext: jest.fn().mockImplementation((obj) => {
+        obj.commit = jest.fn();
+        return obj;
+      }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -22,6 +30,10 @@ describe('CreateReservationHandler', () => {
         {
           provide: ReservationRepository,
           useValue: mockRepository,
+        },
+        {
+          provide: EventPublisher,
+          useValue: mockEventPublisher,
         },
       ],
     }).compile();
