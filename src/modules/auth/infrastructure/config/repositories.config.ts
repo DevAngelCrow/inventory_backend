@@ -1,4 +1,6 @@
 import { EmailSenderPort } from '../../domain/ports/email-sender.port';
+import { AuthCachePort } from '../../domain/ports/auth-cache.port';
+import { ImplAuthCachePort } from '../implementation/impl-auth-cache.port';
 import { UserRepository } from '../../../identity-access-management/domain/repositories/user-repository';
 import { VerificationTokenRepository } from '../../domain/repositories/verification-token-repository';
 import { ImplUserRepository } from '../../../identity-access-management/infrastructure/implementation/impl-user.repository';
@@ -31,4 +33,8 @@ export const repositories = [
   },
   // Alias so processors can inject ImplAuthPort directly (same singleton as AuthReadPort).
   { provide: ImplAuthPort, useExisting: AuthReadPort },
+  {
+    provide: AuthCachePort,
+    useClass: ImplAuthCachePort,
+  },
 ];

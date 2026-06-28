@@ -1,3 +1,4 @@
+import { AggregateRoot } from '@/shared/domain/aggregate-root';
 import { RoutesActive } from '../value-objects/routes-value-object/routes-active';
 import { RoutesDescription } from '../value-objects/routes-value-object/routes-description';
 import { RoutesIcon } from '../value-objects/routes-value-object/routes-icon';
@@ -8,22 +9,27 @@ import { RoutesRquiredAuth } from '../value-objects/routes-value-object/routes-r
 import { RoutesShow } from '../value-objects/routes-value-object/routes-show';
 import { RoutesTitle } from '../value-objects/routes-value-object/routes-title';
 import { RoutesUri } from '../value-objects/routes-value-object/routes-uri';
+import { RouteCreatedEvent } from '../events/route-created.event';
+import { RouteUpdatedEvent } from '../events/route-updated.event';
+import { RouteStatusToggledEvent } from '../events/route-status-toggled.event';
 
-export class Route {
+export class Route extends AggregateRoot {
   constructor(
-    private readonly name: RoutesName,
-    private readonly description: RoutesDescription,
-    private readonly icon: RoutesIcon,
-    private readonly uri: RoutesUri,
-    private readonly active: RoutesActive,
-    private readonly show: RoutesShow,
-    private readonly order: RoutesOrder,
-    private readonly required_auth: RoutesRquiredAuth,
-    private readonly id?: RoutesId,
-    private readonly title?: RoutesTitle,
-    private readonly id_parent?: RoutesId,
-    private readonly permissions_id?: string[],
-  ) {}
+    private name: RoutesName,
+    private description: RoutesDescription,
+    private icon: RoutesIcon,
+    private uri: RoutesUri,
+    private active: RoutesActive,
+    private show: RoutesShow,
+    private order: RoutesOrder,
+    private required_auth: RoutesRquiredAuth,
+    private id?: RoutesId,
+    private title?: RoutesTitle,
+    private id_parent?: RoutesId,
+    private permissions_id?: string[],
+  ) {
+    super();
+  }
   public static create(data: {
     id?: string;
     name: string;
@@ -52,6 +58,58 @@ export class Route {
       data.id_parent ? new RoutesId(data.id_parent) : undefined,
       data.permissions_id,
     );
+  }
+
+  public created() {
+    this.apply(
+      new RouteCreatedEvent(
+        this.id?.value(),
+        this.name.value(),
+        this.description.value(),
+        this.icon.value(),
+        this.uri.value(),
+        this.active.value(),
+        this.show.value(),
+        this.order.value(),
+        this.required_auth.value(),
+      ),
+    );
+  }
+
+  public update(
+    name: RoutesName,
+    description: RoutesDescription,
+    icon: RoutesIcon,
+    uri: RoutesUri,
+    show: RoutesShow,
+    order: RoutesOrder,
+    required_auth: RoutesRquiredAuth,
+    permissions_id?: string[],
+  ) {
+    this.name = name;
+    this.description = description;
+    this.icon = icon;
+    this.uri = uri;
+    this.show = show;
+    this.order = order;
+    this.required_auth = required_auth;
+    this.permissions_id = permissions_id;
+    this.apply(
+      new RouteUpdatedEvent(
+        this.name.value(),
+        this.description.value(),
+        this.icon.value(),
+        this.uri.value(),
+        this.show.value(),
+        this.order.value(),
+        this.required_auth.value(),
+      ),
+    );
+  }
+
+  public toggleStatus(newStatus: RoutesActive) {
+    this.active = newStatus;
+    this.apply(new RouteStatusToggledEvent(this.active.value()));
   }
 
   public getId(): RoutesId | undefined {

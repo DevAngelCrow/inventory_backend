@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { JwtService } from '@nestjs/jwt';
+import { AuthReadPort } from '../../ports/auth-read.port';
 import { ForbiddenException } from '@/shared/application/exceptions/forbidden.exception';
 import { UserReadRepository } from '@/modules/identity-access-management/application/repositories/user-read.repository';
 import { AuditLogService } from '@/modules/audit/application/services/audit-log.service';
@@ -16,7 +16,7 @@ interface JwtPayload {
 @CommandHandler(GrantDocsAccessCommand)
 export class GrantDocsAccessHandler implements ICommandHandler<GrantDocsAccessCommand> {
   constructor(
-    private readonly jwtService: JwtService,
+    private readonly authReadPort: AuthReadPort,
     private readonly userReadRepository: UserReadRepository,
     private readonly auditLog: AuditLogService,
   ) {}
@@ -26,7 +26,7 @@ export class GrantDocsAccessHandler implements ICommandHandler<GrantDocsAccessCo
   ): Promise<{ cookieToken: string; maxAge: number }> {
     let payload: JwtPayload;
     try {
-      payload = this.jwtService.verify<JwtPayload>(command.access_token);
+      payload = await this.authReadPort.verifyToken<JwtPayload>(command.access_token);
     } catch {
       throw new ForbiddenException('Token inválido o expirado');
     }
@@ -38,11 +38,11 @@ export class GrantDocsAccessHandler implements ICommandHandler<GrantDocsAccessCo
       );
     }
 
-    const cookieToken = this.jwtService.sign({
+    const cookieToken = this.authReadPort.signPayload({
       id: payload.id,
       user_name: payload.user_name,
     });
-    const decoded = this.jwtService.decode<{ exp?: number }>(cookieToken);
+    const decoded = await this.authReadPort.decodeToken<{ exp?: number }>(cookieToken, false);
     const maxAge = decoded?.exp
       ? (decoded.exp - Math.floor(Date.now() / 1000)) * 1000
       : 3_600_000;

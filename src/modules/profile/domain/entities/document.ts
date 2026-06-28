@@ -15,20 +15,20 @@ export class Document {
     private readonly id?: DocumentId,
   ) {}
   static create(data: {
-    id?: string;
-    number_document: string;
-    description?: string;
-    id_people: string;
-    id_type_document: string;
-    active: boolean;
+    id?: DocumentId | null;
+    number_document: DocumentNumberDoc;
+    description?: DocumentDescription;
+    id_people: DocumentIdPerson;
+    id_type_document: DocumentIdTypeDocument;
+    active: DocumentActive;
   }): Document {
     return new Document(
-      new DocumentNumberDoc(data.number_document),
-      new DocumentIdPerson(data.id_people),
-      new DocumentIdTypeDocument(data.id_type_document),
-      new DocumentActive(data.active),
-      data.description ? new DocumentDescription(data.description) : undefined,
-      data.id ? new DocumentId(data.id) : undefined,
+      data.number_document,
+      data.id_people,
+      data.id_type_document,
+      data.active,
+      data.description,
+      data.id ?? undefined,
     );
   }
   getId(): DocumentId | undefined {

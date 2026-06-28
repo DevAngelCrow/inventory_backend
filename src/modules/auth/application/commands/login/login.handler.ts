@@ -5,9 +5,8 @@ import { AuthenticateDto } from '../../dtos/authenticate.dto';
 import { UnauthorizedException } from '@/shared/application/exceptions/unauthorized.exception';
 import { AuthReadPort } from '../../ports/auth-read.port';
 import { UserAuthDto } from '@/modules/identity-access-management/application/dtos/user-auth.dto';
-import { Cache } from 'cache-manager';
-import { Inject, Logger } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { AuthCachePort } from '../../../domain/ports/auth-cache.port';
+import { Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { authLoginTotal } from '@/shared/infrastructure/health/business-metrics';
 import { ErrorCode } from '@/shared/domain/enums/error-code.enum';
@@ -25,7 +24,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly authReadPort: AuthReadPort,
     private readonly findUserService: FindUserService,
     private readonly createUpdateRefreshTokenPort: CreateOrUpdateRefreshTokenPort,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly authCachePort: AuthCachePort,
     private readonly auditLog: AuditLogService,
   ) {}
   async execute(command: LoginCommand): Promise<AuthenticateDto> {
@@ -152,8 +151,8 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
       user_agent: command.user_agent,
     });
     try {
-      await this.cacheManager.set(
-        `user:${userId}:permissions`,
+      await this.authCachePort.cacheUserPermissions(
+        userId,
         userExists.permissions,
         PERMISSIONS_CACHE_TTL_MS,
       );

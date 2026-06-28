@@ -310,6 +310,15 @@ export class ImplAuthPort
       throw new Error(`Failed to decode token: ${String(error)}`);
     }
   }
+
+  async verifyToken<T extends object>(token: string): Promise<T> {
+    const rawToken = token.startsWith('Bearer ') ? token.split(' ')[1] : token;
+    return this.jwtService.verifyAsync<T>(rawToken);
+  }
+
+  signPayload(payload: any): string {
+    return this.jwtService.sign(payload);
+  }
   async findRefreshTokenByIdUser(id_user: string): Promise<string> {
     try {
       const prisma = this.getPrismaClient();

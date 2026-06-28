@@ -23,28 +23,28 @@ export class Address {
     private readonly id?: AddressId,
   ) {}
   static create(data: {
-    id?: string;
-    street: string;
-    street_number: string;
-    neighborhood: string;
-    id_geographic_division?: string | null;
-    house_number: string;
-    block: string;
-    pathway: string;
-    current: boolean;
-    id_people: string;
+    id?: AddressId | null;
+    street: AddressStreet;
+    street_number: AddressStreetNumber;
+    neighborhood: AddressNeighborhood;
+    id_geographic_division: AddressIdGeographicDivision;
+    house_number: AddressHouseNumber;
+    block: AddressBlock;
+    pathway: AddressPathway;
+    current: AddressCurrent;
+    id_people: AddressIdPeople;
   }): Address {
     return new Address(
-      new AddressStreet(data.street),
-      new AddressStreetNumber(data.street_number),
-      new AddressNeighborhood(data.neighborhood),
-      new AddressIdGeographicDivision(data.id_geographic_division),
-      new AddressHouseNumber(data.house_number),
-      new AddressBlock(data.block),
-      new AddressPathway(data.pathway),
-      new AddressCurrent(data.current),
-      new AddressIdPeople(data.id_people),
-      data.id ? new AddressId(data.id) : undefined,
+      data.street,
+      data.street_number,
+      data.neighborhood,
+      data.id_geographic_division,
+      data.house_number,
+      data.block,
+      data.pathway,
+      data.current,
+      data.id_people,
+      data.id ?? undefined,
     );
   }
   getId(): AddressId | undefined {

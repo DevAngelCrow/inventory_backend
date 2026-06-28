@@ -63,6 +63,8 @@ describe('CreateReservationHandler', () => {
       undefined, // id_geographic_division
       20, // deposit_amount
       80, // balance_due
+      undefined, // delivery_fee
+      undefined, // discount_amount
       'Handle with care', // notes
     );
 

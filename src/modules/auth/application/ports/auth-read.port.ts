@@ -23,6 +23,8 @@ export abstract class AuthReadPort {
   abstract hasVerifiedEmail(user: UserDto): Promise<boolean>;
   abstract generateToken(user: UserAuthDto): Promise<string>;
   abstract generateRefreshToken(user: UserAuthDto): Promise<string>;
+  abstract verifyToken<T extends object>(token: string): Promise<T>;
+  abstract signPayload(payload: any): string;
   abstract compareToken(token: string, token_hash: string): Promise<boolean>;
   abstract blacklistAccessToken(
     userId: string,

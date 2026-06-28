@@ -9,12 +9,12 @@ export abstract class PersonRepository {
     person: Person,
     nationalities: string[],
   ): Promise<Person | void>;
-  abstract update(person: Person, nationalities: string[]): Promise<void>;
+  abstract update(person: Person, nationalities?: string[]): Promise<void>;
   abstract getAll(
     pagination_params?: PaginationParams,
     filter?: string,
   ): Promise<Pagination<Person> | Person[]>;
-  abstract getOneById(id: PersonId): Promise<Person | null>;
+  abstract findById(id: PersonId): Promise<Person | null>;
   abstract getOneByEmail(email: PersonEmail): Promise<Person | null>;
   abstract delete(id: PersonId): Promise<void>;
 }

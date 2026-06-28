@@ -3,7 +3,7 @@ import { AuthReadPort } from '../../ports/auth-read.port';
 import { RefreshCommand } from './refresh.command';
 import { FindUserByIdService } from '@/modules/identity-access-management/application/services/find-user-by-id.service';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@/shared/application/exceptions/unauthorized.exception';
 import { CreateOrUpdateRefreshTokenPort } from '@/modules/auth/domain/ports/create-or-update-refresh-token.port';
 import { AuthenticateDto } from '../../dtos/authenticate.dto';
 import { UserAuthDto } from '@/modules/identity-access-management/application/dtos/user-auth.dto';

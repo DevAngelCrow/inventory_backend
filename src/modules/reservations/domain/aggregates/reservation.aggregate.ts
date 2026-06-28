@@ -1,4 +1,4 @@
-import { AggregateRoot } from '@nestjs/cqrs';
+import { AggregateRoot } from '../../../../shared/domain/aggregate-root';
 import { ReservationId } from '../value-objects/reservation-id';
 import { ReservationStatus } from '../value-objects/reservation-status';
 import { ReservationDateRange } from '../value-objects/reservation-date-range';
