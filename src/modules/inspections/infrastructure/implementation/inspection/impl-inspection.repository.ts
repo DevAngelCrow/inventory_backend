@@ -13,12 +13,12 @@ import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
+import { mnt_reservation_inspectionWhereInput } from 'generated/prisma/models';
 
 @Injectable()
 export class ImplInspectionRepository
-  implements InspectionRepository, InspectionQueriesRepository
-{
-  constructor(private readonly prisma: PrismaService) {}
+  implements InspectionRepository, InspectionQueriesRepository {
+  constructor(private readonly prisma: PrismaService) { }
 
   async save(inspection: Inspection): Promise<void> {
     try {
@@ -61,7 +61,7 @@ export class ImplInspectionRepository
           });
         }
       });
-    } catch (error: any) {
+    } catch (error) {
       throw new DatabaseException('Error saving inspection', 'save');
     }
   }
@@ -72,7 +72,7 @@ export class ImplInspectionRepository
     filter_status?: string,
   ): Promise<Pagination<InspectionDto> | InspectionDto[]> {
     try {
-      const where: any = {};
+      const where: mnt_reservation_inspectionWhereInput = {};
 
       if (filter_reservation) {
         where.id_reservation = filter_reservation;
@@ -85,9 +85,9 @@ export class ImplInspectionRepository
         this.prisma.client.mnt_reservation_inspection.findMany({
           skip:
             pagination_params?.getPage().value() &&
-            pagination_params?.getPerPage().value()
+              pagination_params?.getPerPage().value()
               ? (pagination_params.getPage().value() - 1) *
-                pagination_params.getPerPage().value()
+              pagination_params.getPerPage().value()
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
@@ -100,7 +100,7 @@ export class ImplInspectionRepository
         this.prisma.client.mnt_reservation_inspection.count({ where }),
       ]);
 
-      const inspections = inspectionsDb.map((i: any) => this.mapToDto(i));
+      const inspections = inspectionsDb.map((i) => this.mapToDto(i));
 
       if (!pagination_params) return inspections;
 
@@ -151,18 +151,18 @@ export class ImplInspectionRepository
       i.id_inspected_by ?? undefined,
       i.mnt_damage_item
         ? i.mnt_damage_item.map(
-            (d: any) =>
-              new DamageItemDto(
-                d.id_product,
-                d.damage_type,
-                d.description,
-                d.quantity_affected,
-                Number(d.charge_amount),
-                d.id_inspection,
-                d.photo_url ?? undefined,
-                d.id,
-              ),
-          )
+          (d: any) =>
+            new DamageItemDto(
+              d.id_product,
+              d.damage_type,
+              d.description,
+              d.quantity_affected,
+              Number(d.charge_amount),
+              d.id_inspection,
+              d.photo_url ?? undefined,
+              d.id,
+            ),
+        )
         : [],
       i.id,
       i.created_at,

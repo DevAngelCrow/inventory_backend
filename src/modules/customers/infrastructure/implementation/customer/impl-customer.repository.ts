@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from 'generated/prisma/client';
 import { CustomerRepository } from '@/modules/customers/domain/repositories/customer-repository';
 import { CustomerQueriesRepository } from '@/modules/customers/application/repositories/customer-read.repository';
 import { Customer } from '@/modules/customers/domain/entities/customer';
@@ -51,8 +52,8 @@ export class ImplCustomerRepository
           created_at: new Date(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new DatabaseException(
           'Ya existe un cliente con esos datos únicos.',
           'create',
@@ -80,8 +81,8 @@ export class ImplCustomerRepository
           updated_at: new Date(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new DatabaseException('Conflicto de datos únicos.', 'update');
       }
       throw new DatabaseException('Error updating customer', 'update');
@@ -120,7 +121,7 @@ export class ImplCustomerRepository
     active?: boolean,
   ): Promise<Pagination<CustomerDto> | CustomerDto[]> {
     try {
-      const where: any = {
+      const where: Prisma.mnt_customerWhereInput = {
         deleted_at: null,
       };
 
@@ -167,7 +168,7 @@ export class ImplCustomerRepository
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const customers = customersDb.map((c: any) =>
+      const customers = customersDb.map((c) =>
         this.mapToDto(c, catalog_status),
       );
 

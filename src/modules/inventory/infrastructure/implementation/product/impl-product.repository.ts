@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from 'generated/prisma/client';
 import { ProductRepository } from '@/modules/inventory/domain/repositories/product-repository';
 import { ProductQueriesRepository } from '@/modules/inventory/application/repositories/product-read.repository';
 import { Product } from '@/modules/inventory/domain/entities/product';
@@ -44,8 +45,8 @@ export class ImplProductRepository
           created_at: new Date(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new DatabaseException(
           'Ya existe un producto con ese SKU.',
           'create',
@@ -76,8 +77,8 @@ export class ImplProductRepository
           updated_at: new Date(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new DatabaseException(
           'Ya existe un producto con ese SKU.',
           'update',
@@ -120,7 +121,7 @@ export class ImplProductRepository
     active?: boolean,
   ): Promise<Pagination<ProductDto> | ProductDto[]> {
     try {
-      const where: any = {
+      const where: Prisma.mnt_productWhereInput = {
         deleted_at: null,
       };
 
@@ -153,7 +154,7 @@ export class ImplProductRepository
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const products = productsDb.map((p: any) =>
+      const products = productsDb.map((p) =>
         this.mapToDto(p, catalog_status),
       );
 

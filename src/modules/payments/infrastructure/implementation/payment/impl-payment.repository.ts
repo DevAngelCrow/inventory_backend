@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from 'generated/prisma/client';
 import { PaymentRepository } from '@/modules/payments/domain/repositories/payment-repository';
 import { PaymentQueriesRepository } from '@/modules/payments/application/repositories/payment-read.repository';
 import { Payment } from '@/modules/payments/domain/entities/payment';
@@ -68,7 +69,7 @@ export class ImplPaymentRepository
           include: { ctl_status: true },
         }),
       );
-    } catch (error: any) {
+    } catch (error) {
       throw new DatabaseException('Error saving payment', 'save');
     }
   }
@@ -80,7 +81,7 @@ export class ImplPaymentRepository
     id_reservation?: string,
   ): Promise<Pagination<PaymentDto> | PaymentDto[]> {
     try {
-      const where: any = {};
+      const where: Prisma.mnt_paymentWhereInput = {};
 
       if (id_reservation) {
         where.id_reservation = id_reservation;
@@ -119,7 +120,7 @@ export class ImplPaymentRepository
         this.prisma.client.mnt_payment.count({ where }),
       ]);
 
-      const payments = paymentsDb.map((p: any) => this.mapToDto(p));
+      const payments = paymentsDb.map((p) => this.mapToDto(p));
 
       if (!pagination_params) return payments;
 

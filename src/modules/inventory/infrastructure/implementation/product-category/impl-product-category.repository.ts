@@ -19,9 +19,8 @@ import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services
 
 @Injectable()
 export class ImplProductCategoryRepository
-  implements ProductCategoryRepository, ProductCategoryQueriesRepository
-{
-  constructor(private readonly prisma: PrismaService) {}
+  implements ProductCategoryRepository, ProductCategoryQueriesRepository {
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(productCategory: ProductCategory): Promise<void> {
     try {
@@ -34,8 +33,8 @@ export class ImplProductCategoryRepository
           created_at: new Date(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new DatabaseException(
           'Ya existe una categoría de producto con ese nombre.',
           'create',
@@ -56,8 +55,8 @@ export class ImplProductCategoryRepository
           updated_at: new Date(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new DatabaseException(
           'Ya existe una categoría de producto con ese nombre.',
           'update',
@@ -112,9 +111,9 @@ export class ImplProductCategoryRepository
         this.prisma.client.ctl_product_category.findMany({
           skip:
             pagination_params?.getPage().value() &&
-            pagination_params?.getPerPage().value()
+              pagination_params?.getPerPage().value()
               ? (pagination_params.getPage().value() - 1) *
-                pagination_params.getPerPage().value()
+              pagination_params.getPerPage().value()
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,

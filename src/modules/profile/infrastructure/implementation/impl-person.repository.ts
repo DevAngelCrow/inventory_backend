@@ -346,7 +346,7 @@ export class ImplPersonRepository
   ): Promise<AuthenticateProfileDto | null> {
     try {
       const prisma = this.getPrismaClient();
-      const personDb: any = await prisma.mnt_people.findFirst({
+      const personDb = await prisma.mnt_people.findFirst({
         where: { mnt_user: { id: id_user } },
         include: {
           people_country: { include: { ctl_country: true } },

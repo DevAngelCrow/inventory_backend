@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from 'generated/prisma/client';
 import { InvoiceRepository } from '@/modules/billing/domain/repositories/invoice-repository';
 import { InvoiceQueriesRepository } from '@/modules/billing/application/repositories/invoice-read.repository';
 import { Invoice } from '@/modules/billing/domain/entities/invoice';
@@ -155,7 +156,7 @@ export class ImplInvoiceRepository
       );
 
       return this.mapToDomain(savedInvoice);
-    } catch (error: any) {
+    } catch (error) {
       console.log('DB ERROR INVOICE:', error);
       throw new DatabaseException('Error saving invoice', 'save');
     }
@@ -168,7 +169,7 @@ export class ImplInvoiceRepository
     filter_status?: string,
   ): Promise<Pagination<InvoiceDto> | InvoiceDto[]> {
     try {
-      const where: any = {};
+      const where: Prisma.mnt_invoiceWhereInput = {};
 
       if (filter_reservation) {
         where.id_reservation = filter_reservation;
@@ -200,7 +201,7 @@ export class ImplInvoiceRepository
         this.prisma.client.mnt_invoice.count({ where }),
       ]);
 
-      const invoices = invoicesDb.map((i: any) => this.mapToDto(i));
+      const invoices = invoicesDb.map((i) => this.mapToDto(i));
 
       if (!pagination_params) return invoices;
 

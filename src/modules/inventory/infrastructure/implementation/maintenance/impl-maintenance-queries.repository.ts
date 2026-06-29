@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from 'generated/prisma/client';
 import { MaintenanceQueriesRepository } from '@/modules/inventory/application/repositories/maintenance-read.repository';
 import { MaintenanceDto } from '@/modules/inventory/application/dtos/maintenance.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
@@ -46,7 +47,7 @@ export class ImplMaintenanceQueriesRepository implements MaintenanceQueriesRepos
     id_product?: string,
     resolved?: boolean,
   ): Promise<Pagination<MaintenanceDto> | MaintenanceDto[]> {
-    const where: any = {};
+    const where: Prisma.mnt_product_maintenanceWhereInput = {};
     if (id_product) where.id_product = id_product;
     if (resolved !== undefined) where.resolved = resolved;
 
