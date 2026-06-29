@@ -59,7 +59,8 @@ export class ReservationAmount {
 
     this._discountAmount = Validator.of(
       discountAmount,
-      (msg) => new InvalidValueObjectException('ReservationDiscountAmount', msg),
+      (msg) =>
+        new InvalidValueObjectException('ReservationDiscountAmount', msg),
     )
       .number()
       .min(0, 'Discount amount cannot be negative')

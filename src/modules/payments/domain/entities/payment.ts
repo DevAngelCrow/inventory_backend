@@ -17,7 +17,7 @@ export class Payment {
     private readonly id_payment_method: PaymentMethodId,
     private readonly amount: PaymentAmount,
     private readonly payment_date: PaymentDate,
-    private readonly status: PaymentStatus,
+    private status: PaymentStatus,
     private readonly reference_number?: PaymentReferenceNumber,
     private readonly notes?: PaymentNotes,
     private readonly gateway_provider?: PaymentGatewayProvider,
@@ -108,8 +108,6 @@ export class Payment {
     if (this.status.value() === 'CANCELLED') {
       throw new Error('Payment is already cancelled');
     }
-    // We update the underlying value object in a simple way for now
-    // In a stricter DDD setup, we might re-instantiate PaymentStatus
-    (this as any).status = new PaymentStatus('CANCELLED');
+    this.status = new PaymentStatus('CANCELLED');
   }
 }

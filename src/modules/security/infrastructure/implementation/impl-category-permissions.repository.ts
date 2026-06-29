@@ -7,7 +7,7 @@ import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma
 import { TransactionContextService } from '@/shared/infrastructure/services/transaction-context.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { Injectable } from '@nestjs/common';
-import { ctl_category_permissions } from 'generated/prisma/client';
+import { Prisma, ctl_category_permissions } from 'generated/prisma/client';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
@@ -88,7 +88,7 @@ export class ImplCategoryPermissionsRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
       };

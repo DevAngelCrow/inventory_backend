@@ -134,7 +134,7 @@ export class ImplInspectionRepository
           },
         });
       if (!inspection) return null;
-      return this.mapToDto(inspection as any);
+      return this.mapToDto(inspection);
     } catch (error) {
       throw new DatabaseException('Error finding inspection', 'findById');
     }

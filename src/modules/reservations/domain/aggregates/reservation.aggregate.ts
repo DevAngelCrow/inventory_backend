@@ -93,7 +93,7 @@ export class ReservationAggregate extends AggregateRoot {
         : undefined,
       data.id ? new ReservationId(data.id) : undefined,
     );
-    
+
     if (reservation.getId()) {
       reservation.apply(
         new ReservationCreatedEvent(
@@ -103,7 +103,7 @@ export class ReservationAggregate extends AggregateRoot {
         ),
       );
     }
-    
+
     return reservation;
   }
 

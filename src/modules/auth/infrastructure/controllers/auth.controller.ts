@@ -88,27 +88,16 @@ export class AuthController {
   ) {}
 
   private getClientIp(req: Request): string | null {
-    const rawHeader = (
-      req as unknown as {
-        headers?: Record<string, string | string[] | undefined>;
-      }
-    ).headers?.['x-forwarded-for'];
+    const rawHeader = req.headers?.['x-forwarded-for'];
     const forwarded = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
     if (forwarded) {
       return forwarded.split(',')[0]?.trim() ?? null;
     }
-    return (
-      (req as unknown as { socket?: { remoteAddress?: string } }).socket
-        ?.remoteAddress ?? null
-    );
+    return req.socket?.remoteAddress ?? null;
   }
 
   private getUserAgent(req: Request): string | null {
-    return (
-      (req as unknown as Record<string, Record<string, string>>).headers?.[
-        'user-agent'
-      ] ?? null
-    );
+    return req.headers?.['user-agent'] ?? null;
   }
   @SkipAuth()
   @Throttle({ global: { ttl: 3_600_000, limit: 5 } })
@@ -271,9 +260,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'All sessions revoked' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async revokeAllSessions(
-    @Req() request: Request<{ headers: { authorization: string } }>,
+    @Req()
+    request: Request & { user: JwtPayload; headers: { authorization: string } },
   ): Promise<SuccessResponseDto<null>> {
-    const payload = request.user as JwtPayload;
+    const payload = request.user;
     const token = request.headers.authorization?.replace('Bearer ', '') || '';
     const revokeAllSessionsCommand = new RevokeAllSessionsCommand(
       payload.id,
@@ -515,9 +505,9 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Sessions listed successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getSessions(
-    @Req() req: Request,
+    @Req() req: Request & { user: JwtPayload },
   ): Promise<SuccessResponseDto<SessionDto[]>> {
-    const payload = req.user as JwtPayload;
+    const payload = req.user;
     const sessions: SessionDto[] = await this.queryBus.execute(
       new GetSessionsQuery(payload.id),
     );
@@ -536,9 +526,9 @@ export class AuthController {
   @ApiResponse({ status: 404, description: 'Session not found' })
   async revokeSession(
     @Param('id', ParseUUIDPipe) sessionId: string,
-    @Req() req: Request,
+    @Req() req: Request & { user: JwtPayload },
   ): Promise<SuccessResponseDto<null>> {
-    const payload = req.user as JwtPayload;
+    const payload = req.user;
     await this.commandBus.execute(
       new RevokeSessionCommand(sessionId, payload.id),
     );

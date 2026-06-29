@@ -12,6 +12,10 @@ export class ImplAuthCachePort implements AuthCachePort {
     permissions: string[],
     ttlMs: number,
   ): Promise<void> {
-    await this.cacheManager.set(`user:${userId}:permissions`, permissions, ttlMs);
+    await this.cacheManager.set(
+      `user:${userId}:permissions`,
+      permissions,
+      ttlMs,
+    );
   }
 }

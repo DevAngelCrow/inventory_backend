@@ -149,7 +149,7 @@ export class ImplPaymentRepository
         include: { ctl_status: true },
       });
       if (!payment) return null;
-      return this.mapToDto(payment as any);
+      return this.mapToDto(payment);
     } catch (error) {
       throw new DatabaseException('Error finding payment', 'findById');
     }

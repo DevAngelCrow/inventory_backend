@@ -5,7 +5,7 @@ import { MaritalStatusId } from '../../../domain/value-objects/marital-status-va
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { ctl_marital_status } from 'generated/prisma/client';
+import { Prisma, ctl_marital_status } from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -62,7 +62,7 @@ export class ImplMaritalStatusRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
       };
       const [maritalStatusesDb, total] = await Promise.all([

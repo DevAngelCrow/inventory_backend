@@ -19,36 +19,47 @@ import { AddressIdPeople } from '../../domain/value-objects/address-value-object
 export class ImplAddressReadRepository implements AddressReadRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll(pagination_params?: PaginationParams, filter?: string): Promise<Pagination<Address> | Address[]> {
+  async getAll(
+    pagination_params?: PaginationParams,
+    filter?: string,
+  ): Promise<Pagination<Address> | Address[]> {
     const addressDb = await this.prisma.client.mnt_address.findMany();
-    return addressDb.map(a => Address.create({
+    return addressDb.map((a) =>
+      Address.create({
         id: a.id ? new AddressId(a.id) : null,
         street: new AddressStreet(a.street),
         street_number: new AddressStreetNumber(a.street_number),
         neighborhood: new AddressNeighborhood(a.neighborhood),
-        id_geographic_division: new AddressIdGeographicDivision(a.id_geographic_division),
+        id_geographic_division: new AddressIdGeographicDivision(
+          a.id_geographic_division,
+        ),
         house_number: new AddressHouseNumber(a.house_number),
         block: new AddressBlock(a.block),
         pathway: new AddressPathway(a.pathway),
         current: new AddressCurrent(a.current),
         id_people: new AddressIdPeople(a.id_people),
-    }));
+      }),
+    );
   }
 
   async getOneById(id: AddressId): Promise<Address | null> {
-    const a = await this.prisma.client.mnt_address.findUnique({ where: { id: id.value() } });
+    const a = await this.prisma.client.mnt_address.findUnique({
+      where: { id: id.value() },
+    });
     if (!a) return null;
     return Address.create({
-        id: a.id ? new AddressId(a.id) : null,
-        street: new AddressStreet(a.street),
-        street_number: new AddressStreetNumber(a.street_number),
-        neighborhood: new AddressNeighborhood(a.neighborhood),
-        id_geographic_division: new AddressIdGeographicDivision(a.id_geographic_division),
-        house_number: new AddressHouseNumber(a.house_number),
-        block: new AddressBlock(a.block),
-        pathway: new AddressPathway(a.pathway),
-        current: new AddressCurrent(a.current),
-        id_people: new AddressIdPeople(a.id_people),
+      id: a.id ? new AddressId(a.id) : null,
+      street: new AddressStreet(a.street),
+      street_number: new AddressStreetNumber(a.street_number),
+      neighborhood: new AddressNeighborhood(a.neighborhood),
+      id_geographic_division: new AddressIdGeographicDivision(
+        a.id_geographic_division,
+      ),
+      house_number: new AddressHouseNumber(a.house_number),
+      block: new AddressBlock(a.block),
+      pathway: new AddressPathway(a.pathway),
+      current: new AddressCurrent(a.current),
+      id_people: new AddressIdPeople(a.id_people),
     });
   }
 }

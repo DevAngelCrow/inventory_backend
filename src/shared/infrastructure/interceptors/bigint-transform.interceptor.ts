@@ -57,17 +57,20 @@ export class BigIntTransformInterceptor implements NestInterceptor {
 
       // Transformar cada propiedad del objeto
       const transformed: SerializableObject = {};
-      for (const key in data) {
-        if (Object.hasOwn(data, key)) {
-          transformed[key] = this.transformBigInt(
-            data[key as keyof typeof data],
-          );
-        }
+      for (const [key, value] of Object.entries(data)) {
+        transformed[key] = this.transformBigInt(value);
       }
       return transformed;
     }
 
-    // Para tipos primitivos (string, number, boolean), devolver como están
-    return data as SerializableValue;
+    if (
+      typeof data === 'string' ||
+      typeof data === 'number' ||
+      typeof data === 'boolean'
+    ) {
+      return data;
+    }
+
+    return undefined;
   }
 }

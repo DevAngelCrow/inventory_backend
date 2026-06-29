@@ -3,7 +3,7 @@ import { Country } from '../../../domain/entities/country';
 import { CountryRepository } from '../../../domain/repositories/country-repository';
 import { CountryId } from '../../../domain/value-objects/country-value-object/country-id';
 import { PrismaService } from 'src/shared/infrastructure/persistence/prisma/prisma.service';
-import { ctl_country } from 'generated/prisma/client';
+import { Prisma, ctl_country } from 'generated/prisma/client';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { Pagination } from '@/shared/domain/value-object/pagination';
@@ -73,7 +73,7 @@ export class ImplCountryRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
       };

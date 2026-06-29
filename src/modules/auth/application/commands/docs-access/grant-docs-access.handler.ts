@@ -26,7 +26,9 @@ export class GrantDocsAccessHandler implements ICommandHandler<GrantDocsAccessCo
   ): Promise<{ cookieToken: string; maxAge: number }> {
     let payload: JwtPayload;
     try {
-      payload = await this.authReadPort.verifyToken<JwtPayload>(command.access_token);
+      payload = await this.authReadPort.verifyToken<JwtPayload>(
+        command.access_token,
+      );
     } catch {
       throw new ForbiddenException('Token inválido o expirado');
     }
@@ -42,7 +44,10 @@ export class GrantDocsAccessHandler implements ICommandHandler<GrantDocsAccessCo
       id: payload.id,
       user_name: payload.user_name,
     });
-    const decoded = await this.authReadPort.decodeToken<{ exp?: number }>(cookieToken, false);
+    const decoded = await this.authReadPort.decodeToken<{ exp?: number }>(
+      cookieToken,
+      false,
+    );
     const maxAge = decoded?.exp
       ? (decoded.exp - Math.floor(Date.now() / 1000)) * 1000
       : 3_600_000;

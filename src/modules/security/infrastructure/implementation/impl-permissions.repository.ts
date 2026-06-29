@@ -9,7 +9,7 @@ import { DatabaseException } from '@/shared/infrastructure/exceptions/database.e
 import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
-import { ctl_permissions } from 'generated/prisma/client';
+import { Prisma, ctl_permissions } from 'generated/prisma/client';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { Injectable } from '@nestjs/common';
 import { PermissionsReadRepository } from '../../application/repositories/permissions-read.repository';
@@ -95,7 +95,7 @@ export class ImplPermissionsRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active,
         id_category_permissions: category_permission_id,

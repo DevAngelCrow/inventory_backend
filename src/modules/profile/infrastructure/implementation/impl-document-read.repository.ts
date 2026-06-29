@@ -15,28 +15,39 @@ import { DocumentActive } from '../../domain/value-objects/document-value-object
 export class ImplDocumentReadRepository implements DocumentReadRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll(pagination_params?: PaginationParams, filter?: string): Promise<Pagination<Document> | Document[]> {
+  async getAll(
+    pagination_params?: PaginationParams,
+    filter?: string,
+  ): Promise<Pagination<Document> | Document[]> {
     const docsDb = await this.prisma.client.mnt_document.findMany();
-    return docsDb.map(d => Document.create({
+    return docsDb.map((d) =>
+      Document.create({
         id: d.id ? new DocumentId(d.id) : null,
         number_document: new DocumentNumberDoc(d.document_number),
-        description: d.description ? new DocumentDescription(d.description) : undefined,
+        description: d.description
+          ? new DocumentDescription(d.description)
+          : undefined,
         id_people: new DocumentIdPerson(d.id_people),
         id_type_document: new DocumentIdTypeDocument(d.id_document_type), // Map it correctly based on schema
         active: new DocumentActive(d.active),
-    }));
+      }),
+    );
   }
 
   async getOneById(id: DocumentId): Promise<Document | null> {
-    const d = await this.prisma.client.mnt_document.findUnique({ where: { id: id.value() } });
+    const d = await this.prisma.client.mnt_document.findUnique({
+      where: { id: id.value() },
+    });
     if (!d) return null;
     return Document.create({
-        id: d.id ? new DocumentId(d.id) : null,
-        number_document: new DocumentNumberDoc(d.document_number),
-        description: d.description ? new DocumentDescription(d.description) : undefined,
-        id_people: new DocumentIdPerson(d.id_people),
-        id_type_document: new DocumentIdTypeDocument(d.id_document_type),
-        active: new DocumentActive(d.active),
+      id: d.id ? new DocumentId(d.id) : null,
+      number_document: new DocumentNumberDoc(d.document_number),
+      description: d.description
+        ? new DocumentDescription(d.description)
+        : undefined,
+      id_people: new DocumentIdPerson(d.id_people),
+      id_type_document: new DocumentIdTypeDocument(d.id_document_type),
+      active: new DocumentActive(d.active),
     });
   }
 }

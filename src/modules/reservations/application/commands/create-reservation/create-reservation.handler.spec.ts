@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateReservationHandler } from './create-reservation.handler';
-import { EventPublisher } from '@nestjs/cqrs';
+import { EventDispatcherPort } from '@/shared/domain/ports/event-dispatcher.port';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
 import {
   CreateReservationCommand,
@@ -16,12 +16,9 @@ describe('CreateReservationHandler', () => {
     const mockRepository = {
       create: jest.fn(),
     };
-    
-    const mockEventPublisher = {
-      mergeObjectContext: jest.fn().mockImplementation((obj) => {
-        obj.commit = jest.fn();
-        return obj;
-      }),
+
+    const mockEventDispatcher = {
+      dispatch: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -32,8 +29,8 @@ describe('CreateReservationHandler', () => {
           useValue: mockRepository,
         },
         {
-          provide: EventPublisher,
-          useValue: mockEventPublisher,
+          provide: EventDispatcherPort,
+          useValue: mockEventDispatcher,
         },
       ],
     }).compile();

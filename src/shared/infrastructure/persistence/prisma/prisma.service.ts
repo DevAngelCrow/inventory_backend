@@ -68,6 +68,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   async $transaction<T>(
     ...args: Parameters<PrismaClient['$transaction']>
   ): Promise<T> {
-    return (this.prisma.$transaction as any)(...args);
+    return Reflect.apply(
+      this.prisma.$transaction,
+      this.prisma,
+      args,
+    ) as Promise<T>;
   }
 }

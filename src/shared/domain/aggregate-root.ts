@@ -1,51 +1,41 @@
-export interface DomainEvent {}
+export type DomainEvent = object;
 
-export abstract class AggregateRoot<EventBase extends DomainEvent = DomainEvent> {
-  private readonly internalEvents: EventBase[] = [];
-  public autoCommit = false;
+export abstract class AggregateRoot<
+  EventBase extends DomainEvent = DomainEvent,
+> {
+  private readonly _domainEvents: EventBase[] = [];
 
-  publish<T extends EventBase = EventBase>(event: T): void {}
-
-  publishAll<T extends EventBase = EventBase>(events: T[]): void {}
-
-  commit(): void {
-    this.publishAll(this.internalEvents);
-    this.internalEvents.length = 0;
-  }
-
-  uncommit(): void {
-    this.internalEvents.length = 0;
-  }
-
-  getUncommittedEvents(): EventBase[] {
-    return this.internalEvents;
-  }
-
-  loadFromHistory(history: EventBase[]): void {
-    history.forEach((event) => this.apply(event, true));
-  }
-
-  apply<T extends EventBase = EventBase>(event: T, isFromHistory = false): void {
-    if (!isFromHistory && !this.autoCommit) {
-      this.internalEvents.push(event);
-    }
-    this.autoCommit && this.publish(event);
-
+  protected apply(event: EventBase): void {
+    this._domainEvents.push(event);
     const handler = this.getEventHandler(event);
     if (handler) {
       handler.call(this, event);
     }
   }
 
+  getDomainEvents(): EventBase[] {
+    return [...this._domainEvents];
+  }
+
+  clearDomainEvents(): void {
+    this._domainEvents.length = 0;
+  }
+
   protected getEventHandler<T extends EventBase = EventBase>(
     event: T,
-  ): Function | undefined {
+  ): ((...args: unknown[]) => void) | undefined {
     const handler = `on${this.getEventName(event)}`;
-    return (this as unknown as Record<string, Function>)[handler];
+    const method: unknown = Reflect.get(this, handler);
+    if (typeof method === 'function') {
+      return (...args: unknown[]): void => {
+        Reflect.apply(method, this, args);
+      };
+    }
+    return undefined;
   }
 
   protected getEventName(event: EventBase): string {
     const { constructor } = Object.getPrototypeOf(event);
-    return constructor.name as string;
+    return String(constructor.name);
   }
 }

@@ -211,7 +211,7 @@ export class ImplCustomerRepository
         },
       });
       if (!customer) return null;
-      return this.mapToDto(customer as any);
+      return this.mapToDto(customer);
     } catch (error) {
       throw new DatabaseException('Error finding customer', 'findById');
     }
@@ -235,7 +235,7 @@ export class ImplCustomerRepository
         },
       });
       if (!customer) return null;
-      return this.mapToDto(customer as any);
+      return this.mapToDto(customer);
     } catch (error) {
       throw new DatabaseException(
         'Error finding customer by email',

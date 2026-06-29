@@ -3,7 +3,7 @@ import { ProviderStorage } from '../../domain/entities/provider-storage';
 import { ProviderStorageQueriesRepository } from '../../application/repositories/provider-storage-read.repository';
 import { ProviderStorageId } from '../../domain/value-objects/provider-storage-value-object/provider-storage-id';
 import { PrismaService } from 'src/shared/infrastructure/persistence/prisma/prisma.service';
-import { ctl_provider_storage } from 'generated/prisma/client';
+import { Prisma, ctl_provider_storage } from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -24,7 +24,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
       };
       const [providerStoragesDb, total] = await Promise.all([

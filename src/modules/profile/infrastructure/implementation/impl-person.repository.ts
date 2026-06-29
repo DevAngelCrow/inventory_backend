@@ -34,7 +34,7 @@ import { DocumentActive } from '../../domain/value-objects/document-value-object
 import { Injectable } from '@nestjs/common';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { ConflictException } from '@/shared/domain/exceptions/conflict-exception';
-import { mnt_people, mnt_address, mnt_document } from 'generated/prisma/browser';
+
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -45,7 +45,20 @@ import {
   mnt_peopleWhereInput,
 } from 'generated/prisma/models';
 import { PersonReadRepository } from '../../application/repositories/person-read.repository';
-import { Prisma } from 'generated/prisma/client';
+import {
+  Prisma,
+  mnt_people,
+  mnt_address,
+  mnt_document,
+  ctl_country,
+  mnt_user,
+  ctl_gender,
+  ctl_marital_status,
+  ctl_status,
+  ctl_geographic_division,
+  ctl_geographic_division_type,
+  ctl_document_type,
+} from 'generated/prisma/client';
 import { AuthenticateProfileDto } from '@/modules/auth/application/dtos/authenticate-profile.dto';
 
 type PersonWithRelations = mnt_people & {
@@ -224,12 +237,15 @@ export class ImplPersonRepository
         });
 
         // Sync Addresses
-        const currentAddressIds = person.getAddresses().map(a => a.getId()?.value()).filter(Boolean) as string[];
+        const currentAddressIds = person
+          .getAddresses()
+          .map((a) => a.getId()?.value())
+          .filter((id): id is string => id !== undefined && id !== null);
         await tx.mnt_address.deleteMany({
           where: {
             id_people: id_person,
-            id: { notIn: currentAddressIds }
-          }
+            id: { notIn: currentAddressIds },
+          },
         });
 
         for (const addr of person.getAddresses()) {
@@ -253,12 +269,15 @@ export class ImplPersonRepository
         }
 
         // Sync Documents
-        const currentDocIds = person.getDocuments().map(d => d.getId()?.value()).filter(Boolean) as string[];
+        const currentDocIds = person
+          .getDocuments()
+          .map((d) => d.getId()?.value())
+          .filter((id): id is string => id !== undefined && id !== null);
         await tx.mnt_document.deleteMany({
           where: {
             id_people: id_person,
-            id: { notIn: currentDocIds }
-          }
+            id: { notIn: currentDocIds },
+          },
         });
 
         for (const doc of person.getDocuments()) {
@@ -315,11 +334,16 @@ export class ImplPersonRepository
       if (error instanceof Error) {
         throw new Error(`Error getting person by Email: ${error.message}`);
       }
-      throw new DatabaseException('Error getting person by Email', 'getOneByEmail');
+      throw new DatabaseException(
+        'Error getting person by Email',
+        'getOneByEmail',
+      );
     }
   }
 
-  async getOneByIdProfile(id_user: string): Promise<AuthenticateProfileDto | null> {
+  async getOneByIdProfile(
+    id_user: string,
+  ): Promise<AuthenticateProfileDto | null> {
     try {
       const prisma = this.getPrismaClient();
       const personDb: any = await prisma.mnt_people.findFirst({
@@ -354,7 +378,10 @@ export class ImplPersonRepository
       if (error instanceof Error) {
         throw new Error(`Error getting profile by ID: ${error.message}`);
       }
-      throw new DatabaseException('Error getting profile by ID', 'getOneByIdProfile');
+      throw new DatabaseException(
+        'Error getting profile by ID',
+        'getOneByIdProfile',
+      );
     }
   }
 
@@ -365,44 +392,66 @@ export class ImplPersonRepository
 
   private mapToDomain(prismaPerson: PersonWithRelations): Person {
     const person = Person.create({
-      first_name: prismaPerson.first_name ? new PersonFirstName(prismaPerson.first_name) : null,
-      birthdate: prismaPerson.birthdate ? new PersonBirthdate(prismaPerson.birthdate) : null,
-      id_gender: prismaPerson.id_gender ? new PersonIdGender(prismaPerson.id_gender) : null,
+      first_name: prismaPerson.first_name
+        ? new PersonFirstName(prismaPerson.first_name)
+        : null,
+      birthdate: prismaPerson.birthdate
+        ? new PersonBirthdate(prismaPerson.birthdate)
+        : null,
+      id_gender: prismaPerson.id_gender
+        ? new PersonIdGender(prismaPerson.id_gender)
+        : null,
       email: new PersonEmail(prismaPerson.email),
-      id_marital_status: prismaPerson.id_marital_status ? new PersonIdMaritalStatus(prismaPerson.id_marital_status) : null,
+      id_marital_status: prismaPerson.id_marital_status
+        ? new PersonIdMaritalStatus(prismaPerson.id_marital_status)
+        : null,
       phone: prismaPerson.phone ? new PersonPhone(prismaPerson.phone) : null,
       id_status: new PersonIdStatus(prismaPerson.id_status),
-      middle_name: prismaPerson.middle_name ? new PersonMiddleName(prismaPerson.middle_name) : null,
-      last_name: prismaPerson.last_name ? new PersonLastName(prismaPerson.last_name) : null,
-      img_path: prismaPerson.img_path ? new PersonImgPath(prismaPerson.img_path) : null,
+      middle_name: prismaPerson.middle_name
+        ? new PersonMiddleName(prismaPerson.middle_name)
+        : null,
+      last_name: prismaPerson.last_name
+        ? new PersonLastName(prismaPerson.last_name)
+        : null,
+      img_path: prismaPerson.img_path
+        ? new PersonImgPath(prismaPerson.img_path)
+        : null,
       id: new PersonId(prismaPerson.id),
     });
 
     if (prismaPerson.mnt_address) {
-      const addresses = prismaPerson.mnt_address.map(a => Address.create({
-        id: a.id ? new AddressId(a.id) : null,
-        street: new AddressStreet(a.street),
-        street_number: new AddressStreetNumber(a.street_number),
-        neighborhood: new AddressNeighborhood(a.neighborhood),
-        id_geographic_division: new AddressIdGeographicDivision(a.id_geographic_division),
-        house_number: new AddressHouseNumber(a.house_number),
-        block: new AddressBlock(a.block),
-        pathway: new AddressPathway(a.pathway),
-        current: new AddressCurrent(a.current),
-        id_people: new AddressIdPeople(a.id_people),
-      }));
+      const addresses = prismaPerson.mnt_address.map((a) =>
+        Address.create({
+          id: a.id ? new AddressId(a.id) : null,
+          street: new AddressStreet(a.street),
+          street_number: new AddressStreetNumber(a.street_number),
+          neighborhood: new AddressNeighborhood(a.neighborhood),
+          id_geographic_division: new AddressIdGeographicDivision(
+            a.id_geographic_division,
+          ),
+          house_number: new AddressHouseNumber(a.house_number),
+          block: new AddressBlock(a.block),
+          pathway: new AddressPathway(a.pathway),
+          current: new AddressCurrent(a.current),
+          id_people: new AddressIdPeople(a.id_people),
+        }),
+      );
       person.setAddresses(addresses);
     }
 
     if (prismaPerson.mnt_document) {
-      const documents = prismaPerson.mnt_document.map(d => Document.create({
-        id: d.id ? new DocumentId(d.id) : null,
-        number_document: new DocumentNumberDoc(d.document_number),
-        description: d.description ? new DocumentDescription(d.description) : undefined,
-        id_people: new DocumentIdPerson(d.id_people),
-        id_type_document: new DocumentIdTypeDocument(d.id_document_type),
-        active: new DocumentActive(d.active),
-      }));
+      const documents = prismaPerson.mnt_document.map((d) =>
+        Document.create({
+          id: d.id ? new DocumentId(d.id) : null,
+          number_document: new DocumentNumberDoc(d.document_number),
+          description: d.description
+            ? new DocumentDescription(d.description)
+            : undefined,
+          id_people: new DocumentIdPerson(d.id_people),
+          id_type_document: new DocumentIdTypeDocument(d.id_document_type),
+          active: new DocumentActive(d.active),
+        }),
+      );
       person.setDocuments(documents);
     }
 

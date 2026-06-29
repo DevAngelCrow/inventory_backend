@@ -12,7 +12,7 @@ import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
-import { ctl_product_category } from 'generated/prisma/client';
+import { Prisma, ctl_product_category } from 'generated/prisma/client';
 import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
 import { StatusMapperUtil } from '@/shared/infrastructure/utils/status-mapper.util';
 import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
@@ -103,7 +103,7 @@ export class ImplProductCategoryRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         ...(active !== undefined ? { active } : {}),
         deleted_at: null,

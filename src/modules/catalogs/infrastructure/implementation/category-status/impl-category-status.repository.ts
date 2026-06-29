@@ -11,7 +11,7 @@ import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { CategoryStatusQueriesRepository } from '@/modules/catalogs/application/repositories/category-status-read.repository';
-import { ctl_category_status } from 'generated/prisma/client';
+import { Prisma, ctl_category_status } from 'generated/prisma/client';
 import { CategoryStatusDto } from '@/modules/catalogs/application/dtos/category-status.dto';
 import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
 import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
@@ -82,7 +82,7 @@ export class ImplCategoryStatusRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active,
       };

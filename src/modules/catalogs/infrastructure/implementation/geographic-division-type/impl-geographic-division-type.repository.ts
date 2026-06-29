@@ -5,7 +5,11 @@ import { GeographicDivisionTypeId } from '../../../domain/value-objects/geograph
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { ctl_geographic_division_type } from 'generated/prisma/client';
+import {
+  Prisma,
+  ctl_geographic_division_type,
+  ctl_country,
+} from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -85,7 +89,7 @@ export class ImplGeographicDivisionTypeRepository
   > {
     try {
       const where = {
-        name: { contains: filter, mode: 'insensitive' as const },
+        name: { contains: filter, mode: Prisma.QueryMode.insensitive },
         active,
         id_country,
       };

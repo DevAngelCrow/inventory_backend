@@ -37,7 +37,7 @@ export class GetBooleanStatusCatalogService {
     });
 
     const mapStatus = new Map<string, BooleanStatusData>();
-    statuses.forEach((status: any) => {
+    statuses.forEach((status) => {
       const key = status.code.toLocaleLowerCase().toString();
       if (
         status.code.toLowerCase() === BooleanStatus.ACTIVE.toLowerCase() ||

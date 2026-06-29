@@ -7,9 +7,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 export class GetPersonByIdHandler implements IQueryHandler<GetPersonByIdQuery> {
   constructor(private readonly repository: PersonRepository) {}
   async execute(query: GetPersonByIdQuery) {
-    const person = await this.repository.findById(
-      new PersonId(query.id),
-    );
+    const person = await this.repository.findById(new PersonId(query.id));
     return person;
   }
 }

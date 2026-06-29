@@ -5,7 +5,11 @@ import { GlobalStatusId } from '../../../domain/value-objects/goblal-status-valu
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { ctl_status } from 'generated/prisma/client';
+import {
+  Prisma,
+  ctl_status,
+  ctl_category_status,
+} from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -98,7 +102,7 @@ export class ImplGlobalStatusRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
         id_category_status: id_category,

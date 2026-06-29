@@ -6,7 +6,7 @@ import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { RoutesId } from '../../domain/value-objects/routes-value-object/routes-id';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
-import { mnt_route } from 'generated/prisma/client';
+import { Prisma, mnt_route } from 'generated/prisma/client';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
@@ -159,7 +159,7 @@ export class ImplRouteRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
         id_parent: id_parent,
@@ -326,7 +326,7 @@ export class ImplRouteRepository
         name: permission.ctl_permissions.name,
         description: permission.ctl_permissions.description,
         active: permission.ctl_permissions.active,
-      })) as T[],
+      })) as unknown as T[],
       undefined,
       route.parent
         ? new RouteHttpDto<T>(

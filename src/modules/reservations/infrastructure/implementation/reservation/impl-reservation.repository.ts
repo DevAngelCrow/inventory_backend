@@ -338,7 +338,7 @@ export class ImplReservationRepository
         },
       });
       if (!reservation) return null;
-      return this.mapToDto(reservation as any);
+      return this.mapToDto(reservation);
     } catch (error) {
       throw new DatabaseException('Error finding reservation', 'findById');
     }
@@ -372,7 +372,9 @@ export class ImplReservationRepository
       deposit_amount: r.deposit_amount ? Number(r.deposit_amount) : undefined,
       balance_due: r.balance_due ? Number(r.balance_due) : undefined,
       delivery_fee: r.delivery_fee ? Number(r.delivery_fee) : undefined,
-      discount_amount: r.discount_amount ? Number(r.discount_amount) : undefined,
+      discount_amount: r.discount_amount
+        ? Number(r.discount_amount)
+        : undefined,
       notes: r.notes ?? undefined,
       items: r.mnt_reservation_item
         ? r.mnt_reservation_item.map((i: any) => ({

@@ -1,4 +1,5 @@
-import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventDispatcherPort } from '@/shared/domain/ports/event-dispatcher.port';
 import { randomUUID } from 'crypto';
 import { CreateReservationCommand } from './create-reservation.command';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
@@ -8,7 +9,7 @@ import { ReservationAggregate as Reservation } from '@/modules/reservations/doma
 export class CreateReservationHandler implements ICommandHandler<CreateReservationCommand> {
   constructor(
     private readonly repository: ReservationRepository,
-    private readonly publisher: EventPublisher,
+    private readonly dispatcher: EventDispatcherPort,
   ) {}
 
   async execute(command: CreateReservationCommand): Promise<void> {
@@ -37,10 +38,10 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
         total_price: i.total_price,
       })),
     });
-    
+
     await this.repository.create(reservation);
-    
-    const aggregate = this.publisher.mergeObjectContext(reservation);
-    aggregate.commit();
+
+    await this.dispatcher.dispatch(reservation.getDomainEvents());
+    reservation.clearDomainEvents();
   }
 }

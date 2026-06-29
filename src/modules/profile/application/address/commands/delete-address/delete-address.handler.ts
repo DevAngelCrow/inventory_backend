@@ -1,7 +1,8 @@
 import { PersonRepository } from '@/modules/profile/domain/repositories/person.repository';
 import { DeleteAddressCommand } from './delete-address.command';
 import { AddressId } from '@/modules/profile/domain/value-objects/address-value-object/address-id';
-import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventDispatcherPort } from '@/shared/domain/ports/event-dispatcher.port';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { PersonId } from '@/modules/profile/domain/value-objects/person-value-object/person-id';
@@ -10,7 +11,7 @@ import { PersonId } from '@/modules/profile/domain/value-objects/person-value-ob
 export class DeleteAddressHandler implements ICommandHandler<DeleteAddressCommand> {
   constructor(
     private readonly repository: PersonRepository,
-    private readonly publisher: EventPublisher,
+    private readonly dispatcher: EventDispatcherPort,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -30,10 +31,10 @@ export class DeleteAddressHandler implements ICommandHandler<DeleteAddressComman
       throw new NotFoundException('Person', addressDb.id_people);
     }
 
-    const person = this.publisher.mergeObjectContext(personEntity);
-    person.removeAddress(command.id);
+    personEntity.removeAddress(command.id);
 
-    await this.repository.update(person);
-    person.commit();
+    await this.repository.update(personEntity);
+    await this.dispatcher.dispatch(personEntity.getDomainEvents());
+    personEntity.clearDomainEvents();
   }
 }

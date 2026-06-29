@@ -8,7 +8,8 @@ export class ImplPasswordHasherPort implements PasswordHasherPort {
   constructor(private readonly configService: ConfigService) {}
 
   async hash(password: string): Promise<string> {
-    const saltRounds = Number(this.configService.get<number>('SALT_ROUNDS')) || 10;
+    const saltRounds =
+      Number(this.configService.get<number>('SALT_ROUNDS')) || 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     return hashedPassword;
   }

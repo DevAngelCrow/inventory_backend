@@ -8,7 +8,7 @@ import { DatabaseException } from '@/shared/infrastructure/exceptions/database.e
 import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
-import { mnt_role } from 'generated/prisma/browser';
+import { Prisma, mnt_role } from 'generated/prisma/client';
 import { RolId } from '../../domain/value-objects/rol-value-object/rol-id';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { Injectable } from '@nestjs/common';
@@ -168,7 +168,7 @@ export class ImplRolRepository implements RolRepository, RolReadRepository {
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         id_status: id_status,
       };

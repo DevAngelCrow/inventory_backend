@@ -11,21 +11,23 @@ export const createPrismaMock = (): MockPrismaClient => {
 export const createPrismaServiceMock = (
   mockClient: MockPrismaClient,
 ): PrismaService => {
-  const service = mockClient as unknown as PrismaService;
-  (service as any).onModuleInit = jest.fn();
-  (service as any).onModuleDestroy = jest.fn();
+  const service = Object.create(PrismaService.prototype) as PrismaService;
+  service.onModuleInit = jest.fn();
+  service.onModuleDestroy = jest.fn();
   Object.defineProperty(service, 'client', {
     get: jest.fn(() => mockClient),
     configurable: true,
   });
-  service.$transaction = jest.fn().mockImplementation(async (callback) => {
-    if (typeof callback === 'function') {
-      return callback(mockClient);
-    }
-    if (Array.isArray(callback)) {
-      return Promise.all(callback);
-    }
-    return [];
-  }) as any;
+  service.$transaction = jest
+    .fn()
+    .mockImplementation(async (callback: unknown): Promise<unknown> => {
+      if (typeof callback === 'function') {
+        return callback(mockClient);
+      }
+      if (Array.isArray(callback)) {
+        return Promise.all(callback);
+      }
+      return [];
+    });
   return service;
 };

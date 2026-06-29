@@ -185,7 +185,7 @@ export class ImplProductRepository
         where: { id },
       });
       if (!product) return null;
-      return this.mapToDto(product as any);
+      return this.mapToDto(product);
     } catch (error) {
       throw new DatabaseException('Error finding product', 'findById');
     }
@@ -197,7 +197,7 @@ export class ImplProductRepository
         where: { sku },
       });
       if (!product) return null;
-      return this.mapToDto(product as any);
+      return this.mapToDto(product);
     } catch (error) {
       throw new DatabaseException('Error finding product by sku', 'findBySku');
     }

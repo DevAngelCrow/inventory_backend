@@ -243,7 +243,7 @@ export class ImplInvoiceRepository
       if (isDomainId) {
         return this.mapToDomain(invoice);
       }
-      return this.mapToDto(invoice as any);
+      return this.mapToDto(invoice);
     } catch (error) {
       throw new DatabaseException('Error finding invoice', 'findById');
     }

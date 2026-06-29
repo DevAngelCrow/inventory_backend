@@ -1,7 +1,7 @@
-import { AggregateRoot } from '@nestjs/cqrs';
+import '@nestjs/cqrs';
 
 declare module '@nestjs/cqrs' {
-  export class EventPublisher {
+  export interface EventPublisher {
     mergeObjectContext<T>(object: T): T;
   }
 }

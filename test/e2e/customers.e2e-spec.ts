@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
+import { App } from 'supertest/types';
 import { AppModule } from '../../src/app.module';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { JwtPassportAuthGuard } from '@/modules/auth/infrastructure/guards/jwt-passport-auth.guard';
@@ -12,7 +13,7 @@ import {
 } from '../mocks/prisma.mock';
 
 describe('Customers (e2e)', () => {
-  let app: INestApplication;
+  let app: INestApplication<App>;
   let mockPrismaClient: MockPrismaClient;
 
   beforeAll(async () => {
@@ -81,11 +82,7 @@ describe('Customers (e2e)', () => {
         phone_secondary: null,
         company_name: 'Jane LLC',
         tax_id: null,
-        address_line1: null,
-        address_line2: null,
-        city: null,
-        state: null,
-        zip_code: null,
+        id_country: 'country-1',
         notes: null,
         active: true,
         id_user: null,

@@ -1,6 +1,7 @@
 import { PersonRepository } from '@/modules/profile/domain/repositories/person.repository';
 import { DeleteDocumentCommand } from './delete-document.command';
-import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventDispatcherPort } from '@/shared/domain/ports/event-dispatcher.port';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { PersonId } from '@/modules/profile/domain/value-objects/person-value-object/person-id';
@@ -9,7 +10,7 @@ import { PersonId } from '@/modules/profile/domain/value-objects/person-value-ob
 export class DeleteDocumentHandler implements ICommandHandler<DeleteDocumentCommand> {
   constructor(
     private readonly repository: PersonRepository,
-    private readonly publisher: EventPublisher,
+    private readonly dispatcher: EventDispatcherPort,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -29,10 +30,10 @@ export class DeleteDocumentHandler implements ICommandHandler<DeleteDocumentComm
       throw new NotFoundException('Person', documentDb.id_people);
     }
 
-    const person = this.publisher.mergeObjectContext(personEntity);
-    person.removeDocument(command.id);
+    personEntity.removeDocument(command.id);
 
-    await this.repository.update(person);
-    person.commit();
+    await this.repository.update(personEntity);
+    await this.dispatcher.dispatch(personEntity.getDomainEvents());
+    personEntity.clearDomainEvents();
   }
 }

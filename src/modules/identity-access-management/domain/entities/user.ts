@@ -76,7 +76,9 @@ export class User extends AggregateRoot {
     this.is_validated = new UserIsValidated(true);
     this.id_status = activeStatusId;
     if (this.id) {
-      this.apply(new UserEmailVerifiedEvent(this.id.value(), activeStatusId.value()));
+      this.apply(
+        new UserEmailVerifiedEvent(this.id.value(), activeStatusId.value()),
+      );
     }
   }
 

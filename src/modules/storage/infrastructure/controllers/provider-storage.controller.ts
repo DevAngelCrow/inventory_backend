@@ -94,7 +94,8 @@ export class ProviderStorageController {
       Pagination<ProviderStorage>
     >(appQuery);
 
-    const items = result instanceof Pagination ? result.getEntityList() : [];
+    const items: ProviderStorage[] =
+      result instanceof Pagination ? result.getEntityList() : [];
     const totalItems =
       result instanceof Pagination ? result.getTotalItems() : items.length;
     const totalPages =
