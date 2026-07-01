@@ -88,7 +88,7 @@ export class ImplReservationRepository
       });
     } catch (error) {
       throw new DatabaseException(
-        `Error creating reservation: ${error}`,
+        `Error creating reservation: ${error instanceof Error ? error.message : String(error)}`,
         'create',
       );
     }
