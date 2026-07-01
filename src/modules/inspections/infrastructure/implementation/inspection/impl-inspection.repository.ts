@@ -1,4 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma, mnt_reservation_inspection } from 'generated/prisma/client';
+
+type InspectionModel = Prisma.mnt_reservation_inspectionGetPayload<{
+  include: {
+    mnt_damage_item: true;
+    ctl_status: true;
+  };
+}>;
 import { InspectionRepository } from '@/modules/inspections/domain/repositories/inspection-repository';
 import { InspectionQueriesRepository } from '@/modules/inspections/application/repositories/inspection-read.repository';
 import { Inspection } from '@/modules/inspections/domain/entities/inspection';
@@ -141,18 +149,18 @@ export class ImplInspectionRepository
     }
   }
 
-  private mapToDto(i: any): InspectionDto {
+  private mapToDto(i: InspectionModel): InspectionDto {
     return new InspectionDto(
       i.id_reservation,
       i.inspection_date,
       i.overall_condition,
-      i.ctl_status ?? i.status,
+      i.ctl_status as any,
       i.general_notes ?? undefined,
       Number(i.total_charges),
       i.id_inspected_by ?? undefined,
       i.mnt_damage_item
         ? i.mnt_damage_item.map(
-            (d: any) =>
+            (d) =>
               new DamageItemDto(
                 d.id_product,
                 d.damage_type,

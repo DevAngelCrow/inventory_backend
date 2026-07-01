@@ -208,7 +208,7 @@ export class ImplProductRepository
     }
   }
 
-  private mapToDomain(p: any): Product {
+  private mapToDomain(p: mnt_product): Product {
     return Product.create({
       id: p.id,
       sku: p.sku,
@@ -231,7 +231,7 @@ export class ImplProductRepository
   }
 
   private mapToDto(
-    p: any,
+    p: mnt_product,
     catalog_status?: Map<string, BooleanStatusData>,
   ): ProductDto {
     const status = StatusMapperUtil.getStatusFromBoolean(

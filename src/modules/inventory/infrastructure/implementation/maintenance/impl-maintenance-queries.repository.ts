@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma/client';
+import { Prisma, mnt_product_maintenance } from 'generated/prisma/client';
 import { MaintenanceQueriesRepository } from '@/modules/inventory/application/repositories/maintenance-read.repository';
 import { MaintenanceDto } from '@/modules/inventory/application/dtos/maintenance.dto';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
@@ -19,7 +19,7 @@ export class ImplMaintenanceQueriesRepository implements MaintenanceQueriesRepos
   constructor(private readonly prisma: PrismaService) {}
 
   private mapToDto(
-    record: any,
+    record: mnt_product_maintenance,
     catalog_status?: Map<string, BooleanStatusData>,
   ): MaintenanceDto {
     const status = StatusMapperUtil.getStatusFromBoolean(
@@ -33,7 +33,7 @@ export class ImplMaintenanceQueriesRepository implements MaintenanceQueriesRepos
       record.cost ? Number(record.cost) : null,
       record.quantity,
       record.date_start,
-      record.date_end,
+      record.date_end as Date,
       record.resolved,
       record.created_at,
       record.updated_at,

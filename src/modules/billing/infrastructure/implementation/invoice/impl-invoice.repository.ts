@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma/client';
+import { Prisma, mnt_invoice, mnt_invoice_line, ctl_status, mnt_customer } from 'generated/prisma/client';
+
+type InvoiceModel = mnt_invoice & {
+  mnt_invoice_line?: mnt_invoice_line[];
+  mnt_customer?: mnt_customer;
+  ctl_status: ctl_status;
+};
 import { InvoiceRepository } from '@/modules/billing/domain/repositories/invoice-repository';
 import { InvoiceQueriesRepository } from '@/modules/billing/application/repositories/invoice-read.repository';
 import { Invoice } from '@/modules/billing/domain/entities/invoice';
@@ -250,7 +256,7 @@ export class ImplInvoiceRepository
     }
   }
 
-  private mapToDomain(i: any): Invoice {
+  private mapToDomain(i: InvoiceModel): Invoice {
     return Invoice.create({
       id: i.id,
       id_reservation: i.id_reservation,
@@ -277,7 +283,7 @@ export class ImplInvoiceRepository
       pdf_path: i.pdf_path ?? undefined,
       id_created_by: i.id_created_by ?? undefined,
       lines: i.mnt_invoice_line
-        ? i.mnt_invoice_line.map((l: any) => ({
+        ? i.mnt_invoice_line.map((l: mnt_invoice_line) => ({
             id: l.id,
             description: l.description,
             quantity: l.quantity,
@@ -291,7 +297,7 @@ export class ImplInvoiceRepository
     });
   }
 
-  private mapToDto(i: any): InvoiceDto {
+  private mapToDto(i: InvoiceModel): InvoiceDto {
     return new InvoiceDto(
       i.id_reservation,
       i.id_customer,
@@ -316,7 +322,7 @@ export class ImplInvoiceRepository
       i.id_created_by ?? undefined,
       i.mnt_invoice_line
         ? i.mnt_invoice_line.map(
-            (l: any) =>
+            (l: mnt_invoice_line) =>
               new InvoiceLineDto(
                 l.description,
                 l.quantity,

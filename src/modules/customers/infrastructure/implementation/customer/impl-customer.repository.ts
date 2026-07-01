@@ -1,5 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma/client';
+import { Prisma, mnt_customer } from 'generated/prisma/client';
+
+type CustomerModel = Prisma.mnt_customerGetPayload<{
+  include: {
+    ctl_country: true;
+    mnt_customer_address: {
+      include: {
+        ctl_geographic_division: {
+          include: {
+            ctl_geographic_division: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+type CustomerAddressModel = CustomerModel['mnt_customer_address'][number];
 import { CustomerRepository } from '@/modules/customers/domain/repositories/customer-repository';
 import { CustomerQueriesRepository } from '@/modules/customers/application/repositories/customer-read.repository';
 import { Customer } from '@/modules/customers/domain/entities/customer';
@@ -108,6 +125,18 @@ export class ImplCustomerRepository
         data: {
           active: !existing.active,
           updated_at: new Date(),
+        },
+        include: {
+          ctl_country: true,
+          mnt_customer_address: {
+            include: {
+              ctl_geographic_division: {
+                include: {
+                  ctl_geographic_division: true,
+                },
+              },
+            },
+          },
         },
       });
       return this.mapToDomain(updated);
@@ -251,7 +280,7 @@ export class ImplCustomerRepository
     }
   }
 
-  private mapToDomain(c: any): Customer {
+  private mapToDomain(c: CustomerModel): Customer {
     return Customer.create({
       id: c.id,
       first_name: c.first_name,
@@ -266,7 +295,7 @@ export class ImplCustomerRepository
       active: c.active,
       id_country: c.id_country,
       addresses: c.mnt_customer_address
-        ? c.mnt_customer_address.map((a: any) => ({
+        ? c.mnt_customer_address.map((a: CustomerAddressModel) => ({
             label: a.label,
             address_line1: a.address_line1,
             address_line2: a.address_line2 ?? undefined,
@@ -281,7 +310,7 @@ export class ImplCustomerRepository
   }
 
   private mapToDto(
-    c: any,
+    c: CustomerModel,
     catalog_status?: Map<string, BooleanStatusData>,
   ): CustomerDto {
     const status = StatusMapperUtil.getStatusFromBoolean(
@@ -304,7 +333,7 @@ export class ImplCustomerRepository
       c.ctl_country?.name,
       c.ctl_country?.phone_code,
       c.mnt_customer_address
-        ? c.mnt_customer_address.map((a: any) => ({
+        ? c.mnt_customer_address.map((a: CustomerAddressModel) => ({
             label: a.label,
             address_line1: a.address_line1,
             is_primary: a.is_primary,

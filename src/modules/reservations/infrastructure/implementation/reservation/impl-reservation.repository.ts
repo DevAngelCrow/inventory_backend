@@ -1,5 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma/client';
+import { Prisma, mnt_reservation } from 'generated/prisma/client';
+
+type ReservationModel = Prisma.mnt_reservationGetPayload<{
+  include: {
+    mnt_reservation_item: { include: { mnt_product: true } };
+    mnt_customer: true;
+    ctl_status: true;
+    ctl_geographic_division: true;
+  };
+}>;
+
+type ReservationItemModel = ReservationModel['mnt_reservation_item'][number];
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
 import { ReservationQueriesRepository } from '@/modules/reservations/application/repositories/reservation-read.repository';
 import { ReservationAggregate as Reservation } from '@/modules/reservations/domain/aggregates/reservation.aggregate';
@@ -217,7 +228,12 @@ export class ImplReservationRepository
           ...(deliveryDatetime ? { delivery_datetime: deliveryDatetime } : {}),
           ...(pickupDatetime ? { pickup_datetime: pickupDatetime } : {}),
         },
-        include: { mnt_reservation_item: true, ctl_status: true },
+        include: {
+          mnt_reservation_item: { include: { mnt_product: true } },
+          mnt_customer: true,
+          ctl_status: true,
+          ctl_geographic_division: true,
+        },
       });
       return this.mapToDomain(updated);
     } catch (error) {
@@ -356,14 +372,14 @@ export class ImplReservationRepository
     }
   }
 
-  private mapToDomain(r: any): Reservation {
+  private mapToDomain(r: ReservationModel): Reservation {
     return Reservation.create({
       id: r.id,
       id_customer: r.id_customer,
-      status: r.ctl_status?.code ?? r.status,
+      status: r.ctl_status?.code as any,
       event_start: r.event_start,
       event_end: r.event_end,
-      delivery_address: r.delivery_address ?? undefined,
+      delivery_address: r.delivery_address as any,
       delivery_address_line2: r.delivery_address_line2 ?? undefined,
       delivery_zip: r.delivery_zip ?? undefined,
       delivery_notes: r.delivery_notes ?? undefined,
@@ -378,7 +394,7 @@ export class ImplReservationRepository
         : undefined,
       notes: r.notes ?? undefined,
       items: r.mnt_reservation_item
-        ? r.mnt_reservation_item.map((i: any) => ({
+        ? r.mnt_reservation_item.map((i: ReservationItemModel) => ({
             id: i.id,
             id_product: i.id_product,
             quantity: i.quantity,
@@ -391,10 +407,10 @@ export class ImplReservationRepository
     });
   }
 
-  private mapToDto(r: any): ReservationDto {
+  private mapToDto(r: ReservationModel): ReservationDto {
     return new ReservationDto(
       r.id_customer,
-      r.ctl_status ?? r.status,
+      r.ctl_status as any,
       r.event_start,
       r.event_end,
       Number(r.total),
@@ -412,7 +428,7 @@ export class ImplReservationRepository
       r.notes ?? undefined,
       r.mnt_reservation_item
         ? r.mnt_reservation_item.map(
-            (i: any) =>
+            (i: ReservationItemModel) =>
               new ReservationItemDto(
                 i.id_product,
                 i.quantity,

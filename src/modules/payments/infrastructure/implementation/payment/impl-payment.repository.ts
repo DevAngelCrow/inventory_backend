@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma/client';
+import { Prisma, mnt_payment } from 'generated/prisma/client';
+
+type PaymentModel = Prisma.mnt_paymentGetPayload<{
+  include: {
+    ctl_status: true;
+    mnt_reservation: true;
+  };
+}>;
 import { PaymentRepository } from '@/modules/payments/domain/repositories/payment-repository';
 import { PaymentQueriesRepository } from '@/modules/payments/application/repositories/payment-read.repository';
 import { Payment } from '@/modules/payments/domain/entities/payment';
@@ -66,7 +73,7 @@ export class ImplPaymentRepository
       return this.mapToDomain(
         await this.prisma.client.mnt_payment.findUniqueOrThrow({
           where: { id: savedPayment.id },
-          include: { ctl_status: true },
+          include: { ctl_status: true, mnt_reservation: true },
         }),
       );
     } catch (error) {
@@ -147,7 +154,7 @@ export class ImplPaymentRepository
     try {
       const payment = await this.prisma.client.mnt_payment.findUnique({
         where: { id },
-        include: { ctl_status: true },
+        include: { ctl_status: true, mnt_reservation: true },
       });
       if (!payment) return null;
       return this.mapToDto(payment);
@@ -169,15 +176,15 @@ export class ImplPaymentRepository
     }
   }
 
-  private mapToDomain(p: any): Payment {
+  private mapToDomain(p: PaymentModel): Payment {
     return Payment.create({
       id: p.id,
       id_reservation: p.id_reservation,
       id_payment_method: p.id_payment_method,
       amount: Number(p.amount),
       payment_date: p.payment_date,
-      status: p.ctl_status?.code ?? p.status,
-      reference_number: p.reference_number ?? undefined,
+      status: p.ctl_status?.code as any,
+      reference_number: p.reference_number as any,
       notes: p.notes ?? undefined,
       gateway_provider: p.gateway_provider ?? undefined,
       gateway_tx_id: p.gateway_tx_id ?? undefined,
@@ -186,15 +193,15 @@ export class ImplPaymentRepository
     });
   }
 
-  private mapToDto(p: any): PaymentDto {
+  private mapToDto(p: PaymentModel): PaymentDto {
     return new PaymentDto(
       p.id_reservation,
       p.id_payment_method,
       Number(p.amount),
       p.payment_date,
-      p.ctl_status ?? p.status,
+      p.ctl_status as any,
       p.payment_number,
-      p.reference_number ?? undefined,
+      p.reference_number as any,
       p.notes ?? undefined,
       p.gateway_provider ?? undefined,
       p.gateway_tx_id ?? undefined,
