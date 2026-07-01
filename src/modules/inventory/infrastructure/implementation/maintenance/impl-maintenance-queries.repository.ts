@@ -33,7 +33,7 @@ export class ImplMaintenanceQueriesRepository implements MaintenanceQueriesRepos
       record.cost ? Number(record.cost) : null,
       record.quantity,
       record.date_start,
-      record.date_end as Date,
+      record.date_end,
       record.resolved,
       record.created_at,
       record.updated_at,

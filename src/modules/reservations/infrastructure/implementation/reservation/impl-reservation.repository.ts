@@ -376,7 +376,7 @@ export class ImplReservationRepository
     return Reservation.create({
       id: r.id,
       id_customer: r.id_customer,
-      status: r.ctl_status?.code as any,
+      status: r.ctl_status?.code,
       event_start: r.event_start,
       event_end: r.event_end,
       delivery_address: r.delivery_address as any,
@@ -410,7 +410,7 @@ export class ImplReservationRepository
   private mapToDto(r: ReservationModel): ReservationDto {
     return new ReservationDto(
       r.id_customer,
-      r.ctl_status as any,
+      r.ctl_status,
       r.event_start,
       r.event_end,
       Number(r.total),

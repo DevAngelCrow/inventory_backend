@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, mnt_invoice, mnt_invoice_line, ctl_status, mnt_customer } from 'generated/prisma/client';
+import {
+  Prisma,
+  mnt_invoice,
+  mnt_invoice_line,
+  ctl_status,
+  mnt_customer,
+} from 'generated/prisma/client';
 
 type InvoiceModel = mnt_invoice & {
   mnt_invoice_line?: mnt_invoice_line[];
