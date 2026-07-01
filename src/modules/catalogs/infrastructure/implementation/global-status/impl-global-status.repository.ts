@@ -27,12 +27,13 @@ import { TransactionContextService } from '@/shared/infrastructure/services/tran
 
 @Injectable()
 export class ImplGlobalStatusRepository
-  implements GlobalStatsusRepository, GlobalStatusQueriesRepository {
+  implements GlobalStatsusRepository, GlobalStatusQueriesRepository
+{
   private globalStatuses: GlobalStatusDto[] = [];
   constructor(
     private readonly prisma: PrismaService,
     private readonly transactionContext: TransactionContextService,
-  ) { }
+  ) {}
   async create(global_status: GlobalStatus): Promise<void> {
     try {
       const prisma = this.getPrismaClient();
@@ -48,7 +49,10 @@ export class ImplGlobalStatusRepository
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'El código y la categoría de estado ingresados ya existen. Por favor, intente con otros valores.',
           'create',
@@ -77,7 +81,10 @@ export class ImplGlobalStatusRepository
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'El código y la categoría de estado ingresados ya existen. Por favor, intente con otros valores.',
           'create',
@@ -112,9 +119,9 @@ export class ImplGlobalStatusRepository
       const globalStatusesDb = await prisma.ctl_status.findMany({
         skip:
           pagination_params?.getPage().value() &&
-            pagination_params?.getPerPage().value()
+          pagination_params?.getPerPage().value()
             ? (pagination_params.getPage().value() - 1) *
-            pagination_params.getPerPage().value()
+              pagination_params.getPerPage().value()
             : undefined,
         take: pagination_params?.getPerPage().value(),
         where,

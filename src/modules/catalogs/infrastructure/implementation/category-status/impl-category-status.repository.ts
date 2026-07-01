@@ -20,9 +20,10 @@ import { CategoryStatusHttpDto } from '../../dtos/http/category-status-http-dto/
 
 @Injectable()
 export class ImplCategoryStatusRepository
-  implements CategoryStatusRepository, CategoryStatusQueriesRepository {
+  implements CategoryStatusRepository, CategoryStatusQueriesRepository
+{
   private categoriesStatus: CategoryStatusDto[] = [];
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
   async create(categoryStatus: CategoryStatus): Promise<void> {
     try {
       await this.prisma.client.ctl_category_status.create({
@@ -95,9 +96,9 @@ export class ImplCategoryStatusRepository
         this.prisma.client.ctl_category_status.findMany({
           skip:
             pagination_params?.getPage().value() &&
-              pagination_params?.getPerPage().value()
+            pagination_params?.getPerPage().value()
               ? (pagination_params.getPage().value() - 1) *
-              pagination_params.getPerPage().value()
+                pagination_params.getPerPage().value()
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
@@ -112,8 +113,8 @@ export class ImplCategoryStatusRepository
       const categoriesStatus =
         categoriesStatusDb.length > 0
           ? categoriesStatusDb.map((categoryStatusDb: ctl_category_status) =>
-            this.mapReadModelToDto(categoryStatusDb, catalog_status),
-          )
+              this.mapReadModelToDto(categoryStatusDb, catalog_status),
+            )
           : [];
 
       this.categoriesStatus = categoriesStatus;

@@ -46,7 +46,10 @@ export class ImplProductRepository
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'Ya existe un producto con ese SKU.',
           'create',
@@ -78,7 +81,10 @@ export class ImplProductRepository
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'Ya existe un producto con ese SKU.',
           'update',
@@ -154,9 +160,7 @@ export class ImplProductRepository
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
-      const products = productsDb.map((p) =>
-        this.mapToDto(p, catalog_status),
-      );
+      const products = productsDb.map((p) => this.mapToDto(p, catalog_status));
 
       if (!pagination_params) return products;
 

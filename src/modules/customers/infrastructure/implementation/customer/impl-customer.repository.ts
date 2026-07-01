@@ -19,8 +19,9 @@ import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services
 
 @Injectable()
 export class ImplCustomerRepository
-  implements CustomerRepository, CustomerQueriesRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  implements CustomerRepository, CustomerQueriesRepository
+{
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(customer: Customer): Promise<void> {
     try {
@@ -52,7 +53,10 @@ export class ImplCustomerRepository
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'Ya existe un cliente con esos datos únicos.',
           'create',
@@ -81,7 +85,10 @@ export class ImplCustomerRepository
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException('Conflicto de datos únicos.', 'update');
       }
       throw new DatabaseException('Error updating customer', 'update');
@@ -143,9 +150,9 @@ export class ImplCustomerRepository
         this.prisma.client.mnt_customer.findMany({
           skip:
             pagination_params?.getPage().value() &&
-              pagination_params?.getPerPage().value()
+            pagination_params?.getPerPage().value()
               ? (pagination_params.getPage().value() - 1) *
-              pagination_params.getPerPage().value()
+                pagination_params.getPerPage().value()
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
@@ -260,15 +267,15 @@ export class ImplCustomerRepository
       id_country: c.id_country,
       addresses: c.mnt_customer_address
         ? c.mnt_customer_address.map((a: any) => ({
-          label: a.label,
-          address_line1: a.address_line1,
-          address_line2: a.address_line2 ?? undefined,
-          zip_code: a.zip_code ?? undefined,
-          is_primary: a.is_primary,
-          id_geographic_division: a.id_geographic_division ?? undefined,
-          id: a.id,
-          active: a.active,
-        }))
+            label: a.label,
+            address_line1: a.address_line1,
+            address_line2: a.address_line2 ?? undefined,
+            zip_code: a.zip_code ?? undefined,
+            is_primary: a.is_primary,
+            id_geographic_division: a.id_geographic_division ?? undefined,
+            id: a.id,
+            active: a.active,
+          }))
         : [],
     });
   }
@@ -298,18 +305,18 @@ export class ImplCustomerRepository
       c.ctl_country?.phone_code,
       c.mnt_customer_address
         ? c.mnt_customer_address.map((a: any) => ({
-          label: a.label,
-          address_line1: a.address_line1,
-          is_primary: a.is_primary,
-          address_line2: a.address_line2 ?? undefined,
-          zip_code: a.zip_code ?? undefined,
-          id_geographic_division: a.id_geographic_division ?? undefined,
-          id: a.id,
-          active: a.active,
-          geographic_division_name: a.ctl_geographic_division?.name,
-          state_name:
-            a.ctl_geographic_division?.ctl_geographic_division?.name,
-        }))
+            label: a.label,
+            address_line1: a.address_line1,
+            is_primary: a.is_primary,
+            address_line2: a.address_line2 ?? undefined,
+            zip_code: a.zip_code ?? undefined,
+            id_geographic_division: a.id_geographic_division ?? undefined,
+            id: a.id,
+            active: a.active,
+            geographic_division_name: a.ctl_geographic_division?.name,
+            state_name:
+              a.ctl_geographic_division?.ctl_geographic_division?.name,
+          }))
         : [],
       c.id,
       c.created_at,

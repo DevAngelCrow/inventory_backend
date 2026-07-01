@@ -20,8 +20,9 @@ import { DatabaseException } from '@/shared/infrastructure/exceptions/database.e
 
 @Injectable()
 export class ImplReservationRepository
-  implements ReservationRepository, ReservationQueriesRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  implements ReservationRepository, ReservationQueriesRepository
+{
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(reservation: Reservation): Promise<void> {
     try {
@@ -285,9 +286,9 @@ export class ImplReservationRepository
         this.prisma.client.mnt_reservation.findMany({
           skip:
             pagination_params?.getPage().value() &&
-              pagination_params?.getPerPage().value()
+            pagination_params?.getPerPage().value()
               ? (pagination_params.getPage().value() - 1) *
-              pagination_params.getPerPage().value()
+                pagination_params.getPerPage().value()
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
@@ -321,7 +322,7 @@ export class ImplReservationRepository
         ),
       );
     } catch (error) {
-      console.log(error, "Error getting reservations")
+      console.log(error, 'Error getting reservations');
       throw new DatabaseException('Error getting reservations', 'getAll');
     }
   }
@@ -378,12 +379,12 @@ export class ImplReservationRepository
       notes: r.notes ?? undefined,
       items: r.mnt_reservation_item
         ? r.mnt_reservation_item.map((i: any) => ({
-          id: i.id,
-          id_product: i.id_product,
-          quantity: i.quantity,
-          unit_price: Number(i.unit_price),
-          total_price: Number(i.subtotal),
-        }))
+            id: i.id,
+            id_product: i.id_product,
+            quantity: i.quantity,
+            unit_price: Number(i.unit_price),
+            total_price: Number(i.subtotal),
+          }))
         : [],
       delivery_datetime: r.delivery_datetime ?? undefined,
       pickup_datetime: r.pickup_datetime ?? undefined,
@@ -411,19 +412,19 @@ export class ImplReservationRepository
       r.notes ?? undefined,
       r.mnt_reservation_item
         ? r.mnt_reservation_item.map(
-          (i: any) =>
-            new ReservationItemDto(
-              i.id_product,
-              i.quantity,
-              Number(i.unit_price),
-              Number(i.subtotal),
-              i.id_reservation,
-              i.id,
-              i.mnt_product
-                ? { name: i.mnt_product.name, sku: i.mnt_product.sku }
-                : undefined,
-            ),
-        )
+            (i: any) =>
+              new ReservationItemDto(
+                i.id_product,
+                i.quantity,
+                Number(i.unit_price),
+                Number(i.subtotal),
+                i.id_reservation,
+                i.id,
+                i.mnt_product
+                  ? { name: i.mnt_product.name, sku: i.mnt_product.sku }
+                  : undefined,
+              ),
+          )
         : [],
       r.id,
       r.created_at,
@@ -434,11 +435,11 @@ export class ImplReservationRepository
       r.transit_time_minutes,
       r.mnt_customer
         ? {
-          first_name: r.mnt_customer.first_name,
-          last_name: r.mnt_customer.last_name,
-          email: r.mnt_customer.email,
-          phone: r.mnt_customer.phone,
-        }
+            first_name: r.mnt_customer.first_name,
+            last_name: r.mnt_customer.last_name,
+            email: r.mnt_customer.email,
+            phone: r.mnt_customer.phone,
+          }
         : undefined,
     );
   }
