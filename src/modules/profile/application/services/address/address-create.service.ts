@@ -4,8 +4,8 @@ import { CreateAddressHandler } from '../../address/commands/create-address/crea
 import { CreateAddressCommand } from '../../address/commands/create-address/create-address.command';
 export class AddressCreateService {
   constructor(private readonly addressCreateService: CreateAddressHandler) {}
-  async run(address_dto: AddressDto): Promise<Address> {
+  async run(address_dto: AddressDto): Promise<void> {
     const addressCommand = new CreateAddressCommand(address_dto);
-    return await this.addressCreateService.execute(addressCommand);
+    await this.addressCreateService.execute(addressCommand);
   }
 }

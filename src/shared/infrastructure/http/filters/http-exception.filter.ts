@@ -9,6 +9,11 @@ import { ExceptionMapper } from '../mappers/exception-mapper';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { RequestWithId } from '../middleware/request-id.middleware';
+import { AuthenticatedUser } from '../guards/owns-resource.guard';
+
+export interface RequestWithUser extends RequestWithId {
+  user?: AuthenticatedUser;
+}
 import {
   http4xxTotal,
   http5xxTotal,
@@ -44,7 +49,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<RequestWithId>();
+    const request = ctx.getRequest<RequestWithUser>();
     const requestId = request.id;
 
     if (request.url?.includes('/.well-known/')) {
@@ -71,7 +76,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
         requestId,
       };
     } else {
-      responseBody = { ...exceptionResponse, requestId } as ErrorResponse;
+      const payload = exceptionResponse as Record<string, unknown>;
+      responseBody = {
+        statusCode:
+          typeof payload.statusCode === 'number' ? payload.statusCode : status,
+        message:
+          typeof payload.message === 'string' ? payload.message : 'Error',
+        timestamp:
+          typeof payload.timestamp === 'string'
+            ? payload.timestamp
+            : new Date().toISOString(),
+        path: request.url,
+        requestId,
+        ...payload,
+      };
     }
 
     // Agregar stacktrace si está habilitado
@@ -95,7 +113,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
   private logException(
     exception: Error,
-    request: RequestWithId,
+    request: RequestWithUser,
     status: number,
   ): void {
     const logContext = {
@@ -105,9 +123,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       status,
       errorName: exception.name,
       errorMessage: exception.message,
-      user:
-        (request as RequestWithId & { user?: { id: string } }).user?.id ??
-        'anonymous',
+      user: request.user?.id ?? 'anonymous',
       ip: request.ip,
       userAgent: request.headers['user-agent'],
     };

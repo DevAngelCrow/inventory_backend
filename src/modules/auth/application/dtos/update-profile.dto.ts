@@ -9,19 +9,19 @@ export class UpdateProfileDto<T = unknown> {
     public readonly id_gender: string | null,
     public readonly id_marital_status: string | null,
     public readonly phone: string | null,
-    public readonly id_status: string,
+    public readonly id_status: string | null,
     public readonly img_path: string | null,
     //public readonly id_status: string,
     public readonly nationalities: string[] = [],
     public readonly file_img: T | null = null,
-    public readonly id_people: string,
+    public readonly id_people: string | null,
 
     // User data
     public readonly user_name: string,
     public readonly password: string,
     //public readonly id_status_user: number,
-    public readonly last_access: Date,
-    public readonly is_validated: boolean,
+    public readonly last_access: Date | null,
+    public readonly is_validated: boolean | null,
     public readonly id_user: string,
 
     // Address data

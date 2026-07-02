@@ -22,7 +22,7 @@ export class ImplAuditLogRepository implements AuditLogRepository {
     // Use `this.prisma` directly (not `this.prisma.client`) so that audit logs
     // are written outside any ongoing business transaction — ensuring they are
     // persisted even when the parent transaction rolls back.
-    await this.prisma.mnt_audit_log.create({
+    await this.prisma.client.mnt_audit_log.create({
       data: {
         action: auditLog.action,
         user_name: auditLog.user_name,
@@ -63,13 +63,13 @@ export class ImplAuditLogRepository implements AuditLogRepository {
     const take = pagination_params.getPerPage().value();
 
     const [rows, total] = await Promise.all([
-      this.prisma.mnt_audit_log.findMany({
+      this.prisma.client.mnt_audit_log.findMany({
         where,
         skip,
         take,
         orderBy: { created_at: 'desc' },
       }),
-      this.prisma.mnt_audit_log.count({ where }),
+      this.prisma.client.mnt_audit_log.count({ where }),
     ]);
 
     const items: AuditLogDto[] = rows.map(

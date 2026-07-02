@@ -13,12 +13,9 @@ import { TransactionContextService } from '../../services/transaction-context.se
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('template-project:prisma');
-  // private prisma: PrismaClient;
+  private prisma: PrismaClient;
 
   constructor(
     private readonly transactionContext: TransactionContextService,
@@ -39,12 +36,12 @@ export class PrismaService
         configService.get<number>('DATABASE_POOL_CONN_TIMEOUT_MS') ?? 5_000,
     });
     const adapter = new PrismaPg(pool);
-    super({ adapter });
+    this.prisma = new PrismaClient({ adapter });
   }
 
   async onModuleInit(): Promise<void> {
     try {
-      await this.$connect();
+      await this.prisma.$connect();
       this.logger.log('Prisma connected successfully');
     } catch (error) {
       this.logger.error('Error connecting Prisma', error);
@@ -54,7 +51,7 @@ export class PrismaService
 
   async onModuleDestroy(): Promise<void> {
     try {
-      await this.$disconnect();
+      await this.prisma.$disconnect();
       this.logger.log('Prisma disconnected successfully');
     } catch (error) {
       this.logger.error('Error disconnecting Prisma', error);
@@ -64,7 +61,17 @@ export class PrismaService
   // Returns the active transaction client when one is bound to the current
   // AsyncLocalStorage scope; otherwise returns this Prisma instance so callers
   // get the same surface either way.
-  get client(): TransactionClient | this {
-    return this.transactionContext.getTransaction() ?? this;
+  get client(): TransactionClient | PrismaClient {
+    return this.transactionContext.getTransaction() ?? this.prisma;
+  }
+
+  async $transaction<T>(
+    ...args: Parameters<PrismaClient['$transaction']>
+  ): Promise<T> {
+    return Reflect.apply(
+      this.prisma.$transaction,
+      this.prisma,
+      args,
+    ) as Promise<T>;
   }
 }

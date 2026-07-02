@@ -75,6 +75,35 @@ export const seedMntRoutePermissions = async (tx: PrismaClient) => {
       'cerrar-sesion': ['cerrar-sesion'],
       'mi-perfil': ['ver-mi-perfil'],
     },
+    'Categorías de Producto': {
+      'inventory-parent': ['listar-categorias-producto'],
+      'product-categories': ['listar-categorias-producto'],
+    },
+    'Productos': {
+      'inventory-parent': ['listar-productos'],
+      'products': ['listar-productos'],
+    },
+    'Mantenimiento de Productos': {
+      'inventory-parent': ['listar-mantenimientos-producto'],
+      'product-maintenance': ['listar-mantenimientos-producto', 'editar-mantenimiento-producto', 'ver-mantenimiento-producto'],
+    },
+    'Clientes': {
+      'customers-parent': ['listar-clientes'],
+      'customers-list': ['listar-clientes'],
+    },
+    'Reservas': {
+      'reservations-parent': ['listar-reservas', 'ver-calendario-reservas'],
+      'reservations-list': ['listar-reservas', 'eliminar-reserva'],
+      'reservations-calendar': ['ver-calendario-reservas'],
+    },
+    'Pagos': {
+      'billing-parent': ['listar-pagos'],
+      'billing-payments': ['listar-pagos', 'procesar-pago'],
+    },
+    'Facturación': {
+      'billing-parent': ['listar-facturas'],
+      'billing-invoices': ['listar-facturas'],
+    },
   };
   for (const [categoryName, routes] of Object.entries(permissionsMap)) {
     const category = await tx.ctl_category_permissions.findFirst({

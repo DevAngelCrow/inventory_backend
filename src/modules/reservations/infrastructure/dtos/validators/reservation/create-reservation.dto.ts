@@ -1,0 +1,130 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+
+export class CreateReservationItemDto {
+  @IsUUID()
+  @IsNotEmpty()
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  id_product!: string;
+
+  @IsNumber()
+  @Min(1)
+  @ApiProperty({ example: 2 })
+  quantity!: number;
+
+  @IsNumber()
+  @Min(0)
+  @ApiProperty({ example: 10.5 })
+  unit_price!: number;
+
+  @IsNumber()
+  @Min(0)
+  @ApiProperty({ example: 21.0 })
+  total_price!: number;
+}
+
+export class CreateReservationDto {
+  @IsUUID()
+  @IsNotEmpty()
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  id_customer!: string;
+
+  @IsDate()
+  @Type(() => Date)
+  @IsNotEmpty()
+  @ApiProperty({ example: '2023-12-01T10:00:00Z' })
+  event_start!: Date;
+
+  @IsDate()
+  @Type(() => Date)
+  @IsNotEmpty()
+  @ApiProperty({ example: '2023-12-05T10:00:00Z' })
+  event_end!: Date;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: 'Calle Principal 123', required: false })
+  delivery_address?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: 'Apto 4B', required: false })
+  delivery_address_line2?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: '90210', required: false })
+  delivery_zip?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: 'Entregar por la puerta trasera', required: false })
+  delivery_notes?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    description: 'FK to a pre-registered customer address',
+  })
+  id_customer_address?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    description: 'FK to geographic division (state/department)',
+  })
+  id_geographic_division?: string;
+
+  @IsNumber()
+  @Min(0)
+  @ApiProperty({ example: 100.0 })
+  total_amount!: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @ApiProperty({ example: 50.0, required: false })
+  deposit_amount?: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @ApiProperty({ example: 50.0, required: false })
+  balance_due?: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ example: 'Entregar en la puerta trasera', required: false })
+  notes?: string;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @ApiProperty({ example: 10.0, required: false })
+  delivery_fee?: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @ApiProperty({ example: 5.0, required: false })
+  discount_amount?: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateReservationItemDto)
+  @ApiProperty({ type: [CreateReservationItemDto] })
+  items!: CreateReservationItemDto[];
+}

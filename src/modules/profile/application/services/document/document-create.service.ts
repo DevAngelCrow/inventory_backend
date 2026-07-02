@@ -4,8 +4,8 @@ import { DocumentDto } from '../../dtos/document.dto';
 import { Document } from '@/modules/profile/domain/entities/document';
 export class DocumentCreateService {
   constructor(private readonly documentCreate: CreateDocumentHandler) {}
-  async run(document_dto: DocumentDto): Promise<Document> {
+  async run(document_dto: DocumentDto): Promise<void> {
     const documentCommand = new CreateDocumentCommand(document_dto);
-    return await this.documentCreate.execute(documentCommand);
+    await this.documentCreate.execute(documentCommand);
   }
 }

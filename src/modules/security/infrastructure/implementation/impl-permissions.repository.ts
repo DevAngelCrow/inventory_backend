@@ -9,7 +9,7 @@ import { DatabaseException } from '@/shared/infrastructure/exceptions/database.e
 import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
-import { ctl_permissions } from 'generated/prisma/client';
+import { Prisma, ctl_permissions } from 'generated/prisma/client';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { Injectable } from '@nestjs/common';
 import { PermissionsReadRepository } from '../../application/repositories/permissions-read.repository';
@@ -31,7 +31,7 @@ export class ImplPermissionsRepository
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(permission: Permissions): Promise<void> {
     try {
@@ -95,13 +95,13 @@ export class ImplPermissionsRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active,
         id_category_permissions: category_permission_id,
       };
       const [permissionsDb, total, catalogs_status] = await Promise.all([
-        this.prisma.ctl_permissions.findMany({
+        this.prisma.client.ctl_permissions.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -119,7 +119,7 @@ export class ImplPermissionsRepository
             ctl_category_permissions: true,
           },
         }),
-        this.prisma.ctl_permissions.count({ where }),
+        this.prisma.client.ctl_permissions.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 

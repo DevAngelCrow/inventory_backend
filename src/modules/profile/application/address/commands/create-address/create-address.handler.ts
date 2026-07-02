@@ -1,14 +1,52 @@
-import { AddressRepository } from '@/modules/profile/domain/repositories/address.repository';
+import { PersonRepository } from '@/modules/profile/domain/repositories/person.repository';
 import { CreateAddressCommand } from './create-address.command';
 import { Address } from '@/modules/profile/domain/entities/address';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventDispatcherPort } from '@/shared/domain/ports/event-dispatcher.port';
+import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
+import { PersonId } from '@/modules/profile/domain/value-objects/person-value-object/person-id';
+import { AddressStreet } from '@/modules/profile/domain/value-objects/address-value-object/address-street';
+import { AddressStreetNumber } from '@/modules/profile/domain/value-objects/address-value-object/address-street-number';
+import { AddressNeighborhood } from '@/modules/profile/domain/value-objects/address-value-object/address-neighborhood';
+import { AddressIdGeographicDivision } from '@/modules/profile/domain/value-objects/address-value-object/address-id-geographic-division';
+import { AddressHouseNumber } from '@/modules/profile/domain/value-objects/address-value-object/address-house-number';
+import { AddressBlock } from '@/modules/profile/domain/value-objects/address-value-object/address-block';
+import { AddressPathway } from '@/modules/profile/domain/value-objects/address-value-object/address-pathway';
+import { AddressCurrent } from '@/modules/profile/domain/value-objects/address-value-object/address-current';
+import { AddressIdPeople } from '@/modules/profile/domain/value-objects/address-value-object/address-id-people';
 
 @CommandHandler(CreateAddressCommand)
 export class CreateAddressHandler implements ICommandHandler<CreateAddressCommand> {
-  constructor(private readonly repository: AddressRepository) {}
+  constructor(
+    private readonly repository: PersonRepository,
+    private readonly dispatcher: EventDispatcherPort,
+  ) {}
 
-  async execute(command: CreateAddressCommand): Promise<Address> {
-    const address = Address.create({ ...command.address_dto });
-    return await this.repository.create(address);
+  async execute(command: CreateAddressCommand): Promise<void> {
+    const personId = new PersonId(command.address_dto.id_people);
+    const personEntity = await this.repository.findById(personId);
+
+    if (!personEntity) {
+      throw new NotFoundException('Person', command.address_dto.id_people);
+    }
+
+    const address = Address.create({
+      street: new AddressStreet(command.address_dto.street),
+      street_number: new AddressStreetNumber(command.address_dto.street_number),
+      neighborhood: new AddressNeighborhood(command.address_dto.neighborhood),
+      id_geographic_division: new AddressIdGeographicDivision(
+        command.address_dto.id_geographic_division,
+      ),
+      house_number: new AddressHouseNumber(command.address_dto.house_number),
+      block: new AddressBlock(command.address_dto.block),
+      pathway: new AddressPathway(command.address_dto.pathway),
+      current: new AddressCurrent(command.address_dto.current),
+      id_people: new AddressIdPeople(command.address_dto.id_people),
+    });
+    personEntity.addAddress(address);
+
+    await this.repository.update(personEntity);
+    await this.dispatcher.dispatch(personEntity.getDomainEvents());
+    personEntity.clearDomainEvents();
   }
 }

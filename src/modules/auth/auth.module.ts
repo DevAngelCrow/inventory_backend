@@ -68,4 +68,4 @@ import { LoginThrottleGuard } from './infrastructure/guards/login-throttle.guard
   ],
   exports: [...serviceProviders, ...repositories],
 })
-export class AuthModule { }
+export class AuthModule {}

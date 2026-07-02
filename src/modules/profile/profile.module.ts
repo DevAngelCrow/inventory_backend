@@ -8,6 +8,7 @@ import { repositories } from './infrastructure/config/repositories.config';
 import { serviceProviders } from './infrastructure/config/services.config';
 import { RouterModule } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
+import { EventDispatcherModule } from '@/shared/infrastructure/event-dispatcher/event-dispatcher.module';
 import { StorageModule } from '@/modules/storage/storage.module';
 import { commandHandlerProviders } from './infrastructure/config/commands-handlers.config';
 import { queryHandlerProviders } from './infrastructure/config/queries-handlers.config';
@@ -16,6 +17,7 @@ import { queryHandlerProviders } from './infrastructure/config/queries-handlers.
   imports: [
     RouterModule.register([{ path: 'profile', module: ProfileModule }]),
     CqrsModule,
+    EventDispatcherModule,
     StorageModule,
   ],
   controllers: [

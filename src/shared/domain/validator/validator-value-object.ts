@@ -13,11 +13,15 @@ export class Validator<T> {
     value: T,
     exceptionFactory: DomainExceptionConstructor | DomainExceptionFactory,
   ): Validator<T> {
-    const factory =
-      typeof exceptionFactory === 'function' && exceptionFactory.prototype
-        ? (msg: string) =>
-            new (exceptionFactory as DomainExceptionConstructor)(msg)
-        : (exceptionFactory as DomainExceptionFactory);
+    const isConstructor = (
+      fn: DomainExceptionConstructor | DomainExceptionFactory,
+    ): fn is DomainExceptionConstructor => {
+      return typeof fn === 'function' && fn.prototype !== undefined;
+    };
+
+    const factory = isConstructor(exceptionFactory)
+      ? (msg: string) => new exceptionFactory(msg)
+      : exceptionFactory;
 
     return new Validator(value, factory);
   }
@@ -172,8 +176,16 @@ export class Validator<T> {
   }
 
   date(message: string = 'Invalid date format'): this {
-    const date = new Date(this.value as unknown as string | number | Date);
-    if (Number.isNaN(date.getTime())) {
+    if (
+      this.value instanceof Date ||
+      typeof this.value === 'string' ||
+      typeof this.value === 'number'
+    ) {
+      const date = new Date(this.value);
+      if (Number.isNaN(date.getTime())) {
+        throw this.exceptionFactory(message);
+      }
+    } else {
       throw this.exceptionFactory(message);
     }
 

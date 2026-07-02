@@ -3,7 +3,7 @@ import { ProviderStorage } from '../../domain/entities/provider-storage';
 import { ProviderStorageQueriesRepository } from '../../application/repositories/provider-storage-read.repository';
 import { ProviderStorageId } from '../../domain/value-objects/provider-storage-value-object/provider-storage-id';
 import { PrismaService } from 'src/shared/infrastructure/persistence/prisma/prisma.service';
-import { ctl_provider_storage } from 'generated/prisma/client';
+import { Prisma, ctl_provider_storage } from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -24,11 +24,11 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
       };
       const [providerStoragesDb, total] = await Promise.all([
-        this.prisma.ctl_provider_storage.findMany({
+        this.prisma.client.ctl_provider_storage.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -41,7 +41,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
             id: 'asc',
           },
         }),
-        this.prisma.ctl_provider_storage.count({ where }),
+        this.prisma.client.ctl_provider_storage.count({ where }),
       ]);
 
       const providerStorages = providerStoragesDb.map((providerStorageDb) =>
@@ -77,7 +77,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
   async getOneById(id: ProviderStorageId): Promise<ProviderStorage | null> {
     try {
       const providerStorageDb =
-        await this.prisma.ctl_provider_storage.findFirst({
+        await this.prisma.client.ctl_provider_storage.findFirst({
           where: {
             id: id.value(),
           },
@@ -102,7 +102,7 @@ export class ImplProviderStorageQueriesRepository implements ProviderStorageQuer
   ): Promise<ProviderStorage | null> {
     try {
       const providerStorageDb =
-        await this.prisma.ctl_provider_storage.findFirst({
+        await this.prisma.client.ctl_provider_storage.findFirst({
           where: {
             code: code.value(),
           },

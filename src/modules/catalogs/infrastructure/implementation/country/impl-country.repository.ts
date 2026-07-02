@@ -3,7 +3,7 @@ import { Country } from '../../../domain/entities/country';
 import { CountryRepository } from '../../../domain/repositories/country-repository';
 import { CountryId } from '../../../domain/value-objects/country-value-object/country-id';
 import { PrismaService } from 'src/shared/infrastructure/persistence/prisma/prisma.service';
-import { ctl_country } from 'generated/prisma/client';
+import { Prisma, ctl_country } from 'generated/prisma/client';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { Pagination } from '@/shared/domain/value-object/pagination';
@@ -26,7 +26,7 @@ export class ImplCountryRepository
   constructor(private readonly prisma: PrismaService) {}
   async create(country: Country): Promise<void> {
     try {
-      await this.prisma.ctl_country.create({
+      await this.prisma.client.ctl_country.create({
         data: {
           name: country.getName().value(),
           iso2: country.getIso2().value(),
@@ -46,7 +46,7 @@ export class ImplCountryRepository
   }
   async update(country: Country): Promise<void> {
     try {
-      await this.prisma.ctl_country.update({
+      await this.prisma.client.ctl_country.update({
         where: {
           id: country.getId()?.value(),
         },
@@ -73,12 +73,12 @@ export class ImplCountryRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
       };
       const [countriesDb, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_country.findMany({
+        this.prisma.client.ctl_country.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -91,7 +91,7 @@ export class ImplCountryRepository
             name: 'asc',
           },
         }),
-        this.prisma.ctl_country.count({ where }),
+        this.prisma.client.ctl_country.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -132,7 +132,7 @@ export class ImplCountryRepository
   async getOneById(id: string): Promise<CountryDto | null> {
     try {
       const countryDb: ctl_country | null =
-        await this.prisma.ctl_country.findFirst({
+        await this.prisma.client.ctl_country.findFirst({
           where: {
             id: id,
           },
@@ -156,7 +156,7 @@ export class ImplCountryRepository
       if (!countryDb) {
         throw new NotFoundException('Country', id.value().toString());
       }
-      const country = await this.prisma.ctl_country.update({
+      const country = await this.prisma.client.ctl_country.update({
         where: {
           id: id.value(),
         },

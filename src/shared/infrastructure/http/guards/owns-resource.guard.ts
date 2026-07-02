@@ -5,7 +5,7 @@ import {
   SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { QueryBus } from '@nestjs/cqrs';
+import { QueryBus, IQuery } from '@nestjs/cqrs';
 import { Request } from 'express';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { ForbiddenException } from '@/shared/application/exceptions/forbidden.exception';
@@ -34,7 +34,7 @@ export type OwnsResourceOptions<TEntity = unknown> = {
    * QueryBus query constructor used to fetch the resource by id. Must return
    * the entity (or null). Whatever your `Get<X>ByIdQuery` does already works.
    */
-  query: new (id: string) => unknown;
+  query: new (id: string) => IQuery;
   /**
    * Extracts the owner identifier from the fetched entity. Implementations
    * usually return `entity.getIdPeople().value()` or `entity.getIdUser().value()`.
@@ -109,11 +109,9 @@ export class OwnsResourceGuard implements CanActivate {
       if (hasBypass) return true;
     }
 
-    // @nestjs/cqrs typings constrain the query parameter to IQuery; our
-    // metadata-driven entry point can't know that statically, so cast.
-    const entity = (await this.queryBus.execute(
-      new options.query(resourceId) as object,
-    )) as unknown;
+    const entity = await this.queryBus.execute<IQuery, unknown>(
+      new options.query(resourceId),
+    );
     if (entity === null || entity === undefined) {
       throw new NotFoundException('Resource', resourceId);
     }

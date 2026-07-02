@@ -22,7 +22,7 @@ export class ImplUserRoleRepository
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   public async getUserRole(id: string): Promise<UserRolExtendedDto | null> {
     try {

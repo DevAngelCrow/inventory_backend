@@ -9,7 +9,7 @@ import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { ctl_gender } from 'generated/prisma/browser';
+import { Prisma, ctl_gender } from 'generated/prisma/client';
 
 @Injectable()
 export class ImplGenderRepository implements GenderQueriesRepository {
@@ -23,11 +23,11 @@ export class ImplGenderRepository implements GenderQueriesRepository {
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
       };
       const [gendersDb, total] = await Promise.all([
-        this.prisma.ctl_gender.findMany({
+        this.prisma.client.ctl_gender.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -40,7 +40,7 @@ export class ImplGenderRepository implements GenderQueriesRepository {
             name: 'asc',
           },
         }),
-        this.prisma.ctl_gender.count({ where }),
+        this.prisma.client.ctl_gender.count({ where }),
       ]);
 
       const genders = gendersDb.map((genderDb) =>

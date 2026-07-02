@@ -5,7 +5,12 @@ import { GeographicDivisionId } from '../../../domain/value-objects/geographic-d
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { ctl_geographic_division } from 'generated/prisma/client';
+import {
+  Prisma,
+  ctl_geographic_division,
+  ctl_country,
+  ctl_geographic_division_type,
+} from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -29,7 +34,7 @@ export class ImplGeographicDivisionRepository
 
   async create(division: GeographicDivision): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division.create({
+      await this.prisma.client.ctl_geographic_division.create({
         data: {
           name: division.getName().value(),
           description: division.getDescription().value() ?? null,
@@ -52,7 +57,7 @@ export class ImplGeographicDivisionRepository
 
   async update(division: GeographicDivision): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division.update({
+      await this.prisma.client.ctl_geographic_division.update({
         where: { id: division.getId()?.value() },
         data: {
           name: division.getName().value(),
@@ -84,7 +89,7 @@ export class ImplGeographicDivisionRepository
   ): Promise<Pagination<GeographicDivisionDto> | GeographicDivisionDto[]> {
     try {
       const where = {
-        name: { contains: filter, mode: 'insensitive' as const },
+        name: { contains: filter, mode: Prisma.QueryMode.insensitive },
         active,
         id_country,
         id_parent,
@@ -92,7 +97,7 @@ export class ImplGeographicDivisionRepository
       };
 
       const [items, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division.findMany({
+        this.prisma.client.ctl_geographic_division.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -108,7 +113,7 @@ export class ImplGeographicDivisionRepository
             ctl_geographic_division: true,
           },
         }),
-        this.prisma.ctl_geographic_division.count({ where }),
+        this.prisma.client.ctl_geographic_division.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -156,7 +161,7 @@ export class ImplGeographicDivisionRepository
 
       const where = {
         name: filter
-          ? { contains: filter, mode: 'insensitive' as const }
+          ? { contains: filter, mode: Prisma.QueryMode.insensitive }
           : undefined,
         active,
         id_country,
@@ -165,7 +170,7 @@ export class ImplGeographicDivisionRepository
       };
 
       const [items, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division.findMany({
+        this.prisma.client.ctl_geographic_division.findMany({
           take: limit + 1,
           skip: decodedCursor ? 1 : 0,
           cursor: decodedCursor ? { id: decodedCursor } : undefined,
@@ -209,7 +214,7 @@ export class ImplGeographicDivisionRepository
   async getOneById(id: string): Promise<GeographicDivisionDto | null> {
     try {
       const [item, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division.findFirst({
+        this.prisma.client.ctl_geographic_division.findFirst({
           where: { id },
           include: {
             ctl_country: true,
@@ -232,13 +237,42 @@ export class ImplGeographicDivisionRepository
     }
   }
 
+  async getLineage(id: string): Promise<string[]> {
+    try {
+      const lineage: string[] = [];
+      let currentId: string | null = id;
+
+      while (currentId) {
+        lineage.unshift(currentId);
+        const item: { id_parent: string | null } | null =
+          await this.prisma.client.ctl_geographic_division.findUnique({
+            where: { id: currentId },
+            select: { id_parent: true },
+          });
+        currentId = item?.id_parent || null;
+      }
+
+      return lineage;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(
+          `Error getting geographic division lineage: ${error.message}`,
+        );
+      }
+      throw new DatabaseException(
+        'Error getting geographic division lineage',
+        'getLineage',
+      );
+    }
+  }
+
   async toggleStatus(id: GeographicDivisionId): Promise<GeographicDivision> {
     try {
       const existing = await this.getOneById(id.value());
       if (!existing) {
         throw new NotFoundException('GeographicDivision', id.value());
       }
-      const updated = await this.prisma.ctl_geographic_division.update({
+      const updated = await this.prisma.client.ctl_geographic_division.update({
         where: { id: id.value() },
         data: { active: !existing.active },
       });

@@ -5,7 +5,17 @@ import { User } from '../../domain/entities/user';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { Injectable } from '@nestjs/common';
 import { PasswordHasher } from '@/modules/auth/infrastructure/services/password-hasher.service';
-import { mnt_user, Prisma } from 'generated/prisma/client';
+import {
+  mnt_user,
+  Prisma,
+  mnt_people,
+  ctl_status,
+  mnt_user_rol,
+  mnt_role,
+  ctl_permissions,
+  ctl_category_status,
+  mnt_password_history,
+} from 'generated/prisma/client';
 import { UserId } from '../../domain/value-objects/user-value-object/user-id';
 import {
   CategoryStatus,
@@ -93,7 +103,7 @@ export class ImplUserRepository implements UserRepository, UserReadRepository {
       const where = {
         user_name: {
           contains: filter?.name,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         id_status: filter?.status,
       };
@@ -326,7 +336,7 @@ export class ImplUserRepository implements UserRepository, UserReadRepository {
   }
 
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(user: User): Promise<User> {
     try {

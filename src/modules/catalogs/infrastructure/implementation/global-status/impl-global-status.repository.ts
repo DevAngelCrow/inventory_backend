@@ -5,7 +5,11 @@ import { GlobalStatusId } from '../../../domain/value-objects/goblal-status-valu
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { ctl_status } from 'generated/prisma/client';
+import {
+  Prisma,
+  ctl_status,
+  ctl_category_status,
+} from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -44,8 +48,11 @@ export class ImplGlobalStatusRepository
           id_category_status: global_status.getIdCategoryStatus().value(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'El código y la categoría de estado ingresados ya existen. Por favor, intente con otros valores.',
           'create',
@@ -73,8 +80,11 @@ export class ImplGlobalStatusRepository
           text_color: global_status.getTextColor()?.value(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'El código y la categoría de estado ingresados ya existen. Por favor, intente con otros valores.',
           'create',
@@ -98,7 +108,7 @@ export class ImplGlobalStatusRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
         id_category_status: id_category,
@@ -283,6 +293,6 @@ export class ImplGlobalStatusRepository
     );
   }
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
 }

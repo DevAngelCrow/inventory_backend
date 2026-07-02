@@ -3,7 +3,7 @@ import { ProviderStorage } from '../../domain/entities/provider-storage';
 import { ProviderStorageRepository } from '../../domain/repositories/provider-storage.repository';
 import { ProviderStorageId } from '../../domain/value-objects/provider-storage-value-object/provider-storage-id';
 import { PrismaService } from 'src/shared/infrastructure/persistence/prisma/prisma.service';
-import { ctl_provider_storage } from 'generated/prisma/client';
+import { Prisma, ctl_provider_storage } from 'generated/prisma/client';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { Pagination } from '@/shared/domain/value-object/pagination';
@@ -22,7 +22,7 @@ export class ImplProviderStorageRepository implements ProviderStorageRepository 
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(providerStorage: ProviderStorage): Promise<void> {
     try {
@@ -72,7 +72,7 @@ export class ImplProviderStorageRepository implements ProviderStorageRepository 
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
       };
       const providerStoragesDb = await prisma.ctl_provider_storage.findMany({

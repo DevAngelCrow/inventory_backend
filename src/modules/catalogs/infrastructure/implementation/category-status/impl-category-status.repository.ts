@@ -11,7 +11,7 @@ import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
 import { CategoryStatusQueriesRepository } from '@/modules/catalogs/application/repositories/category-status-read.repository';
-import { ctl_category_status } from 'generated/prisma/client';
+import { Prisma, ctl_category_status } from 'generated/prisma/client';
 import { CategoryStatusDto } from '@/modules/catalogs/application/dtos/category-status.dto';
 import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
 import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
@@ -26,7 +26,7 @@ export class ImplCategoryStatusRepository
   constructor(private readonly prisma: PrismaService) {}
   async create(categoryStatus: CategoryStatus): Promise<void> {
     try {
-      await this.prisma.ctl_category_status.create({
+      await this.prisma.client.ctl_category_status.create({
         data: {
           name: categoryStatus.getName().value(),
           code: categoryStatus.getCode().value(),
@@ -34,8 +34,11 @@ export class ImplCategoryStatusRepository
           active: categoryStatus.getActive().value(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'El nombre y el código de la categoría de estado ingresados ya existen. Por favor, intente con otros valores.',
           'create',
@@ -49,7 +52,7 @@ export class ImplCategoryStatusRepository
   }
   async update(categoryStatus: CategoryStatus): Promise<void> {
     try {
-      await this.prisma.ctl_category_status.update({
+      await this.prisma.client.ctl_category_status.update({
         where: {
           id: categoryStatus.getId()?.value(),
         },
@@ -60,8 +63,11 @@ export class ImplCategoryStatusRepository
           active: categoryStatus.getActive().value(),
         },
       });
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new DatabaseException(
           'El nombre y el código de la categoría de estado ingresados ya existen. Por favor, intente con otros valores.',
           'create',
@@ -82,12 +88,12 @@ export class ImplCategoryStatusRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active,
       };
       const [categoriesStatusDb, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_category_status.findMany({
+        this.prisma.client.ctl_category_status.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -100,7 +106,7 @@ export class ImplCategoryStatusRepository
             name: 'asc',
           },
         }),
-        this.prisma.ctl_category_status.count({ where }),
+        this.prisma.client.ctl_category_status.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -141,7 +147,7 @@ export class ImplCategoryStatusRepository
   async getOneById(id: string): Promise<CategoryStatusDto | null> {
     try {
       const categoryStatusDb: ctl_category_status | null =
-        await this.prisma.ctl_category_status.findFirst({
+        await this.prisma.client.ctl_category_status.findFirst({
           where: {
             id: id,
           },
@@ -164,14 +170,15 @@ export class ImplCategoryStatusRepository
       if (!categoryStatus) {
         throw new NotFoundException('CategoryStatus', id.value().toString());
       }
-      const categoryStatusDb = await this.prisma.ctl_category_status.update({
-        where: {
-          id: id.value(),
-        },
-        data: {
-          active: !categoryStatus.active,
-        },
-      });
+      const categoryStatusDb =
+        await this.prisma.client.ctl_category_status.update({
+          where: {
+            id: id.value(),
+          },
+          data: {
+            active: !categoryStatus.active,
+          },
+        });
 
       const categoryStatusEntity = this.mapToDomain(categoryStatusDb);
 

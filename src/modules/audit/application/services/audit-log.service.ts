@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { AuditLogRepository } from '../../domain/repositories/audit-log.repository';
 import { AuditLog } from '../../domain/entities/audit-log';
 import { AuditAction } from '../../domain/enums/audit-action.enum';
+import { AuditLoggerPort } from '../../domain/ports/audit-logger.port';
 
 export interface AuditLogEntry {
   action: AuditAction;
@@ -16,11 +16,11 @@ export interface AuditLogEntry {
   entity_id?: string | null;
 }
 
-@Injectable()
 export class AuditLogService {
-  private readonly logger = new Logger(AuditLogService.name);
-
-  constructor(private readonly auditLogRepository: AuditLogRepository) {}
+  constructor(
+    private readonly auditLogRepository: AuditLogRepository,
+    private readonly logger: AuditLoggerPort,
+  ) {}
 
   /**
    * Fire-and-forget: writes the audit entry without blocking the response.

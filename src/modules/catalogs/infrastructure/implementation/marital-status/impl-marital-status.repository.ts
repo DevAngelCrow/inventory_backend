@@ -5,7 +5,7 @@ import { MaritalStatusId } from '../../../domain/value-objects/marital-status-va
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { ctl_marital_status } from 'generated/prisma/client';
+import { Prisma, ctl_marital_status } from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -23,7 +23,7 @@ export class ImplMaritalStatusRepository
   constructor(private readonly prisma: PrismaService) {}
   async create(marital_status: MaritalStatus): Promise<void> {
     try {
-      await this.prisma.ctl_marital_status.create({
+      await this.prisma.client.ctl_marital_status.create({
         data: {
           name: marital_status.getName().value(),
           description: marital_status.getDescription()?.value() || '',
@@ -38,7 +38,7 @@ export class ImplMaritalStatusRepository
   }
   async update(marital_status: MaritalStatus): Promise<void> {
     try {
-      await this.prisma.ctl_marital_status.update({
+      await this.prisma.client.ctl_marital_status.update({
         where: {
           id: marital_status.getId()?.value(),
         },
@@ -62,11 +62,11 @@ export class ImplMaritalStatusRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
       };
       const [maritalStatusesDb, total] = await Promise.all([
-        this.prisma.ctl_marital_status.findMany({
+        this.prisma.client.ctl_marital_status.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -79,7 +79,7 @@ export class ImplMaritalStatusRepository
             name: 'asc',
           },
         }),
-        this.prisma.ctl_marital_status.count({ where }),
+        this.prisma.client.ctl_marital_status.count({ where }),
       ]);
 
       const maritalStatuses = maritalStatusesDb.map((maritalStatusDb) =>
@@ -115,11 +115,12 @@ export class ImplMaritalStatusRepository
   }
   async getOneById(id: string): Promise<MaritalStatusDto | null> {
     try {
-      const maritalStatusDb = await this.prisma.ctl_marital_status.findFirst({
-        where: {
-          id: id,
-        },
-      });
+      const maritalStatusDb =
+        await this.prisma.client.ctl_marital_status.findFirst({
+          where: {
+            id: id,
+          },
+        });
       if (!maritalStatusDb) {
         return null;
       }
@@ -138,7 +139,7 @@ export class ImplMaritalStatusRepository
       if (!maritalStatusDb) {
         throw new NotFoundException('MaritalStatus', id.value().toString());
       }
-      await this.prisma.ctl_marital_status.delete({
+      await this.prisma.client.ctl_marital_status.delete({
         where: {
           id: id.value(),
         },

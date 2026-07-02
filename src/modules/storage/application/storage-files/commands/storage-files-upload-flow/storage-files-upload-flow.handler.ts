@@ -9,7 +9,7 @@ import { NotFoundException } from '@/shared/domain/exceptions/not-found.exceptio
 import { StorageFilesDto } from '../../../dtos/storage-files.dto';
 import { StorageFilesUploadFlowCommand } from './storage-files-upload-flow.command';
 import { ProviderStorageCode } from '@/modules/storage/domain/value-objects/provider-storage-value-object/provider-storage-code';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException } from '@/shared/domain/exceptions/bad-request.exception';
 import { ALLOWED_MIME_TYPES } from '@/modules/storage/infrastructure/config/multer-file-filter.config';
 
 interface FileUpload {

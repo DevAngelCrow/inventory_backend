@@ -57,7 +57,7 @@ export class ImplVerificationTokenRepository implements VerificationTokenReposit
     return { token, id: result.id.toString() };
   }
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(user_id: UserId): Promise<{ token: string; id: string }> {
     try {

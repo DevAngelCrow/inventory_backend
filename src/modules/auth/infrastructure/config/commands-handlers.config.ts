@@ -11,6 +11,7 @@ import { ResetForgottenPasswordHandler } from '../../application/commands/reset-
 import { MarkAsUsedTokenHandler } from '../../application/commands/mark-as-used-token/mark-as-used-token.handler';
 import { RevokeAllSessionsHandler } from '../../application/commands/revoke-all-sessions/revoke-all-sessions.handler';
 import { RevokeSessionHandler } from '../../application/commands/revoke-session/revoke-session.handler';
+import { GrantDocsAccessHandler } from '../../application/commands/docs-access/grant-docs-access.handler';
 
 export const commandHandlerProviders = [
   RegisterHandler,
@@ -26,4 +27,5 @@ export const commandHandlerProviders = [
   MarkAsUsedTokenHandler,
   RevokeAllSessionsHandler,
   RevokeSessionHandler,
+  GrantDocsAccessHandler,
 ];

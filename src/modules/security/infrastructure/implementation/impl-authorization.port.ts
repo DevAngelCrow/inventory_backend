@@ -36,7 +36,7 @@ export class ImplSecurityAuthorizationPort implements SecurityAuthorizationPort 
     private readonly fileReader: StorageFileReaderPort,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async hasRole(role: string[], id_user: string): Promise<boolean> {
     try {

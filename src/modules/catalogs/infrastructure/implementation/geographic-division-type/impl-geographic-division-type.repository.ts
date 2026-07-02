@@ -5,7 +5,11 @@ import { GeographicDivisionTypeId } from '../../../domain/value-objects/geograph
 import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
-import { ctl_geographic_division_type } from 'generated/prisma/client';
+import {
+  Prisma,
+  ctl_geographic_division_type,
+  ctl_country,
+} from 'generated/prisma/client';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
@@ -30,7 +34,7 @@ export class ImplGeographicDivisionTypeRepository
 
   async create(divisionType: GeographicDivisionType): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division_type.create({
+      await this.prisma.client.ctl_geographic_division_type.create({
         data: {
           name: divisionType.getName().value(),
           level: divisionType.getLevel().value(),
@@ -53,7 +57,7 @@ export class ImplGeographicDivisionTypeRepository
 
   async update(divisionType: GeographicDivisionType): Promise<void> {
     try {
-      await this.prisma.ctl_geographic_division_type.update({
+      await this.prisma.client.ctl_geographic_division_type.update({
         where: { id: divisionType.getId()?.value() },
         data: {
           name: divisionType.getName().value(),
@@ -85,13 +89,13 @@ export class ImplGeographicDivisionTypeRepository
   > {
     try {
       const where = {
-        name: { contains: filter, mode: 'insensitive' as const },
+        name: { contains: filter, mode: Prisma.QueryMode.insensitive },
         active,
         id_country,
       };
 
       const [items, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division_type.findMany({
+        this.prisma.client.ctl_geographic_division_type.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -103,7 +107,7 @@ export class ImplGeographicDivisionTypeRepository
           orderBy: [{ level: 'asc' }, { name: 'asc' }],
           include: { ctl_country: true },
         }),
-        this.prisma.ctl_geographic_division_type.count({ where }),
+        this.prisma.client.ctl_geographic_division_type.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -140,7 +144,7 @@ export class ImplGeographicDivisionTypeRepository
   async getOneById(id: string): Promise<GeographicDivisionTypeDto | null> {
     try {
       const [item, catalog_status] = await Promise.all([
-        this.prisma.ctl_geographic_division_type.findFirst({
+        this.prisma.client.ctl_geographic_division_type.findFirst({
           where: { id },
           include: { ctl_country: true },
         }),
@@ -169,10 +173,11 @@ export class ImplGeographicDivisionTypeRepository
       if (!existing) {
         throw new NotFoundException('GeographicDivisionType', id.value());
       }
-      const updated = await this.prisma.ctl_geographic_division_type.update({
-        where: { id: id.value() },
-        data: { active: !existing.active },
-      });
+      const updated =
+        await this.prisma.client.ctl_geographic_division_type.update({
+          where: { id: id.value() },
+          data: { active: !existing.active },
+        });
       return this.mapToDomain(updated);
     } catch (error) {
       if (error instanceof Error) {

@@ -17,6 +17,13 @@ import { TransactionInterceptor } from './shared/infrastructure/interceptors/tra
 import { SecurityModule } from './modules/security/security.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { IdentityAccessManagementModule } from './modules/identity-access-management/identity-access-management.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { ReservationsModule } from './modules/reservations/reservations.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { BillingModule } from './modules/billing/billing.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { InspectionsModule } from './modules/inspections/inspections.module';
 import { JwtPassportAuthGuard } from './modules/auth/infrastructure/guards/jwt-passport-auth.guard';
 import { PermissionsGuard } from './modules/security/infrastructure/guards/permissions.guard';
 import { validate } from './shared/infrastructure/config/env.validation';
@@ -29,13 +36,15 @@ import {
   throttlerConfig,
 } from './shared/infrastructure/config/configs';
 import { QueuesModule } from './shared/infrastructure/queues/queues.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { LoginThrottleGuard } from './modules/auth/infrastructure/guards/login-throttle.guard';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { RedisCacheModule } from './shared/infrastructure/cache/cache.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { MetricsController } from './shared/infrastructure/health/metrics.controller';
 import { AuditableInterceptor } from './modules/audit/infrastructure/interceptors/auditable.interceptor';
+import { DateModule } from './shared/infrastructure/services/date.module';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 
@@ -55,6 +64,7 @@ import { ExpressAdapter } from '@bull-board/express';
       ],
     }),
     PrismaModule,
+    DateModule,
     QueuesModule,
     CatalogsModule,
     ProfileModule,
@@ -62,6 +72,13 @@ import { ExpressAdapter } from '@bull-board/express';
     SecurityModule,
     AuthModule,
     IdentityAccessManagementModule,
+    InventoryModule,
+    CustomersModule,
+    ReservationsModule,
+    PaymentsModule,
+    BillingModule,
+    ReportsModule,
+    InspectionsModule,
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -70,13 +87,6 @@ import { ExpressAdapter } from '@bull-board/express';
             name: 'global',
             ttl: config.get<number>('THROTTLE_GLOBAL_TTL')!,
             limit: config.get<number>('THROTTLE_GLOBAL_LIMIT')!,
-          },
-          {
-            // Named throttler 'login' — only applies to routes that opt in via
-            // @Throttle({ login: {...} }). Driven by env (THROTTLE_LOGIN_*).
-            name: 'login',
-            ttl: config.get<number>('THROTTLE_LOGIN_TTL')!,
-            limit: config.get<number>('THROTTLE_LOGIN_LIMIT')!,
           },
         ],
       }),
@@ -163,7 +173,7 @@ import { ExpressAdapter } from '@bull-board/express';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: LoginThrottleGuard,
     },
   ],
 })

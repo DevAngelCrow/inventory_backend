@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { RouterModule } from '@nestjs/core';
 import { AuditLogService } from './application/services/audit-log.service';
 import { repositories } from './infrastructure/config/repositories.config';
+import { services } from './infrastructure/config/services.config';
 import { PrismaModule } from '@/shared/infrastructure/persistence/prisma/prisma.module';
 import { AuditableInterceptor } from './infrastructure/interceptors/auditable.interceptor';
 import { AuditController } from './infrastructure/controllers/audit.controller';
@@ -16,7 +17,7 @@ import { GetAuditLogsHandler } from './application/queries/get-audit-logs/get-au
   ],
   controllers: [AuditController],
   providers: [
-    AuditLogService,
+    ...services,
     AuditableInterceptor,
     GetAuditLogsHandler,
     ...repositories,

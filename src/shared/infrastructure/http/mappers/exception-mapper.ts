@@ -39,7 +39,10 @@ export class ExceptionMapper {
   ]);
 
   static toHttpException(error: Error, path?: string): HttpException {
-    if ((error as { type?: string }).type === 'entity.too.large') {
+    if (
+      'type' in error &&
+      (error as Record<string, unknown>).type === 'entity.too.large'
+    ) {
       return this.mapInfrastructureException(
         new PayloadTooLargeException(),
         path,
@@ -135,8 +138,7 @@ export class ExceptionMapper {
     );
 
     if (error instanceof AccountLockedException) {
-      (response as ErrorResponseDto & { retry_after: string }).retry_after =
-        error.retryAfter.toISOString();
+      Object.assign(response, { retry_after: error.retryAfter.toISOString() });
     }
 
     return new HttpException(response, status);

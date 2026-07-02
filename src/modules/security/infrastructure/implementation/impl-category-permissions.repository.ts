@@ -7,7 +7,7 @@ import { PrismaService } from '@/shared/infrastructure/persistence/prisma/prisma
 import { TransactionContextService } from '@/shared/infrastructure/services/transaction-context.service';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { Injectable } from '@nestjs/common';
-import { ctl_category_permissions } from 'generated/prisma/client';
+import { Prisma, ctl_category_permissions } from 'generated/prisma/client';
 import { EntityList } from '@/shared/domain/value-object/entity-list';
 import { TotalItems } from '@/shared/domain/value-object/total-items';
 import { TotalPages } from '@/shared/domain/value-object/total-page';
@@ -29,7 +29,7 @@ export class ImplCategoryPermissionsRepository
     private readonly transactionContext: TransactionContextService,
   ) {}
   private getPrismaClient() {
-    return this.transactionContext.getTransaction() ?? this.prisma;
+    return this.prisma.client;
   }
   async create(category_permissions: CategoryPermissions): Promise<void> {
     try {
@@ -88,12 +88,12 @@ export class ImplCategoryPermissionsRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
       };
       const categoryPermissionsDb =
-        await this.prisma.ctl_category_permissions.findMany({
+        await this.prisma.client.ctl_category_permissions.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -106,7 +106,9 @@ export class ImplCategoryPermissionsRepository
             name: 'asc',
           },
         });
-      const total = await this.prisma.ctl_category_permissions.count({ where });
+      const total = await this.prisma.client.ctl_category_permissions.count({
+        where,
+      });
       const catalog_status = await GetBooleanStatusCatalogService.getStatus(
         this.prisma,
       );
@@ -148,7 +150,7 @@ export class ImplCategoryPermissionsRepository
   async getOneById(id: string): Promise<CategoryPermissionsDto | null> {
     try {
       const categoryPermissionDb: ctl_category_permissions | null =
-        await this.prisma.ctl_category_permissions.findFirst({
+        await this.prisma.client.ctl_category_permissions.findFirst({
           where: {
             id: id,
           },
@@ -175,7 +177,7 @@ export class ImplCategoryPermissionsRepository
         );
       }
       const categoryPermission =
-        await this.prisma.ctl_category_permissions.update({
+        await this.prisma.client.ctl_category_permissions.update({
           where: {
             id: id.value(),
           },

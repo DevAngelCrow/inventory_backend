@@ -3,7 +3,7 @@ import { DocumentType } from '../../domain/entities/document-type';
 import { DocumentTypeRepository } from '../../domain/repositories/document-type.repository';
 import { DocumentTypeId } from '../../domain/value-objects/document-type-value-object/document-type-id';
 import { PrismaService } from 'src/shared/infrastructure/persistence/prisma/prisma.service';
-import { ctl_document_type } from 'generated/prisma/client';
+import { Prisma, ctl_document_type } from 'generated/prisma/client';
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { DatabaseException } from '@/shared/infrastructure/exceptions/database.exception';
 import { Pagination } from '@/shared/domain/value-object/pagination';
@@ -26,7 +26,7 @@ export class ImplDocumentTypeRepository
   constructor(private readonly prisma: PrismaService) {}
   async create(documentType: DocumentType): Promise<void> {
     try {
-      await this.prisma.ctl_document_type.create({
+      await this.prisma.client.ctl_document_type.create({
         data: {
           name: documentType.getName().value(),
           description: documentType.getDescription().value(),
@@ -43,7 +43,7 @@ export class ImplDocumentTypeRepository
   }
   async update(documentType: DocumentType): Promise<void> {
     try {
-      await this.prisma.ctl_document_type.update({
+      await this.prisma.client.ctl_document_type.update({
         where: {
           id: documentType.getId()?.value(),
         },
@@ -70,12 +70,12 @@ export class ImplDocumentTypeRepository
       const where = {
         name: {
           contains: filter,
-          mode: 'insensitive' as const,
+          mode: Prisma.QueryMode.insensitive,
         },
         active: active,
       };
       const [documentTypesDb, total, catalog_status] = await Promise.all([
-        this.prisma.ctl_document_type.findMany({
+        this.prisma.client.ctl_document_type.findMany({
           skip:
             pagination_params?.getPage().value() &&
             pagination_params?.getPerPage().value()
@@ -88,7 +88,7 @@ export class ImplDocumentTypeRepository
             name: 'asc',
           },
         }),
-        this.prisma.ctl_document_type.count({ where }),
+        this.prisma.client.ctl_document_type.count({ where }),
         GetBooleanStatusCatalogService.getStatus(this.prisma),
       ]);
 
@@ -129,7 +129,7 @@ export class ImplDocumentTypeRepository
   async getOneById(id: string): Promise<DocumentTypeDto | null> {
     try {
       const documentTypeDb: ctl_document_type | null =
-        await this.prisma.ctl_document_type.findFirst({
+        await this.prisma.client.ctl_document_type.findFirst({
           where: {
             id: id,
           },
@@ -152,7 +152,7 @@ export class ImplDocumentTypeRepository
       if (!documentTypeDb) {
         throw new NotFoundException('DocumentType', id.value().toString());
       }
-      const documentType = await this.prisma.ctl_document_type.update({
+      const documentType = await this.prisma.client.ctl_document_type.update({
         where: {
           id: id.value(),
         },
