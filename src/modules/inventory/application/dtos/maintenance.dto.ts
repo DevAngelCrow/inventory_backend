@@ -9,7 +9,7 @@ export class MaintenanceDto {
     public readonly date_start: Date,
     public readonly date_end: Date | null,
     public readonly resolved: boolean,
-    public readonly created_at: Date,
+    public readonly created_at: Date | null,
     public readonly updated_at: Date | null,
     public readonly id_product: string,
     public readonly status?: GlobalStatusDto,

@@ -25,7 +25,7 @@ export class MaintenanceHttpDto {
   public readonly resolved: boolean;
 
   @ApiProperty()
-  public readonly created_at: Date;
+  public readonly created_at: Date | null;
 
   @ApiProperty()
   public readonly updated_at: Date | null;
@@ -44,7 +44,7 @@ export class MaintenanceHttpDto {
     date_start: Date,
     date_end: Date | null,
     resolved: boolean,
-    created_at: Date,
+    created_at: Date | null,
     updated_at: Date | null,
     id_product: string,
     status?: GlobalStatusDto,
