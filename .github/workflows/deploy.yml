@@ -37,7 +37,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            cd /opt/miproyecto
+            cd /opt/inventory_app
             docker compose pull api
             docker compose up -d --no-deps --build api
             docker image prune -f
