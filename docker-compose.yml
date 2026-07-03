@@ -39,6 +39,33 @@ services:
       - /app/node_modules
     networks:
       - app_network
+
+  # Worker de NestJS (BullMQ)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: nest_worker
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_HOST: ${DB_HOST}
+      DATABASE_PORT: ${DB_PORT}
+      DATABASE_USER: ${DB_USER}
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      DATABASE_NAME: ${DB_NAME}
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
+    command: npm run start:worker
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - app_network
+
   # Base de datos para SonarQube
   sonarqube_db:
     image: postgres:16

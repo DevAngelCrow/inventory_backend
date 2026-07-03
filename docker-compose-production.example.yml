@@ -52,6 +52,28 @@ services:
     networks:
       - app_network
 
+  # Worker de NestJS (BullMQ)
+  worker:
+    # IMPORTANTE: Cambia "TU_USUARIO" y "TU_REPOSITORIO" por los reales de GitHub
+    image: ghcr.io/devangelcrow/inventory_backend:latest
+    container_name: nest_worker
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: ${DB_PORT}
+      DATABASE_USER: ${DB_USER}
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      DATABASE_NAME: ${DB_NAME}
+      NODE_ENV: production
+    command: npm run start:worker:prod
+    networks:
+      - app_network
+
 volumes:
   postgres_data:
   redis_data:
