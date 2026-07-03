@@ -25,8 +25,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { seedCategoryStatus } from './ctl-category-status.seeder';
 
-const dbHost = process.env.DATABASE_HOST || process.env.DB_HOST;
-const connectionString = `${process.env.DB_PROVIDER}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${dbHost}:${process.env.DB_PORT}/${process.env.DB_NAME}?schema=public`;
+const connectionString = process.env.DATABASE_URL || `${process.env.DB_PROVIDER}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?schema=public`;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
