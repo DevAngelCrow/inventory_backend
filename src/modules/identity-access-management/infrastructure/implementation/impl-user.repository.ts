@@ -341,17 +341,11 @@ export class ImplUserRepository implements UserRepository, UserReadRepository {
   async create(user: User): Promise<User> {
     try {
       const prisma = this.getPrismaClient();
-      const saltRounds =
-        Number(this.configService.get<number>('SALT_ROUNDS')) || 10;
-      const passwordHasher = new PasswordHasher(saltRounds);
-      const hashedPassword = await passwordHasher.hash(
-        user.getPassword().value(),
-      );
       const userCreatedPrisma = await prisma.mnt_user.create({
         data: {
           id_people: user.getIdPeople().value(),
           user_name: user.getUserName().value(),
-          password: hashedPassword,
+          password: user.getPassword().value(),
           id_status: user.getIdStatus().value(),
           last_access: new Date(user.getLastAccess().value()),
           is_validated: user.getIsValidated().value(),
