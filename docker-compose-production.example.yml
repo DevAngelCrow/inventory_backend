@@ -31,7 +31,7 @@ services:
   # Aplicación NestJS
   api:
     # IMPORTANTE: Cambia "TU_USUARIO" y "TU_REPOSITORIO" por los reales de GitHub
-    image: ghcr.io/TU_USUARIO/TU_REPOSITORIO:latest
+    image: ghcr.io/devangelcrow/inventory_backend:latest
     container_name: nest_app
     restart: unless-stopped
     depends_on:
