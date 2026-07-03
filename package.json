@@ -31,6 +31,7 @@
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:migrate:prod": "npx prisma migrate deploy",
     "prisma:seed": "npx prisma db seed",
+    "seed:prod": "node dist/prisma/seeds/main.seeder.js",
     "seed:core": "ts-node -r tsconfig-paths/register prisma/seeds/core.seeder.ts",
     "prisma:studio": "npx prisma studio",
     "sonar:scanner": "sonar-scanner",
