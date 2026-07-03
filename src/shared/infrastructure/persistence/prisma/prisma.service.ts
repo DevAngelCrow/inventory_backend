@@ -28,6 +28,9 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     const dbPort = configService.get<string>('DB_PORT') || '5432';
     const dbProvider = configService.get<string>('DB_PROVIDER') || 'postgresql';
     const connectionString = `${dbProvider}://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}?schema=public`;
+
+    process.env.DATABASE_URL = connectionString;
+
     const pool = new Pool({
       connectionString,
       // Tunable via env so we can right-size the pool per environment and

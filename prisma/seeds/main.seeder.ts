@@ -33,6 +33,8 @@ const dbPort = process.env.DB_PORT || '5432';
 const dbProvider = process.env.DB_PROVIDER || 'postgresql';
 const connectionString = `${dbProvider}://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}?schema=public`;
 
+process.env.DATABASE_URL = connectionString;
+
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
