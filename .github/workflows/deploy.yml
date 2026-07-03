@@ -42,3 +42,5 @@ jobs:
             docker compose pull api
             docker compose up -d --no-deps --build api
             docker image prune -f
+            docker compose exec -T api npm run prisma:migrate:prod
+            docker compose exec -T api npm run prisma:seed
