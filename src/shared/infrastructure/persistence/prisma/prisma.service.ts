@@ -21,10 +21,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     private readonly transactionContext: TransactionContextService,
     private readonly configService: ConfigService,
   ) {
-    const connectionString =
-      configService.get<string>('NODE_ENV') === 'production'
-        ? configService.get<string>('DATABASE_DIRECT_URL')!
-        : `${configService.get<string>('DB_PROVIDER')}://${configService.get<string>('DB_USER')}:${configService.get<string>('DB_PASSWORD')}@${configService.get<string>('DB_HOST')}:${configService.get<string>('DB_PORT')}/${configService.get<string>('DB_NAME')}?schema=public`;
+    const dbHost = configService.get<string>('DATABASE_HOST') || configService.get<string>('DB_HOST');
+    const connectionString = `${configService.get<string>('DB_PROVIDER')}://${configService.get<string>('DB_USER')}:${configService.get<string>('DB_PASSWORD')}@${dbHost}:${configService.get<string>('DB_PORT')}/${configService.get<string>('DB_NAME')}?schema=public`;
     const pool = new Pool({
       connectionString,
       // Tunable via env so we can right-size the pool per environment and
