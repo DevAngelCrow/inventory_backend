@@ -25,12 +25,15 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { seedCategoryStatus } from './ctl-category-status.seeder';
 
-const dbUser = process.env.DB_USER || process.env.POSTGRES_USER || 'postgres';
-const dbPassword = process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || '';
+const dbUserRaw = process.env.DB_USER || process.env.POSTGRES_USER || 'postgres';
+const dbPasswordRaw = process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || '';
 const dbName = process.env.DB_NAME || process.env.POSTGRES_DB || 'postgres';
 const dbHost = process.env.DATABASE_HOST || process.env.DB_HOST || 'postgres';
 const dbPort = process.env.DB_PORT || '5432';
 const dbProvider = process.env.DB_PROVIDER || 'postgresql';
+
+const dbUser = encodeURIComponent(dbUserRaw);
+const dbPassword = encodeURIComponent(dbPasswordRaw);
 const connectionString = `${dbProvider}://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}?schema=public`;
 
 process.env.DATABASE_URL = connectionString;

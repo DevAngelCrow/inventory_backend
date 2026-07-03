@@ -4,8 +4,15 @@ import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 let url = '';
 let seedCommand = '';
-const dbHost = process.env.DATABASE_HOST || process.env.DB_HOST;
-url = `${process.env.DB_PROVIDER}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${dbHost}:${process.env.DB_PORT}/${process.env.DB_NAME}?schema=public&timezone=UTC`;
+const dbUserRaw = process.env.DB_USER || process.env.POSTGRES_USER || 'postgres';
+const dbPasswordRaw = process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || '';
+const dbName = process.env.DB_NAME || process.env.POSTGRES_DB || 'postgres';
+const dbHost = process.env.DATABASE_HOST || process.env.DB_HOST || 'postgres';
+const dbPort = process.env.DB_PORT || '5432';
+const dbProvider = process.env.DB_PROVIDER || 'postgresql';
+const dbUser = encodeURIComponent(dbUserRaw);
+const dbPassword = encodeURIComponent(dbPasswordRaw);
+url = `${dbProvider}://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}?schema=public&timezone=UTC`;
 
 if (process.env.NODE_ENV === 'production') {
   seedCommand = 'node dist/prisma/seeds/main.seeder.js';

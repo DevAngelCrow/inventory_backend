@@ -21,12 +21,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     private readonly transactionContext: TransactionContextService,
     private readonly configService: ConfigService,
   ) {
-    const dbUser = configService.get<string>('DB_USER') || process.env.POSTGRES_USER || 'postgres';
-    const dbPassword = configService.get<string>('DB_PASSWORD') || process.env.POSTGRES_PASSWORD || '';
+    const dbUserRaw = configService.get<string>('DB_USER') || process.env.POSTGRES_USER || 'postgres';
+    const dbPasswordRaw = configService.get<string>('DB_PASSWORD') || process.env.POSTGRES_PASSWORD || '';
     const dbName = configService.get<string>('DB_NAME') || process.env.POSTGRES_DB || 'postgres';
     const dbHost = configService.get<string>('DATABASE_HOST') || configService.get<string>('DB_HOST') || 'postgres';
     const dbPort = configService.get<string>('DB_PORT') || '5432';
     const dbProvider = configService.get<string>('DB_PROVIDER') || 'postgresql';
+    const dbUser = encodeURIComponent(dbUserRaw);
+    const dbPassword = encodeURIComponent(dbPasswordRaw);
     const connectionString = `${dbProvider}://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}?schema=public`;
 
     process.env.DATABASE_URL = connectionString;
