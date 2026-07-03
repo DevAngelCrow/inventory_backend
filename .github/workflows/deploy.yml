@@ -1,6 +1,7 @@
 name: Desplegar a Hetzner
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
