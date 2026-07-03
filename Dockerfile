@@ -41,6 +41,7 @@ COPY --chown=appuser:appgroup --from=build /app/node_modules ./node_modules
 COPY --chown=appuser:appgroup --from=build /app/package.json ./package.json
 COPY --chown=appuser:appgroup --from=build /app/prisma ./prisma
 COPY --chown=appuser:appgroup --from=build /app/generated ./generated
+COPY --chown=appuser:appgroup --from=build /app/prisma.config.ts ./prisma.config.ts
 
 USER appuser
 EXPOSE 3000
