@@ -31,72 +31,79 @@ import { DatabaseException } from '@/shared/infrastructure/exceptions/database.e
 
 @Injectable()
 export class ImplReservationRepository
-  implements ReservationRepository, ReservationQueriesRepository
-{
-  constructor(private readonly prisma: PrismaService) {}
+  implements ReservationRepository, ReservationQueriesRepository {
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(reservation: Reservation): Promise<void> {
     try {
-      await this.prisma.client.$transaction(async (prisma) => {
-        const defaultCurrency = await prisma.ctl_currency.findFirst({
-          where: { active: true },
-        });
-        const id_currency =
-          defaultCurrency?.id || '00000000-0000-0000-0000-000000000000'; // Fallback if no currency found
-
-        const createdReservation = await prisma.mnt_reservation.create({
-          data: {
-            id: reservation.getId()?.value(),
-            reservation_number: `RES-${Date.now().toString().slice(-6)}`,
-            id_customer: reservation.getIdCustomer().value(),
-            id_currency: id_currency,
-            id_status: (
-              await prisma.ctl_status.findFirstOrThrow({
-                where: {
-                  code: reservation.getStatus().value(),
-                  ctl_category_status: { code: 'RES' },
-                },
-              })
-            ).id,
-            event_start: reservation.getDateRange().start,
-            event_end: reservation.getDateRange().end,
-            delivery_address:
-              reservation.getDeliveryAddress().addressLine1 ?? null,
-            delivery_address_line2:
-              reservation.getDeliveryAddress().addressLine2 ?? null,
-            delivery_zip: reservation.getDeliveryAddress().zip ?? null,
-            delivery_notes: reservation.getDeliveryAddress().notes ?? null,
-            id_customer_address:
-              reservation.getDeliveryAddress().idCustomerAddress ?? null,
-            id_geographic_division:
-              reservation.getDeliveryAddress().idGeographicDivision ?? null,
-            subtotal: reservation.getAmount().total,
-            total: reservation.getAmount().total,
-            deposit_amount: reservation.getAmount().deposit ?? 0,
-            balance_due:
-              reservation.getAmount().balance ?? reservation.getAmount().total,
-            delivery_fee: reservation.getAmount().deliveryFee,
-            discount_amount: reservation.getAmount().discountAmount,
-            notes: reservation.getNotes().value() ?? null,
-            created_at: new Date(),
-          },
-        });
-
-        const itemsData = reservation.getItems().map((item) => ({
-          id_reservation: createdReservation.id,
-          id_product: item.getIdProduct().value(),
-          quantity: item.getQuantity().value(),
-          unit_price: item.getPrice().unitPrice,
-          subtotal: item.getPrice().totalPrice,
-          created_at: new Date(),
-        }));
-
-        if (itemsData.length > 0) {
-          await prisma.mnt_reservation_item.createMany({
-            data: itemsData,
-          });
-        }
+      const defaultCurrency = await this.prisma.client.ctl_currency.findFirst({
+        where: { active: true },
       });
+      const id_currency =
+        defaultCurrency?.id || '00000000-0000-0000-0000-000000000000'; // Fallback if no currency found
+
+      const availableItems = await this.prisma.client.mnt_reservation_item.count({
+        where: {
+          id: {
+            in: reservation.getItems().map((item) => item.getIdProduct().value()),
+          },
+        },
+      });
+
+      console.log('available items', availableItems)
+
+      const createdReservation = await this.prisma.client.mnt_reservation.create({
+        data: {
+          id: reservation.getId()?.value(),
+          reservation_number: `RES-${Date.now().toString().slice(-6)}`,
+          id_customer: reservation.getIdCustomer().value(),
+          id_currency: id_currency,
+          id_status: (
+            await this.prisma.client.ctl_status.findFirstOrThrow({
+              where: {
+                code: reservation.getStatus().value(),
+                ctl_category_status: { code: 'RES' },
+              },
+            })
+          ).id,
+          event_start: reservation.getDateRange().start,
+          event_end: reservation.getDateRange().end,
+          delivery_address:
+            reservation.getDeliveryAddress().addressLine1 ?? null,
+          delivery_address_line2:
+            reservation.getDeliveryAddress().addressLine2 ?? null,
+          delivery_zip: reservation.getDeliveryAddress().zip ?? null,
+          delivery_notes: reservation.getDeliveryAddress().notes ?? null,
+          id_customer_address:
+            reservation.getDeliveryAddress().idCustomerAddress ?? null,
+          id_geographic_division:
+            reservation.getDeliveryAddress().idGeographicDivision ?? null,
+          subtotal: reservation.getAmount().total,
+          total: reservation.getAmount().total,
+          deposit_amount: reservation.getAmount().deposit ?? 0,
+          balance_due:
+            reservation.getAmount().balance ?? reservation.getAmount().total,
+          delivery_fee: reservation.getAmount().deliveryFee,
+          discount_amount: reservation.getAmount().discountAmount,
+          notes: reservation.getNotes().value() ?? null,
+          created_at: new Date(),
+        },
+      });
+
+      const itemsData = reservation.getItems().map((item) => ({
+        id_reservation: createdReservation.id,
+        id_product: item.getIdProduct().value(),
+        quantity: item.getQuantity().value(),
+        unit_price: item.getPrice().unitPrice,
+        subtotal: item.getPrice().totalPrice,
+        created_at: new Date(),
+      }));
+
+      if (itemsData.length > 0) {
+        await this.prisma.client.mnt_reservation_item.createMany({
+          data: itemsData,
+        });
+      }
     } catch (error) {
       throw new DatabaseException(
         `Error creating reservation: ${error instanceof Error ? error.message : String(error)}`,
@@ -132,70 +139,68 @@ export class ImplReservationRepository
       if (!reservationId)
         throw new Error('Reservation ID is required for update');
 
-      await this.prisma.client.$transaction(async (prisma) => {
-        const existing = await prisma.mnt_reservation.findUnique({
-          where: { id: reservationId },
-        });
-        if (!existing) {
-          throw new NotFoundException('Reservation', reservationId);
-        }
-
-        await prisma.mnt_reservation.update({
-          where: { id: reservationId },
-          data: {
-            id_customer: reservation.getIdCustomer().value(),
-            id_status: (
-              await prisma.ctl_status.findFirstOrThrow({
-                where: {
-                  code: reservation.getStatus().value(),
-                  ctl_category_status: { code: 'RES' },
-                },
-              })
-            ).id,
-            event_start: reservation.getDateRange().start,
-            event_end: reservation.getDateRange().end,
-            delivery_address:
-              reservation.getDeliveryAddress().addressLine1 ?? null,
-            delivery_address_line2:
-              reservation.getDeliveryAddress().addressLine2 ?? null,
-            delivery_zip: reservation.getDeliveryAddress().zip ?? null,
-            delivery_notes: reservation.getDeliveryAddress().notes ?? null,
-            id_customer_address:
-              reservation.getDeliveryAddress().idCustomerAddress ?? null,
-            id_geographic_division:
-              reservation.getDeliveryAddress().idGeographicDivision ?? null,
-            subtotal: reservation.getAmount().total,
-            total: reservation.getAmount().total,
-            deposit_amount: reservation.getAmount().deposit ?? 0,
-            balance_due:
-              reservation.getAmount().balance ?? reservation.getAmount().total,
-            delivery_fee: reservation.getAmount().deliveryFee,
-            discount_amount: reservation.getAmount().discountAmount,
-            notes: reservation.getNotes().value() ?? null,
-            updated_at: new Date(),
-          },
-        });
-
-        // Delete existing items and recreate them
-        await prisma.mnt_reservation_item.deleteMany({
-          where: { id_reservation: reservationId },
-        });
-
-        const itemsData = reservation.getItems().map((item) => ({
-          id_reservation: reservationId,
-          id_product: item.getIdProduct().value(),
-          quantity: item.getQuantity().value(),
-          unit_price: item.getPrice().unitPrice,
-          subtotal: item.getPrice().totalPrice,
-          created_at: existing.created_at, // Preserve original created_at if needed, or use new Date()
-        }));
-
-        if (itemsData.length > 0) {
-          await prisma.mnt_reservation_item.createMany({
-            data: itemsData,
-          });
-        }
+      const existing = await this.prisma.client.mnt_reservation.findUnique({
+        where: { id: reservationId },
       });
+      if (!existing) {
+        throw new NotFoundException('Reservation', reservationId);
+      }
+
+      await this.prisma.client.mnt_reservation.update({
+        where: { id: reservationId },
+        data: {
+          id_customer: reservation.getIdCustomer().value(),
+          id_status: (
+            await this.prisma.client.ctl_status.findFirstOrThrow({
+              where: {
+                code: reservation.getStatus().value(),
+                ctl_category_status: { code: 'RES' },
+              },
+            })
+          ).id,
+          event_start: reservation.getDateRange().start,
+          event_end: reservation.getDateRange().end,
+          delivery_address:
+            reservation.getDeliveryAddress().addressLine1 ?? null,
+          delivery_address_line2:
+            reservation.getDeliveryAddress().addressLine2 ?? null,
+          delivery_zip: reservation.getDeliveryAddress().zip ?? null,
+          delivery_notes: reservation.getDeliveryAddress().notes ?? null,
+          id_customer_address:
+            reservation.getDeliveryAddress().idCustomerAddress ?? null,
+          id_geographic_division:
+            reservation.getDeliveryAddress().idGeographicDivision ?? null,
+          subtotal: reservation.getAmount().total,
+          total: reservation.getAmount().total,
+          deposit_amount: reservation.getAmount().deposit ?? 0,
+          balance_due:
+            reservation.getAmount().balance ?? reservation.getAmount().total,
+          delivery_fee: reservation.getAmount().deliveryFee,
+          discount_amount: reservation.getAmount().discountAmount,
+          notes: reservation.getNotes().value() ?? null,
+          updated_at: new Date(),
+        },
+      });
+
+      // Delete existing items and recreate them
+      await this.prisma.client.mnt_reservation_item.deleteMany({
+        where: { id_reservation: reservationId },
+      });
+
+      const itemsData = reservation.getItems().map((item) => ({
+        id_reservation: reservationId,
+        id_product: item.getIdProduct().value(),
+        quantity: item.getQuantity().value(),
+        unit_price: item.getPrice().unitPrice,
+        subtotal: item.getPrice().totalPrice,
+        created_at: existing.created_at, // Preserve original created_at if needed, or use new Date()
+      }));
+
+      if (itemsData.length > 0) {
+        await this.prisma.client.mnt_reservation_item.createMany({
+          data: itemsData,
+        });
+      }
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new DatabaseException('Error updating reservation', 'update');
@@ -302,9 +307,9 @@ export class ImplReservationRepository
         this.prisma.client.mnt_reservation.findMany({
           skip:
             pagination_params?.getPage().value() &&
-            pagination_params?.getPerPage().value()
+              pagination_params?.getPerPage().value()
               ? (pagination_params.getPage().value() - 1) *
-                pagination_params.getPerPage().value()
+              pagination_params.getPerPage().value()
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
@@ -395,12 +400,12 @@ export class ImplReservationRepository
       notes: r.notes ?? undefined,
       items: r.mnt_reservation_item
         ? r.mnt_reservation_item.map((i: ReservationItemModel) => ({
-            id: i.id,
-            id_product: i.id_product,
-            quantity: i.quantity,
-            unit_price: Number(i.unit_price),
-            total_price: Number(i.subtotal),
-          }))
+          id: i.id,
+          id_product: i.id_product,
+          quantity: i.quantity,
+          unit_price: Number(i.unit_price),
+          total_price: Number(i.subtotal),
+        }))
         : [],
       delivery_datetime: r.delivery_datetime ?? undefined,
       pickup_datetime: r.pickup_datetime ?? undefined,
@@ -428,19 +433,19 @@ export class ImplReservationRepository
       r.notes ?? undefined,
       r.mnt_reservation_item
         ? r.mnt_reservation_item.map(
-            (i: ReservationItemModel) =>
-              new ReservationItemDto(
-                i.id_product,
-                i.quantity,
-                Number(i.unit_price),
-                Number(i.subtotal),
-                i.id_reservation,
-                i.id,
-                i.mnt_product
-                  ? { name: i.mnt_product.name, sku: i.mnt_product.sku }
-                  : undefined,
-              ),
-          )
+          (i: ReservationItemModel) =>
+            new ReservationItemDto(
+              i.id_product,
+              i.quantity,
+              Number(i.unit_price),
+              Number(i.subtotal),
+              i.id_reservation,
+              i.id,
+              i.mnt_product
+                ? { name: i.mnt_product.name, sku: i.mnt_product.sku }
+                : undefined,
+            ),
+        )
         : [],
       r.id,
       r.created_at,
@@ -451,11 +456,11 @@ export class ImplReservationRepository
       r.transit_time_minutes,
       r.mnt_customer
         ? {
-            first_name: r.mnt_customer.first_name,
-            last_name: r.mnt_customer.last_name,
-            email: r.mnt_customer.email,
-            phone: r.mnt_customer.phone,
-          }
+          first_name: r.mnt_customer.first_name,
+          last_name: r.mnt_customer.last_name,
+          email: r.mnt_customer.email,
+          phone: r.mnt_customer.phone,
+        }
         : undefined,
     );
   }

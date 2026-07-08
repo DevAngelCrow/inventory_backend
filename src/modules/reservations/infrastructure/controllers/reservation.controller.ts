@@ -33,6 +33,7 @@ import { DeleteReservationCommand } from '../../application/commands/delete-rese
 import { GetReservationsQuery } from '../../application/queries/get-reservations/get-reservations.query';
 import { GetReservationQuery } from '../../application/queries/get-reservation/get-reservation.query';
 import { ReservationDto } from '../../application/dtos/reservation.dto';
+import { Transactional } from '@/shared/infrastructure/decorators/transactional.decorator';
 
 @ApiTags('Reservations')
 @Controller()
@@ -41,11 +42,11 @@ export class ReservationController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
-
+  ) { }
   @Permissions('crear-reserva')
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Transactional()
   async create(
     @Body() dto: CreateReservationDto,
   ): Promise<SuccessResponseDto<null>> {
@@ -84,6 +85,7 @@ export class ReservationController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', required: true, type: String })
+  @Transactional()
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateReservationDto,
