@@ -5,6 +5,7 @@ export interface AvailabilityRepository {
     productId: string,
     dateStart: Date,
     dateEnd: Date,
+    excludeReservationId?: string,
   ): Promise<number>;
 
   isAvailable(
@@ -12,5 +13,6 @@ export interface AvailabilityRepository {
     quantity: number,
     dateStart: Date,
     dateEnd: Date,
+    excludeReservationId?: string,
   ): Promise<boolean>;
 }

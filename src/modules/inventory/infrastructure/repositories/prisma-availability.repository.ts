@@ -10,6 +10,7 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
     productId: string,
     dateStart: Date,
     dateEnd: Date,
+    excludeReservationId?: string,
   ): Promise<number> {
     const product = await this.prisma.client.mnt_product.findUnique({
       where: { id: productId },
@@ -20,7 +21,7 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
       return 0;
     }
 
-    const overlappingReservations =
+      const overlappingReservations =
       await this.prisma.client.mnt_reservation_item.aggregate({
         _sum: {
           quantity: true,
@@ -28,6 +29,7 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
         where: {
           id_product: productId,
           mnt_reservation: {
+            id: excludeReservationId ? { not: excludeReservationId } : undefined,
             ctl_status: {
               code: {
                 notIn: ['CANCELLED', 'RETURNED'],
@@ -54,11 +56,13 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
     quantity: number,
     dateStart: Date,
     dateEnd: Date,
+    excludeReservationId?: string,
   ): Promise<boolean> {
     const available = await this.getAvailableStock(
       productId,
       dateStart,
       dateEnd,
+      excludeReservationId,
     );
     return available >= quantity;
   }

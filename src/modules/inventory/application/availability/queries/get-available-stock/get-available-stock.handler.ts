@@ -18,6 +18,7 @@ export class GetAvailableStockHandler implements IQueryHandler<GetAvailableStock
       query.productId,
       query.dateStart,
       query.dateEnd,
+      query.excludeReservationId,
     );
   }
 }
