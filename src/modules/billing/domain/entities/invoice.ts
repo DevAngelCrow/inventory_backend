@@ -15,6 +15,7 @@ import { InvoiceFiscalResponse } from '../value-objects/invoice-value-object/inv
 import { InvoicePdfPath } from '../value-objects/invoice-value-object/invoice-pdf-path';
 import { InvoiceIdCreatedBy } from '../value-objects/invoice-value-object/invoice-id-created-by';
 import { InvoiceLine } from './invoice-line';
+import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 
 export class Invoice {
   constructor(
@@ -165,10 +166,25 @@ export class Invoice {
   }
 
   public void(): void {
+    if (this.status.value() === 'VOIDED') {
+      throw new DomainException('Invoice is already voided');
+    }
+    if (this.status.value() === 'PAID') {
+      throw new DomainException('Cannot void a paid invoice');
+    }
     this.status = new InvoiceStatus('VOIDED');
   }
 
   public issue(): void {
+    if (this.status.value() !== 'DRAFT') {
+      throw new DomainException(`Cannot issue invoice from status ${this.status.value()}`);
+    }
+    if (!this.lines || this.lines.length === 0) {
+      throw new DomainException('Cannot issue invoice without lines');
+    }
+    if (this.amount.total <= 0) {
+      throw new DomainException('Cannot issue invoice with total 0 or less');
+    }
     this.status = new InvoiceStatus('ISSUED');
   }
 

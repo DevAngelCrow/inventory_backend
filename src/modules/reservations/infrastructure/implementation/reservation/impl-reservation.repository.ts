@@ -42,16 +42,6 @@ export class ImplReservationRepository
       const id_currency =
         defaultCurrency?.id || '00000000-0000-0000-0000-000000000000'; // Fallback if no currency found
 
-      const availableItems = await this.prisma.client.mnt_reservation_item.count({
-        where: {
-          id: {
-            in: reservation.getItems().map((item) => item.getIdProduct().value()),
-          },
-        },
-      });
-
-      console.log('available items', availableItems)
-
       const createdReservation = await this.prisma.client.mnt_reservation.create({
         data: {
           id: reservation.getId()?.value(),
