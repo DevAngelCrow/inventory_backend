@@ -1,11 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { UpdateReservationCommand } from './update-reservation.command';
 import { ReservationRepository } from '@/modules/reservations/domain/repositories/reservation-repository';
 import { ReservationAggregate as Reservation } from '@/modules/reservations/domain/aggregates/reservation.aggregate';
+import { GetAvailableStockQuery } from '@/modules/inventory/application/availability/queries/get-available-stock/get-available-stock.query';
+import { BadRequestException } from '@nestjs/common';
 
 @CommandHandler(UpdateReservationCommand)
 export class UpdateReservationHandler implements ICommandHandler<UpdateReservationCommand> {
-  constructor(private readonly repository: ReservationRepository) {}
+  constructor(
+    private readonly repository: ReservationRepository,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   async execute(command: UpdateReservationCommand): Promise<void> {
     const reservation = Reservation.create({
@@ -33,6 +38,24 @@ export class UpdateReservationHandler implements ICommandHandler<UpdateReservati
         total_price: i.total_price,
       })),
     });
+
+    for (const item of command.items) {
+      const availableStock = await this.queryBus.execute<GetAvailableStockQuery, number>(
+        new GetAvailableStockQuery(
+          item.id_product,
+          new Date(command.event_start),
+          new Date(command.event_end),
+          command.id, // Exclude the current reservation from the stock calculation
+        ),
+      );
+
+      if (availableStock < item.quantity) {
+        throw new BadRequestException(
+          `Not enough stock for product ${item.id_product}. Requested: ${item.quantity}, Available: ${availableStock}`,
+        );
+      }
+    }
+
     await this.repository.update(reservation);
   }
 }

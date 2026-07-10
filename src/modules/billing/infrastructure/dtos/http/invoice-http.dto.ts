@@ -50,6 +50,7 @@ export class InvoiceHttpDto {
     public readonly lines: InvoiceLineHttpDto[] = [],
     public readonly created_at?: Date | null,
     public readonly updated_at?: Date | null,
+    public readonly customer?: string,
   ) {}
 
   public static fromDto(dto: InvoiceDto): InvoiceHttpDto {
@@ -92,6 +93,7 @@ export class InvoiceHttpDto {
       ),
       dto.created_at,
       dto.updated_at,
+      dto.mnt_customer ? `${dto.mnt_customer.first_name} ${dto.mnt_customer.last_name}`.trim() : undefined,
     );
   }
 }

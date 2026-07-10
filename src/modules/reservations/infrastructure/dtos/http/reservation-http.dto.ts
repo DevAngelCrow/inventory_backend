@@ -14,7 +14,7 @@ export class ReservationItemHttpDto {
       name: string;
       sku: string;
     },
-  ) {}
+  ) { }
 
   public static fromDto(dto: ReservationItemDto): ReservationItemHttpDto {
     return new ReservationItemHttpDto(
@@ -66,8 +66,9 @@ export class ReservationHttpDto {
       last_name: string;
       email?: string | null;
       phone?: string | null;
+      full_address?: string;
     },
-  ) {}
+  ) { }
 
   public static fromDto(dto: ReservationDto): ReservationHttpDto {
     return new ReservationHttpDto(
@@ -96,7 +97,15 @@ export class ReservationHttpDto {
       dto.delivery_datetime,
       dto.pickup_datetime,
       dto.transit_time_minutes,
-      dto.mnt_customer,
+      dto.mnt_customer
+        ? {
+          first_name: dto.mnt_customer.first_name,
+          last_name: dto.mnt_customer.last_name,
+          email: dto.mnt_customer.email,
+          phone: dto.mnt_customer.phone,
+          full_address: dto.mnt_customer.full_address,
+        }
+        : undefined,
     );
   }
 }

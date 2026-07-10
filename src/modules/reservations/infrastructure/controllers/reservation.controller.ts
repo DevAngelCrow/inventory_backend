@@ -33,6 +33,8 @@ import { DeleteReservationCommand } from '../../application/commands/delete-rese
 import { GetReservationsQuery } from '../../application/queries/get-reservations/get-reservations.query';
 import { GetReservationQuery } from '../../application/queries/get-reservation/get-reservation.query';
 import { ReservationDto } from '../../application/dtos/reservation.dto';
+import { Transactional } from '@/shared/infrastructure/decorators/transactional.decorator';
+import { GetAvailableStockQuery } from '@/modules/inventory/application/availability/queries/get-available-stock/get-available-stock.query';
 
 @ApiTags('Reservations')
 @Controller()
@@ -41,11 +43,11 @@ export class ReservationController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
-
+  ) { }
   @Permissions('crear-reserva')
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Transactional()
   async create(
     @Body() dto: CreateReservationDto,
   ): Promise<SuccessResponseDto<null>> {
@@ -84,6 +86,7 @@ export class ReservationController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', required: true, type: String })
+  @Transactional()
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateReservationDto,
@@ -188,6 +191,36 @@ export class ReservationController {
       response,
       HttpStatus.OK,
       'Reservations retrieved successfully',
+    );
+  }
+
+  @Permissions('crear-reserva')
+  @Get('check-availability')
+  @HttpCode(HttpStatus.OK)
+  @ApiQuery({ name: 'id_product', required: true, type: String })
+  @ApiQuery({ name: 'event_start', required: true, type: String })
+  @ApiQuery({ name: 'event_end', required: true, type: String })
+  @ApiQuery({ name: 'quantity', required: true, type: Number })
+  async checkAvailability(
+    @Query('id_product', ParseUUIDPipe) idProduct: string,
+    @Query('event_start') eventStart: string,
+    @Query('event_end') eventEnd: string,
+    @Query('quantity') quantity: string,
+  ): Promise<SuccessResponseDto<{ available_stock: number; is_available: boolean }>> {
+    const start = new Date(eventStart);
+    const end = new Date(eventEnd);
+    const qty = Number(quantity);
+
+    const availableStock = await this.queryBus.execute<GetAvailableStockQuery, number>(
+      new GetAvailableStockQuery(idProduct, start, end),
+    );
+
+    const isAvailable = availableStock >= qty;
+
+    return new SuccessResponseDto(
+      { available_stock: availableStock, is_available: isAvailable },
+      HttpStatus.OK,
+      'Availability checked successfully',
     );
   }
 
