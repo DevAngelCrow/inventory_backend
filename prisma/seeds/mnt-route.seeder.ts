@@ -514,5 +514,6 @@ export const seedMntRoute = async (tx: PrismaClient) => {
         title: 'Facturas',
       },
     ],
+    skipDuplicates: true,
   });
 };
