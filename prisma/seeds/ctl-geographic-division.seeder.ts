@@ -1,14 +1,16 @@
-import { randomUUID } from 'crypto';
+import { createHash } from 'crypto';
 import { PrismaClient } from 'generated/prisma/client';
 import { ADMIN1, ADMIN2, ADMIN3, ADMIN4 } from './geographic-arrays';
+
+function generateDeterministicUUID(code: string): string {
+  const hash = createHash('md5').update(`geo-${code}`).digest('hex');
+  return `${hash.substring(0, 8)}-${hash.substring(8, 12)}-3${hash.substring(13, 16)}-a${hash.substring(17, 20)}-${hash.substring(20, 32)}`;
+}
 
 export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
   console.log('Seeding ctl_geographic_division...');
 
-
-
   const data: any[] = [];
-  const divisionMap = new Map();
 
   // ===============================
   // countries map
@@ -52,8 +54,7 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
     if (!countryMap.has(row.country)) continue;
     const id_country = countryMap.get(row.country);
     let id_type: string | null = null;
-    // El Salvador: Departamento (level 1)
-    // Estados Unidos: Estado (level 1)
+    
     if (
       id_country &&
       typeByCountryLevel[id_country] &&
@@ -62,8 +63,10 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       id_type = typeByCountryLevel[id_country][1];
     }
     if (!id_type) continue;
-    const id = randomUUID();
-    divisionMap.set(`${row.country}.${row.a1}`, id);
+    
+    const code = `${row.country}.${row.a1}`;
+    const id = generateDeterministicUUID(code);
+    
     data.push({
       id,
       name: row.name,
@@ -92,9 +95,7 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       );
       id_type = found ? found.id : null;
     } else if (row.country === 'US') {
-      // Louisiana (LA) usa Parroquia, Alaska (AK) usa Borough, el resto usa Condado
       if (row.a1 === 'LA') {
-        // Parroquia
         const found = types.find(
           (t) =>
             t.id_country === id_country &&
@@ -103,7 +104,6 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
         );
         id_type = found ? found.id : null;
       } else if (row.a1 === 'AK') {
-        // Borough
         const found = types.find(
           (t) =>
             t.id_country === id_country &&
@@ -112,7 +112,6 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
         );
         id_type = found ? found.id : null;
       } else {
-        // Condado
         const found = types.find(
           (t) =>
             t.id_country === id_country &&
@@ -123,9 +122,12 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       }
     }
     if (!id_type) continue;
-    const parent = divisionMap.get(`${row.country}.${row.a1}`);
-    const id = randomUUID();
-    divisionMap.set(`${row.country}.${row.a1}.${row.a2}`, id);
+    
+    const parentCode = `${row.country}.${row.a1}`;
+    const parent = generateDeterministicUUID(parentCode);
+    const code = `${row.country}.${row.a1}.${row.a2}`;
+    const id = generateDeterministicUUID(code);
+
     data.push({
       id,
       name: row.name,
@@ -161,9 +163,12 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       id_type = found ? found.id : null;
     }
     if (!id_type) continue;
-    const parent = divisionMap.get(`${row.country}.${row.a1}.${row.a2}`);
-    const id = randomUUID();
-    divisionMap.set(`${row.country}.${row.a1}.${row.a2}.${row.a3}`, id);
+    
+    const parentCode = `${row.country}.${row.a1}.${row.a2}`;
+    const parent = generateDeterministicUUID(parentCode);
+    const code = `${row.country}.${row.a1}.${row.a2}.${row.a3}`;
+    const id = generateDeterministicUUID(code);
+
     data.push({
       id,
       name: row.name,
