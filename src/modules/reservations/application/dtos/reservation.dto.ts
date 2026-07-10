@@ -51,6 +51,7 @@ export class ReservationDto {
       last_name: string;
       email?: string | null;
       phone?: string | null;
+      full_address?: string;
     },
   ) {}
 }

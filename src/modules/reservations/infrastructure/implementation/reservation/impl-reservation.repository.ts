@@ -4,7 +4,15 @@ import { Prisma, mnt_reservation } from 'generated/prisma/client';
 type ReservationModel = Prisma.mnt_reservationGetPayload<{
   include: {
     mnt_reservation_item: { include: { mnt_product: true } };
-    mnt_customer: true;
+    mnt_customer: {
+      include: {
+        mnt_customer_address: {
+          include: {
+            ctl_geographic_division: true;
+          };
+        };
+      };
+    };
     ctl_status: true;
     ctl_geographic_division: true;
   };
@@ -225,7 +233,14 @@ export class ImplReservationRepository
         },
         include: {
           mnt_reservation_item: { include: { mnt_product: true } },
-          mnt_customer: true,
+          mnt_customer: {
+            include: {
+              mnt_customer_address: {
+                where: { is_primary: true },
+                include: { ctl_geographic_division: true }
+              }
+            }
+          },
           ctl_status: true,
           ctl_geographic_division: true,
         },
@@ -305,7 +320,14 @@ export class ImplReservationRepository
           where,
           include: {
             mnt_reservation_item: { include: { mnt_product: true } },
-            mnt_customer: true,
+            mnt_customer: {
+              include: {
+                mnt_customer_address: {
+                  where: { is_primary: true },
+                  include: { ctl_geographic_division: true }
+                }
+              }
+            },
             ctl_status: true,
             ctl_geographic_division: true,
           },
@@ -344,7 +366,14 @@ export class ImplReservationRepository
         where: { id },
         include: {
           mnt_reservation_item: { include: { mnt_product: true } },
-          mnt_customer: true,
+          mnt_customer: {
+            include: {
+              mnt_customer_address: {
+                where: { is_primary: true },
+                include: { ctl_geographic_division: true }
+              }
+            }
+          },
           ctl_status: true,
           ctl_geographic_division: true,
         },
@@ -450,6 +479,13 @@ export class ImplReservationRepository
           last_name: r.mnt_customer.last_name,
           email: r.mnt_customer.email,
           phone: r.mnt_customer.phone,
+          full_address: r.mnt_customer.mnt_customer_address && r.mnt_customer.mnt_customer_address.length > 0
+            ? [
+                r.mnt_customer.mnt_customer_address[0].address_line1,
+                r.mnt_customer.mnt_customer_address[0].address_line2,
+                r.mnt_customer.mnt_customer_address[0].ctl_geographic_division?.name
+              ].filter(Boolean).join(', ')
+            : undefined,
         }
         : undefined,
     );
