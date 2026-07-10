@@ -39,8 +39,8 @@ jobs:
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd /opt/inventory_app
-            docker compose pull api
-            docker compose up -d --no-deps --build api
+            docker compose pull api worker
+            docker compose up -d --no-deps --build api worker
             docker image prune -f
             docker compose exec -T api npm run prisma:migrate:prod
             docker compose exec -T api npm run seed:prod
