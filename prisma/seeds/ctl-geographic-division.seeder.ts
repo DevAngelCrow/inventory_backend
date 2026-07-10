@@ -5,7 +5,7 @@ import { ADMIN1, ADMIN2, ADMIN3, ADMIN4 } from './geographic-arrays';
 export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
   console.log('Seeding ctl_geographic_division...');
 
-  await tx.ctl_geographic_division.deleteMany();
+
 
   const data: any[] = [];
   const divisionMap = new Map();

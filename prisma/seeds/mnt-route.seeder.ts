@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedMntRoute = async (tx: PrismaClient) => {
-  await tx.mnt_route.deleteMany();
+
   console.log('Seeding mnt_route data ...');
   //Parents routes
   await tx.mnt_route.createMany({

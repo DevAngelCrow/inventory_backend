@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedRolPermissions = async (tx: PrismaClient) => {
-  await tx.rol_permissions.deleteMany();
+
   console.log('Seeding rol_permissions data ...');
 
   // Obtener todos los roles

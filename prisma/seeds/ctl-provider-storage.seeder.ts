@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedCtlProviderStorage = async (tx: PrismaClient) => {
-  await tx.ctl_provider_storage.deleteMany();
+
   console.log('Seeding ctl_gender data ...');
   await tx.ctl_provider_storage.createMany({
     data: [

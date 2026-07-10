@@ -1,9 +1,9 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedMntRoutePermissions = async (tx: PrismaClient) => {
-  await tx.mnt_route_permissions.deleteMany();
+
   console.log('Seeding mnt_route_permissions data ...');
-  await tx.mnt_route_permissions.deleteMany({});
+
   const permissionsMap: Record<string, Record<string, string[]>> = {
     Rutas: {
       routes: ['listar-rutas'],

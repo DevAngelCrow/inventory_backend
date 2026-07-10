@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedCtlGeographicDivisionType = async (tx: PrismaClient) => {
-  await tx.ctl_geographic_division_type.deleteMany();
+
   console.log('Seeding ctl_geographic_division_type data ...');
 
   // IDs fijos de países
