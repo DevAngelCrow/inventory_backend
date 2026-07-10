@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedMntPeople = async (tx: PrismaClient) => {
-  await tx.mnt_people.deleteMany();
+
   console.log('Seeding mnt_people data ...');
   const gender = await tx.ctl_gender.findFirst({
     where: { id: "00000000-0000-4000-8000-000000000001" },

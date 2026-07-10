@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedMntRol = async (tx: PrismaClient) => {
-  await tx.mnt_role.deleteMany();
+
   console.log('Seeding mnt_rol data ...');
   const status = await tx.ctl_status.findFirst({
     where: { id: "00000000-0000-4000-8000-000000000001", code: 'AC' },

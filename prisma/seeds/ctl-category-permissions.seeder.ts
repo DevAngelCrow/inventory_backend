@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedCtlCategoryPermissions = async (tx: PrismaClient) => {
-  await tx.ctl_category_permissions.deleteMany();
+
   console.log('Seeding ctl_category_permissions data ...');
   await tx.ctl_category_permissions.createMany({
     data: [

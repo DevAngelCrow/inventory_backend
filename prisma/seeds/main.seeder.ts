@@ -46,58 +46,8 @@ const mainSeeder = async () => {
 
   console.log('Database connected.');
   try {
-    // Truncate all tables in reverse order of dependencies
-    console.log('Truncating all tables...');
-    const tables = [
-      'mnt_invoice_line',
-      'mnt_invoice',
-      'mnt_damage_item',
-      'mnt_reservation_inspection',
-      'mnt_payment',
-      'ctl_payment_method',
-      'mnt_reservation_item',
-      'mnt_reservation',
-      'mnt_customer',
-      'mnt_product_maintenance',
-      'mnt_product',
-      'ctl_currency',
-      'ctl_product_condition',
-      'ctl_product_category',
-      'mnt_address',
-      'mnt_route_permissions',
-      'mnt_route',
-      'mnt_user_rol',
-      'rol_permissions',
-      'mnt_role',
-      'ctl_permissions',
-      'ctl_category_permissions',
-      'mnt_session_refresh_token',
-      'mnt_storage_files',
-      'ctl_provider_storage',
-      'mnt_email_verification_tokens',
-      'mnt_user',
-      'mnt_document',
-      'mnt_people',
-      'people_country',
-      'ctl_document_type',
-      'ctl_gender',
-      'ctl_marital_status',
-      'ctl_geographic_division',
-      'ctl_geographic_division_type',
-      'ctl_country',
-      'ctl_status',
-      'ctl_category_status',
-    ];
-
-    for (const table of tables) {
-      try {
-        await prisma.$executeRawUnsafe(
-          `TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE;`,
-        );
-      } catch (e: unknown) {
-        console.log(`Failed to truncate ${table}, skipping...`, e);
-      }
-    }
+    // Se eliminó la instrucción de TRUNCATE TABLE para evitar la pérdida de datos
+    // al ejecutar los seeders múltiples veces en cada despliegue.
 
     console.log('Seeding categories...');
     await seedCategoryStatus(prisma);

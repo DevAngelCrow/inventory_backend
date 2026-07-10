@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedCtlCountry = async (tx: PrismaClient) => {
-  await tx.ctl_country.deleteMany();
+
   console.log('Seeding ctl_country data ...');
   await tx.ctl_country.createMany({
     data: [

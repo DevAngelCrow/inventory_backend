@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 import * as bcrypt from 'bcrypt';
 export const seedMntuser = async (tx: PrismaClient) => {
-  await tx.mnt_user.deleteMany();
+
   console.log('Seeding mnt_user data ...');
   const people = await tx.mnt_people.findFirst({
     where: { id: "00000000-0000-4000-8000-000000000001" },

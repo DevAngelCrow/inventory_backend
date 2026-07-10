@@ -1,7 +1,7 @@
 import { PrismaClient } from 'generated/prisma/client';
 
 export const seedCtlPermissions = async (tx: PrismaClient) => {
-  await tx.ctl_permissions.deleteMany();
+
   console.log('Seeding ctl_permissions data ...');
   const categories = await tx.ctl_category_permissions.findMany({
     orderBy: { id: 'asc' },
