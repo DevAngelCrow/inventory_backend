@@ -11,6 +11,7 @@ import {
   MinLength,
   Matches,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class RegisterValidatorDto {
   // Person data
@@ -59,6 +60,10 @@ export class RegisterValidatorDto {
   @ApiProperty({ example: '2222-2222', required: false })
   phone?: string;
 
+  @Transform(({ value }: { value: unknown }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    return Array.isArray(value) ? value : [value];
+  })
   @IsArray()
   @IsOptional()
   @ApiProperty({ example: ['uuid1', 'uuid2'], required: false })

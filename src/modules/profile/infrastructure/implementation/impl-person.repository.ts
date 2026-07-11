@@ -205,97 +205,103 @@ export class ImplPersonRepository
     }
   }
 
-  async update(person: Person, nationalities: string[] = []): Promise<void> {
+  async update(person: Person, nationalities?: string[]): Promise<void> {
     try {
-      const prisma = this.getPrismaClient();
-      await prisma.$transaction(async (tx) => {
-        const id_person = person.getId()?.value();
-        if (!id_person) throw new Error('Person ID is required for update');
+      const tx = this.getPrismaClient();
+      const id_person = person.getId()?.value();
+      if (!id_person) throw new Error('Person ID is required for update');
 
-        await tx.mnt_people.update({
-          where: { id: id_person },
-          data: {
-            first_name: person.getFirstName()?.value(),
-            last_name: person.getLastName()?.value(),
-            email: person.getEmail().value(),
-            phone: person.getPhone()?.value(),
-            birthdate: person.getBirthdate()?.value(),
-            id_gender: person.getIdGender()?.value(),
-            id_marital_status: person.getIdMaritalStatus()?.value(),
-            id_status: person.getIdStatus()?.value(),
-            middle_name: person.getMiddleName()?.value() ?? '',
-            img_path: person.getImgPath()?.value() ?? undefined,
-            people_country: {
-              deleteMany: {},
-              createMany: {
-                data: nationalities.map((nation: string) => ({
-                  id_country: nation,
-                })),
+      // Only sync nationalities when explicitly provided (undefined = skip, [] = clear all)
+      const nationalitiesUpdate =
+        nationalities !== undefined
+          ? {
+              people_country: {
+                deleteMany: {},
+                createMany: {
+                  data: nationalities.map((nation: string) => ({
+                    id_country: nation,
+                  })),
+                },
               },
-            },
-          },
-        });
+            }
+          : {};
 
-        // Sync Addresses
-        const currentAddressIds = person
-          .getAddresses()
-          .map((a) => a.getId()?.value())
-          .filter((id): id is string => id !== undefined && id !== null);
-        await tx.mnt_address.deleteMany({
-          where: {
-            id_people: id_person,
-            id: { notIn: currentAddressIds },
-          },
-        });
-
-        for (const addr of person.getAddresses()) {
-          const addrId = addr.getId()?.value();
-          const data = {
-            street: addr.getStreet().value(),
-            street_number: addr.getStreetNumber().value(),
-            neighborhood: addr.getNeighborhood().value(),
-            house_number: addr.getHouseNumber().value(),
-            block: addr.getBlock().value(),
-            pathway: addr.getPathway().value(),
-            current: addr.getCurrent().value(),
-            id_geographic_division: addr.getIdGeographicDivision()?.value(),
-            id_people: id_person,
-          };
-          if (addrId) {
-            await tx.mnt_address.update({ where: { id: addrId }, data });
-          } else {
-            await tx.mnt_address.create({ data });
-          }
-        }
-
-        // Sync Documents
-        const currentDocIds = person
-          .getDocuments()
-          .map((d) => d.getId()?.value())
-          .filter((id): id is string => id !== undefined && id !== null);
-        await tx.mnt_document.deleteMany({
-          where: {
-            id_people: id_person,
-            id: { notIn: currentDocIds },
-          },
-        });
-
-        for (const doc of person.getDocuments()) {
-          const docId = doc.getId()?.value();
-          const data = {
-            document_number: doc.getNumberDocument().value(),
-            id_document_type: doc.getIdTypeDocument().value(),
-            active: doc.getActive().value(),
-            description: doc.getDescription()?.value(),
-            id_people: id_person,
-          };
-          if (docId) {
-            await tx.mnt_document.update({ where: { id: docId }, data });
-          } else {
-            await tx.mnt_document.create({ data });
-          }
-        }
+      await tx.mnt_people.update({
+        where: { id: id_person },
+        data: {
+          first_name: person.getFirstName()?.value(),
+          last_name: person.getLastName()?.value(),
+          email: person.getEmail().value(),
+          phone: person.getPhone()?.value(),
+          birthdate: person.getBirthdate()?.value(),
+          id_gender: person.getIdGender()?.value(),
+          id_marital_status: person.getIdMaritalStatus()?.value(),
+          id_status: person.getIdStatus()?.value(),
+          middle_name: person.getMiddleName()?.value() ?? '',
+          img_path: person.getImgPath()?.value() ?? undefined,
+          ...nationalitiesUpdate,
+        },
       });
+
+      // Sync Addresses
+      const currentAddressIds = person
+        .getAddresses()
+        .map((a) => a.getId()?.value())
+        .filter((id): id is string => id !== undefined && id !== null);
+      await tx.mnt_address.deleteMany({
+        where: {
+          id_people: id_person,
+          id: { notIn: currentAddressIds },
+        },
+      });
+
+      for (const addr of person.getAddresses()) {
+        const addrId = addr.getId()?.value();
+        const data = {
+          street: addr.getStreet().value(),
+          street_number: addr.getStreetNumber().value(),
+          neighborhood: addr.getNeighborhood().value(),
+          house_number: addr.getHouseNumber().value(),
+          block: addr.getBlock().value(),
+          pathway: addr.getPathway().value(),
+          current: addr.getCurrent().value(),
+          id_geographic_division: addr.getIdGeographicDivision()?.value(),
+          id_people: id_person,
+        };
+        if (addrId) {
+          await tx.mnt_address.update({ where: { id: addrId }, data });
+        } else {
+          await tx.mnt_address.create({ data });
+        }
+      }
+
+      // Sync Documents
+      const currentDocIds = person
+        .getDocuments()
+        .map((d) => d.getId()?.value())
+        .filter((id): id is string => id !== undefined && id !== null);
+      await tx.mnt_document.deleteMany({
+        where: {
+          id_people: id_person,
+          id: { notIn: currentDocIds },
+        },
+      });
+
+      for (const doc of person.getDocuments()) {
+        const docId = doc.getId()?.value();
+        const data = {
+          document_number: doc.getNumberDocument().value(),
+          id_document_type: doc.getIdTypeDocument().value(),
+          active: doc.getActive().value(),
+          description: doc.getDescription()?.value(),
+          id_people: id_person,
+        };
+        if (docId) {
+          await tx.mnt_document.update({ where: { id: docId }, data });
+        } else {
+          await tx.mnt_document.create({ data });
+        }
+      }
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Error updating person: ${error.message}`);
