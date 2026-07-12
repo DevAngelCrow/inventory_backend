@@ -10,7 +10,9 @@ function generateDeterministicUUID(code: string): string {
 export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
   console.log('Seeding ctl_geographic_division...');
 
-  const data: any[] = [];
+  const dataAdmin1: any[] = [];
+  const dataAdmin2: any[] = [];
+  const dataAdmin3: any[] = [];
 
   // ===============================
   // countries map
@@ -54,7 +56,7 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
     if (!countryMap.has(row.country)) continue;
     const id_country = countryMap.get(row.country);
     let id_type: string | null = null;
-    
+
     if (
       id_country &&
       typeByCountryLevel[id_country] &&
@@ -63,11 +65,11 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       id_type = typeByCountryLevel[id_country][1];
     }
     if (!id_type) continue;
-    
+
     const code = `${row.country}.${row.a1}`;
     const id = generateDeterministicUUID(code);
-    
-    data.push({
+
+    dataAdmin1.push({
       id,
       name: row.name,
       description: null,
@@ -122,13 +124,13 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       }
     }
     if (!id_type) continue;
-    
+
     const parentCode = `${row.country}.${row.a1}`;
     const parent = generateDeterministicUUID(parentCode);
     const code = `${row.country}.${row.a1}.${row.a2}`;
     const id = generateDeterministicUUID(code);
 
-    data.push({
+    dataAdmin2.push({
       id,
       name: row.name,
       description: null,
@@ -163,13 +165,13 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       id_type = found ? found.id : null;
     }
     if (!id_type) continue;
-    
+
     const parentCode = `${row.country}.${row.a1}.${row.a2}`;
     const parent = generateDeterministicUUID(parentCode);
     const code = `${row.country}.${row.a1}.${row.a2}.${row.a3}`;
     const id = generateDeterministicUUID(code);
 
-    data.push({
+    dataAdmin3.push({
       id,
       name: row.name,
       description: null,
@@ -190,10 +192,31 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
     continue;
   }
 
+  // Insertar por niveles de forma secuencial para respetar la FK auto-referencial:
+  // Los hijos (ADMIN2, ADMIN3) necesitan que sus padres ya existan en la tabla.
   await tx.ctl_geographic_division.createMany({
-    data,
+    data: dataAdmin1,
     skipDuplicates: true,
   });
+  console.log('ctl_geographic_division ADMIN1 seeded:', dataAdmin1.length);
 
-  console.log('ctl_geographic_division seeded:', data.length);
+  await tx.ctl_geographic_division.createMany({
+    data: dataAdmin2,
+    skipDuplicates: true,
+  });
+  console.log('ctl_geographic_division ADMIN2 seeded:', dataAdmin2.length);
+
+  await tx.ctl_geographic_division.createMany({
+    data: dataAdmin3,
+    skipDuplicates: true,
+  });
+  console.log(
+    'ctl_geographic_division ADMIN3 seeded:',
+    dataAdmin3.length,
+  );
+
+  console.log(
+    'ctl_geographic_division total seeded:',
+    dataAdmin1.length + dataAdmin2.length + dataAdmin3.length,
+  );
 };
