@@ -79,6 +79,10 @@ export class UpdateProfileValidatorDto {
   @ApiProperty({ example: '1234567890', required: false })
   phone?: string;
 
+  @Transform(({ value }: { value: unknown }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    return Array.isArray(value) ? value : [value];
+  })
   @IsArray()
   @IsOptional()
   @ApiProperty({ example: ['uuid1', 'uuid2'], required: false })
