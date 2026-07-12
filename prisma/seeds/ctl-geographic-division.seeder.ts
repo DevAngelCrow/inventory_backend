@@ -84,6 +84,10 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
   // ADMIN 2
   // ===============================
 
+  // Set de UUIDs de ADMIN2 que realmente se insertaron.
+  // Usado para filtrar ADMIN3 y evitar FK violations por padres inexistentes.
+  const validAdmin2Ids = new Set<string>();
+
   for (const row of ADMIN2) {
     if (!countryMap.has(row.country)) continue;
     const id_country = countryMap.get(row.country);
@@ -139,6 +143,7 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
       id_type,
       active: true,
     });
+    validAdmin2Ids.add(id);
   }
 
   // ===============================
@@ -168,6 +173,11 @@ export const seedCtlGeographicDivision = async (tx: PrismaClient) => {
 
     const parentCode = `${row.country}.${row.a1}.${row.a2}`;
     const parent = generateDeterministicUUID(parentCode);
+
+    // Solo insertar si el padre (ADMIN2) fue realmente insertado.
+    // Si el ADMIN2 fue omitido (ej: sin id_type), este hijo causaría FK violation.
+    if (!validAdmin2Ids.has(parent)) continue;
+
     const code = `${row.country}.${row.a1}.${row.a2}.${row.a3}`;
     const id = generateDeterministicUUID(code);
 
