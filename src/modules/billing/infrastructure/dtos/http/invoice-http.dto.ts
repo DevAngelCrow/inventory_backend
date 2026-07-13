@@ -93,7 +93,9 @@ export class InvoiceHttpDto {
       ),
       dto.created_at,
       dto.updated_at,
-      dto.mnt_customer ? `${dto.mnt_customer.first_name} ${dto.mnt_customer.last_name}`.trim() : undefined,
+      dto.mnt_customer
+        ? `${dto.mnt_customer.first_name} ${dto.mnt_customer.last_name}`.trim()
+        : undefined,
     );
   }
 }

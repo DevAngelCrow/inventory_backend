@@ -40,7 +40,10 @@ export class UpdateReservationHandler implements ICommandHandler<UpdateReservati
     });
 
     for (const item of command.items) {
-      const availableStock = await this.queryBus.execute<GetAvailableStockQuery, number>(
+      const availableStock = await this.queryBus.execute<
+        GetAvailableStockQuery,
+        number
+      >(
         new GetAvailableStockQuery(
           item.id_product,
           new Date(command.event_start),

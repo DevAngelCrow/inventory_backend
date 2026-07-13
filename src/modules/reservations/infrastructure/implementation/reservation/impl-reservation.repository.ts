@@ -39,8 +39,9 @@ import { DatabaseException } from '@/shared/infrastructure/exceptions/database.e
 
 @Injectable()
 export class ImplReservationRepository
-  implements ReservationRepository, ReservationQueriesRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  implements ReservationRepository, ReservationQueriesRepository
+{
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(reservation: Reservation): Promise<void> {
     try {
@@ -50,43 +51,44 @@ export class ImplReservationRepository
       const id_currency =
         defaultCurrency?.id || '00000000-0000-0000-0000-000000000000'; // Fallback if no currency found
 
-      const createdReservation = await this.prisma.client.mnt_reservation.create({
-        data: {
-          id: reservation.getId()?.value(),
-          reservation_number: `RES-${Date.now().toString().slice(-6)}`,
-          id_customer: reservation.getIdCustomer().value(),
-          id_currency: id_currency,
-          id_status: (
-            await this.prisma.client.ctl_status.findFirstOrThrow({
-              where: {
-                code: reservation.getStatus().value(),
-                ctl_category_status: { code: 'RES' },
-              },
-            })
-          ).id,
-          event_start: reservation.getDateRange().start,
-          event_end: reservation.getDateRange().end,
-          delivery_address:
-            reservation.getDeliveryAddress().addressLine1 ?? null,
-          delivery_address_line2:
-            reservation.getDeliveryAddress().addressLine2 ?? null,
-          delivery_zip: reservation.getDeliveryAddress().zip ?? null,
-          delivery_notes: reservation.getDeliveryAddress().notes ?? null,
-          id_customer_address:
-            reservation.getDeliveryAddress().idCustomerAddress ?? null,
-          id_geographic_division:
-            reservation.getDeliveryAddress().idGeographicDivision ?? null,
-          subtotal: reservation.getAmount().total,
-          total: reservation.getAmount().total,
-          deposit_amount: reservation.getAmount().deposit ?? 0,
-          balance_due:
-            reservation.getAmount().balance ?? reservation.getAmount().total,
-          delivery_fee: reservation.getAmount().deliveryFee,
-          discount_amount: reservation.getAmount().discountAmount,
-          notes: reservation.getNotes().value() ?? null,
-          created_at: new Date(),
-        },
-      });
+      const createdReservation =
+        await this.prisma.client.mnt_reservation.create({
+          data: {
+            id: reservation.getId()?.value(),
+            reservation_number: `RES-${Date.now().toString().slice(-6)}`,
+            id_customer: reservation.getIdCustomer().value(),
+            id_currency: id_currency,
+            id_status: (
+              await this.prisma.client.ctl_status.findFirstOrThrow({
+                where: {
+                  code: reservation.getStatus().value(),
+                  ctl_category_status: { code: 'RES' },
+                },
+              })
+            ).id,
+            event_start: reservation.getDateRange().start,
+            event_end: reservation.getDateRange().end,
+            delivery_address:
+              reservation.getDeliveryAddress().addressLine1 ?? null,
+            delivery_address_line2:
+              reservation.getDeliveryAddress().addressLine2 ?? null,
+            delivery_zip: reservation.getDeliveryAddress().zip ?? null,
+            delivery_notes: reservation.getDeliveryAddress().notes ?? null,
+            id_customer_address:
+              reservation.getDeliveryAddress().idCustomerAddress ?? null,
+            id_geographic_division:
+              reservation.getDeliveryAddress().idGeographicDivision ?? null,
+            subtotal: reservation.getAmount().total,
+            total: reservation.getAmount().total,
+            deposit_amount: reservation.getAmount().deposit ?? 0,
+            balance_due:
+              reservation.getAmount().balance ?? reservation.getAmount().total,
+            delivery_fee: reservation.getAmount().deliveryFee,
+            discount_amount: reservation.getAmount().discountAmount,
+            notes: reservation.getNotes().value() ?? null,
+            created_at: new Date(),
+          },
+        });
 
       const itemsData = reservation.getItems().map((item) => ({
         id_reservation: createdReservation.id,
@@ -237,9 +239,9 @@ export class ImplReservationRepository
             include: {
               mnt_customer_address: {
                 where: { is_primary: true },
-                include: { ctl_geographic_division: true }
-              }
-            }
+                include: { ctl_geographic_division: true },
+              },
+            },
           },
           ctl_status: true,
           ctl_geographic_division: true,
@@ -312,9 +314,9 @@ export class ImplReservationRepository
         this.prisma.client.mnt_reservation.findMany({
           skip:
             pagination_params?.getPage().value() &&
-              pagination_params?.getPerPage().value()
+            pagination_params?.getPerPage().value()
               ? (pagination_params.getPage().value() - 1) *
-              pagination_params.getPerPage().value()
+                pagination_params.getPerPage().value()
               : undefined,
           take: pagination_params?.getPerPage().value(),
           where,
@@ -324,9 +326,9 @@ export class ImplReservationRepository
               include: {
                 mnt_customer_address: {
                   where: { is_primary: true },
-                  include: { ctl_geographic_division: true }
-                }
-              }
+                  include: { ctl_geographic_division: true },
+                },
+              },
             },
             ctl_status: true,
             ctl_geographic_division: true,
@@ -336,7 +338,15 @@ export class ImplReservationRepository
         this.prisma.client.mnt_reservation.count({ where }),
       ]);
 
-      const reservations = reservationsDb.map((r) => this.mapToDto(r));
+      const divisionIds = reservationsDb.flatMap((r) => [
+        r.ctl_geographic_division?.id,
+        r.mnt_customer?.mnt_customer_address?.[0]?.ctl_geographic_division?.id,
+      ]);
+      const geoPaths = await this.getGeoPathsForDivisions(divisionIds);
+
+      const reservations = reservationsDb.map((r) =>
+        this.mapToDto(r, geoPaths),
+      );
 
       if (!pagination_params) return reservations;
 
@@ -370,19 +380,73 @@ export class ImplReservationRepository
             include: {
               mnt_customer_address: {
                 where: { is_primary: true },
-                include: { ctl_geographic_division: true }
-              }
-            }
+                include: { ctl_geographic_division: true },
+              },
+            },
           },
           ctl_status: true,
           ctl_geographic_division: true,
         },
       });
       if (!reservation) return null;
-      return this.mapToDto(reservation);
+
+      const geoPaths = await this.getGeoPathsForDivisions([
+        reservation.ctl_geographic_division?.id,
+        reservation.mnt_customer?.mnt_customer_address?.[0]
+          ?.ctl_geographic_division?.id,
+      ]);
+
+      return this.mapToDto(reservation, geoPaths);
     } catch (error) {
       throw new DatabaseException('Error finding reservation', 'findById');
     }
+  }
+
+  private async getGeoPathsForDivisions(
+    divisionIds: (string | undefined | null)[],
+  ): Promise<Map<string, string>> {
+    const uniqueIds = Array.from(
+      new Set(divisionIds.filter((id): id is string => !!id)),
+    );
+    if (uniqueIds.length === 0) return new Map();
+
+    const query = Prisma.sql`
+      WITH RECURSIVE GeoPath AS (
+        SELECT id, name, id_parent, id as root_id, 1 as depth
+        FROM ctl_geographic_division
+        WHERE id = ANY(ARRAY[${Prisma.join(uniqueIds)}]::uuid[])
+        
+        UNION ALL
+        
+        SELECT p.id, p.name, p.id_parent, gp.root_id, gp.depth + 1
+        FROM ctl_geographic_division p
+        INNER JOIN GeoPath gp ON gp.id_parent = p.id
+      )
+      SELECT root_id, name, depth
+      FROM GeoPath
+      ORDER BY root_id, depth ASC;
+    `;
+
+    const results =
+      await this.prisma.client.$queryRaw<
+        { root_id: string; name: string; depth: number }[]
+      >(query);
+
+    const map = new Map<string, string>();
+    const grouped = new Map<string, string[]>();
+
+    for (const row of results) {
+      if (!grouped.has(row.root_id)) {
+        grouped.set(row.root_id, []);
+      }
+      grouped.get(row.root_id)!.push(row.name);
+    }
+
+    for (const [rootId, names] of grouped.entries()) {
+      map.set(rootId, names.join(', '));
+    }
+
+    return map;
   }
 
   async getDefaultCurrencyId(): Promise<string> {
@@ -419,19 +483,22 @@ export class ImplReservationRepository
       notes: r.notes ?? undefined,
       items: r.mnt_reservation_item
         ? r.mnt_reservation_item.map((i: ReservationItemModel) => ({
-          id: i.id,
-          id_product: i.id_product,
-          quantity: i.quantity,
-          unit_price: Number(i.unit_price),
-          total_price: Number(i.subtotal),
-        }))
+            id: i.id,
+            id_product: i.id_product,
+            quantity: i.quantity,
+            unit_price: Number(i.unit_price),
+            total_price: Number(i.subtotal),
+          }))
         : [],
       delivery_datetime: r.delivery_datetime ?? undefined,
       pickup_datetime: r.pickup_datetime ?? undefined,
     });
   }
 
-  private mapToDto(r: ReservationModel): ReservationDto {
+  private mapToDto(
+    r: ReservationModel,
+    geoPaths: Map<string, string>,
+  ): ReservationDto {
     return new ReservationDto(
       r.id_customer,
       r.ctl_status,
@@ -444,7 +511,11 @@ export class ImplReservationRepository
       r.delivery_notes ?? undefined,
       r.id_customer_address ?? undefined,
       r.id_geographic_division ?? undefined,
-      r.ctl_geographic_division?.name ?? undefined,
+      (r.ctl_geographic_division?.id
+        ? geoPaths.get(r.ctl_geographic_division.id)
+        : undefined) ??
+        r.ctl_geographic_division?.name ??
+        undefined,
       r.deposit_amount ? Number(r.deposit_amount) : undefined,
       r.balance_due ? Number(r.balance_due) : undefined,
       r.delivery_fee ? Number(r.delivery_fee) : undefined,
@@ -452,19 +523,19 @@ export class ImplReservationRepository
       r.notes ?? undefined,
       r.mnt_reservation_item
         ? r.mnt_reservation_item.map(
-          (i: ReservationItemModel) =>
-            new ReservationItemDto(
-              i.id_product,
-              i.quantity,
-              Number(i.unit_price),
-              Number(i.subtotal),
-              i.id_reservation,
-              i.id,
-              i.mnt_product
-                ? { name: i.mnt_product.name, sku: i.mnt_product.sku }
-                : undefined,
-            ),
-        )
+            (i: ReservationItemModel) =>
+              new ReservationItemDto(
+                i.id_product,
+                i.quantity,
+                Number(i.unit_price),
+                Number(i.subtotal),
+                i.id_reservation,
+                i.id,
+                i.mnt_product
+                  ? { name: i.mnt_product.name, sku: i.mnt_product.sku }
+                  : undefined,
+              ),
+          )
         : [],
       r.id,
       r.created_at,
@@ -475,18 +546,29 @@ export class ImplReservationRepository
       r.transit_time_minutes,
       r.mnt_customer
         ? {
-          first_name: r.mnt_customer.first_name,
-          last_name: r.mnt_customer.last_name,
-          email: r.mnt_customer.email,
-          phone: r.mnt_customer.phone,
-          full_address: r.mnt_customer.mnt_customer_address && r.mnt_customer.mnt_customer_address.length > 0
-            ? [
-                r.mnt_customer.mnt_customer_address[0].address_line1,
-                r.mnt_customer.mnt_customer_address[0].address_line2,
-                r.mnt_customer.mnt_customer_address[0].ctl_geographic_division?.name
-              ].filter(Boolean).join(', ')
-            : undefined,
-        }
+            first_name: r.mnt_customer.first_name,
+            last_name: r.mnt_customer.last_name,
+            email: r.mnt_customer.email,
+            phone: r.mnt_customer.phone,
+            full_address:
+              r.mnt_customer.mnt_customer_address &&
+              r.mnt_customer.mnt_customer_address.length > 0
+                ? [
+                    r.mnt_customer.mnt_customer_address[0].address_line1,
+                    r.mnt_customer.mnt_customer_address[0].address_line2,
+                    r.mnt_customer.mnt_customer_address[0]
+                      .ctl_geographic_division?.id
+                      ? geoPaths.get(
+                          r.mnt_customer.mnt_customer_address[0]
+                            .ctl_geographic_division.id,
+                        )
+                      : r.mnt_customer.mnt_customer_address[0]
+                          .ctl_geographic_division?.name,
+                  ]
+                    .filter(Boolean)
+                    .join(', ')
+                : undefined,
+          }
         : undefined,
     );
   }
