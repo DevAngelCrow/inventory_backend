@@ -75,7 +75,7 @@ async function bootstrap() {
   app.enableCors({
     origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders: 'Content-Type, Authorization, idempotency-key',
   });
   app.setGlobalPrefix('api', {
     exclude: enableApiDocs

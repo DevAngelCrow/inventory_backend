@@ -21,7 +21,7 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
       return 0;
     }
 
-      const overlappingReservations =
+    const overlappingReservations =
       await this.prisma.client.mnt_reservation_item.aggregate({
         _sum: {
           quantity: true,
@@ -29,7 +29,9 @@ export class PrismaAvailabilityRepository implements AvailabilityRepository {
         where: {
           id_product: productId,
           mnt_reservation: {
-            id: excludeReservationId ? { not: excludeReservationId } : undefined,
+            id: excludeReservationId
+              ? { not: excludeReservationId }
+              : undefined,
             ctl_status: {
               code: {
                 notIn: ['CANCELLED', 'RETURNED'],

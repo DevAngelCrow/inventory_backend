@@ -177,7 +177,9 @@ export class Invoice {
 
   public issue(): void {
     if (this.status.value() !== 'DRAFT') {
-      throw new DomainException(`Cannot issue invoice from status ${this.status.value()}`);
+      throw new DomainException(
+        `Cannot issue invoice from status ${this.status.value()}`,
+      );
     }
     if (!this.lines || this.lines.length === 0) {
       throw new DomainException('Cannot issue invoice without lines');

@@ -43,7 +43,7 @@ export class ReservationController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) { }
+  ) {}
   @Permissions('crear-reserva')
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -206,14 +206,17 @@ export class ReservationController {
     @Query('event_start') eventStart: string,
     @Query('event_end') eventEnd: string,
     @Query('quantity') quantity: string,
-  ): Promise<SuccessResponseDto<{ available_stock: number; is_available: boolean }>> {
+  ): Promise<
+    SuccessResponseDto<{ available_stock: number; is_available: boolean }>
+  > {
     const start = new Date(eventStart);
     const end = new Date(eventEnd);
     const qty = Number(quantity);
 
-    const availableStock = await this.queryBus.execute<GetAvailableStockQuery, number>(
-      new GetAvailableStockQuery(idProduct, start, end),
-    );
+    const availableStock = await this.queryBus.execute<
+      GetAvailableStockQuery,
+      number
+    >(new GetAvailableStockQuery(idProduct, start, end));
 
     const isAvailable = availableStock >= qty;
 
