@@ -8,11 +8,13 @@ import { repositories } from './infrastructure/config/repositories.config';
 import { commandHandlerProviders } from './infrastructure/config/commands-handlers.config';
 import { queryHandlerProviders } from './infrastructure/config/queries-handlers.config';
 import { AvailabilityService } from './application/services/availability.service';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
     RouterModule.register([{ path: 'inventory', module: InventoryModule }]),
     CqrsModule,
+    StorageModule,
   ],
   controllers: [
     ProductCategoryController,

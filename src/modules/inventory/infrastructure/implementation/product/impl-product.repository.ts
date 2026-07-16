@@ -17,12 +17,16 @@ import { mnt_product } from 'generated/prisma/client';
 import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
 import { StatusMapperUtil } from '@/shared/infrastructure/utils/status-mapper.util';
 import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
+import { StorageFileReaderPort } from '@/modules/storage/domain/ports/storage-file-reader.port';
 
 @Injectable()
 export class ImplProductRepository
   implements ProductRepository, ProductQueriesRepository
 {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageFileReaderPort: StorageFileReaderPort,
+  ) {}
 
   async create(product: Product): Promise<void> {
     try {
@@ -251,7 +255,7 @@ export class ImplProductRepository
       p.color ?? undefined,
       p.dimensions ?? undefined,
       p.weight_lbs ? Number(p.weight_lbs) : undefined,
-      p.image_url ?? undefined,
+      p.image_url ? (this.storageFileReaderPort.resolveUrl(p.image_url) ?? p.image_url) : undefined,
       p.notes ?? undefined,
       p.active,
       p.id,

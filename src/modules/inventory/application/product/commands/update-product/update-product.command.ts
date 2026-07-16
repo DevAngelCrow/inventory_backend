@@ -14,5 +14,7 @@ export class UpdateProductCommand {
     public readonly weight_lbs?: number,
     public readonly image_url?: string,
     public readonly notes?: string,
+    public readonly image_file?: Express.Multer.File,
+    public readonly provider_storage_code?: string,
   ) {}
 }

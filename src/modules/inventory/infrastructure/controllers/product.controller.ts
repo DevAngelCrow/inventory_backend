@@ -10,9 +10,12 @@ import {
   Post,
   Put,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Permissions } from '@/modules/security/infrastructure/decorators/permissions.decorator';
 import { SuccessResponseDto } from '@/shared/infrastructure/http/dtos/http-success-response.dto';
 import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http-paginated-response.dto';
@@ -33,6 +36,8 @@ import { GetProductQuery } from '../../application/product/queries/get-product/g
 import { ProductDto } from '../../application/dtos/product.dto';
 import { Product } from '../../domain/entities/product';
 
+import { ConfigService } from '@nestjs/config';
+
 @ApiTags('Products')
 @Controller('products')
 @ApiBearerAuth('JWT-auth')
@@ -40,13 +45,17 @@ export class ProductController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly configService: ConfigService,
   ) {}
 
   @Permissions('crear-producto')
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('image_file'))
   async create(
     @Body() dto: CreateProductDto,
+    @UploadedFile() image_file?: Express.Multer.File,
   ): Promise<SuccessResponseDto<null>> {
     const command = new CreateProductCommand(
       dto.sku,
@@ -62,6 +71,8 @@ export class ProductController {
       dto.weight_lbs,
       dto.image_url,
       dto.notes,
+      image_file,
+      this.configService.get<string>('STORAGE_PROVIDER') ?? 'AWS_S3',
     );
     await this.commandBus.execute(command);
     return new SuccessResponseDto<null>(
@@ -75,9 +86,12 @@ export class ProductController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', required: true, type: String })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('image_file'))
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateProductDto,
+    @UploadedFile() image_file?: Express.Multer.File,
   ): Promise<SuccessResponseDto<null>> {
     const command = new UpdateProductCommand(
       id,
@@ -94,6 +108,8 @@ export class ProductController {
       dto.weight_lbs,
       dto.image_url,
       dto.notes,
+      image_file,
+      this.configService.get<string>('STORAGE_PROVIDER') ?? 'AWS_S3',
     );
     await this.commandBus.execute(command);
     return new SuccessResponseDto<null>(
