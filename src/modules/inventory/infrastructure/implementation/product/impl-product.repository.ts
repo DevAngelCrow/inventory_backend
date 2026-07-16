@@ -194,7 +194,35 @@ export class ImplProductRepository
         where: { id },
       });
       if (!product) return null;
-      return this.mapToDto(product);
+      const dto = this.mapToDto(product);
+
+      if (product.image_url && dto.image_url && !dto.image_url.startsWith('http')) {
+        const base64 = await this.storageFileReaderPort.readFileAsBase64(product.image_url);
+        if (base64) {
+          return new ProductDto(
+            dto.sku,
+            dto.name,
+            dto.description,
+            dto.rental_price,
+            dto.replacement_cost,
+            dto.total_stock,
+            dto.min_stock_alert,
+            dto.category_id,
+            dto.color,
+            dto.dimensions,
+            dto.weight_lbs,
+            base64,
+            dto.notes,
+            dto.active,
+            dto.id,
+            dto.created_at,
+            dto.updated_at,
+            dto.status
+          );
+        }
+      }
+
+      return dto;
     } catch (error) {
       throw new DatabaseException('Error finding product', 'findById');
     }

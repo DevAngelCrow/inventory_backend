@@ -72,7 +72,7 @@ export class ProductController {
       dto.image_url,
       dto.notes,
       image_file,
-      this.configService.get<string>('STORAGE_PROVIDER') ?? 'AWS_S3',
+      this.configService.get<string>('PROVIDER_STORAGE_CODE') ?? 'LOCAL',
     );
     await this.commandBus.execute(command);
     return new SuccessResponseDto<null>(
@@ -109,7 +109,7 @@ export class ProductController {
       dto.image_url,
       dto.notes,
       image_file,
-      this.configService.get<string>('STORAGE_PROVIDER') ?? 'AWS_S3',
+      this.configService.get<string>('PROVIDER_STORAGE_CODE') ?? 'LOCAL',
     );
     await this.commandBus.execute(command);
     return new SuccessResponseDto<null>(
