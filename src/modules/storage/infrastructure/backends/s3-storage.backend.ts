@@ -75,14 +75,15 @@ export class S3StorageBackend extends StorageBackend {
     }
   }
 
-  async upload(file: Express.Multer.File): Promise<{ path: string }> {
+  async upload(file: Express.Multer.File, folder?: string): Promise<{ path: string }> {
     if (!this.client || !this.bucket) {
       throw new Error(
         'S3StorageBackend requires S3_REGION and S3_BUCKET env vars.',
       );
     }
     const ext = MIME_TO_EXTENSION[file?.mimetype] ?? 'bin';
-    const key = `${this.keyPrefix ? this.keyPrefix + '/' : ''}${randomUUID()}.${ext}`;
+    const activeFolder = folder || this.keyPrefix;
+    const key = `${activeFolder ? activeFolder + '/' : ''}${randomUUID()}.${ext}`;
     try {
       await this.client.send(
         new PutObjectCommand({

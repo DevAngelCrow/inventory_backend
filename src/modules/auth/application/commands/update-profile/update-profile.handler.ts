@@ -20,6 +20,7 @@ import { UpdateUserNameService } from '@/modules/identity-access-management/appl
 import { PersonDto } from '@/modules/profile/application/dtos/person.dto';
 import { AddressDto } from '@/modules/profile/application/dtos/address.dto';
 import { DocumentDto } from '@/modules/profile/application/dtos/document.dto';
+import { StorageFolders } from '@/modules/storage/domain/enums/storage-folders.enum';
 interface FileUpload {
   originalname: string;
   size: number;
@@ -37,7 +38,7 @@ export class UpdateProfileHandler<
     public readonly documentUpdateService: DocumentUpdateService,
     private readonly userReadRepository: UserReadRepository,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) { }
 
   async execute(command: UpdateProfileCommand<T>): Promise<void> {
     const idUser = command.update_profile_dto.id_user;
@@ -90,6 +91,7 @@ export class UpdateProfileHandler<
       storageFiles = await this.storageUploaderService.run(
         storageFileDto.value(),
         command.provider_storage_code,
+        StorageFolders.PROFILE_IMG,
       );
     }
 

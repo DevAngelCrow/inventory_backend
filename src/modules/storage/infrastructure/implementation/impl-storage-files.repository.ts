@@ -26,7 +26,10 @@ export class ImplStorageFilesRepository implements StorageFilesRepository {
   private getPrismaClient() {
     return this.prisma.client;
   }
-  async upload<T>(storage_file_content: StorageFilesContentFile<T>): Promise<{
+  async upload<T>(
+    storage_file_content: StorageFilesContentFile<T>,
+    folder?: string
+  ): Promise<{
     content_file: StorageFilesContentFile<T>;
     path: StorageFilesPath;
   }> {
@@ -36,7 +39,7 @@ export class ImplStorageFilesRepository implements StorageFilesRepository {
       // PROVIDER_STORAGE_CODE env var (LOCAL by default). Per-request routing
       // by file/provider can be added later by passing a code argument here.
       const backend = this.backends.resolve();
-      const { path } = await backend.upload(file);
+      const { path } = await backend.upload(file, folder);
       return {
         content_file: storage_file_content,
         path: new StorageFilesPath(path),

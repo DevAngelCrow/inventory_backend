@@ -14,10 +14,12 @@ export class StorageUploadService<T extends FileUpload> {
   async run(
     storage_file_content: T,
     provider_storage_code: string,
+    folder?: string,
   ): Promise<StorageFiles<T>> {
     const command = new StorageFilesUploadFlowCommand<T>(
       storage_file_content,
       provider_storage_code,
+      folder,
     );
     return await this.storageUpload.execute(command);
   }
