@@ -77,6 +77,7 @@ export class StorageFilesController {
   @UseInterceptors(FileInterceptor('content_file', multerImageOptions))
   async upload(
     @UploadedFile() content_file: FileType,
+    @Query('folder') folder?: string,
   ): Promise<SuccessResponseDto<null>> {
     const file: FileType = content_file;
     if (file?.buffer && !validateFileMagicBytes(file.buffer, file.mimetype)) {
@@ -88,6 +89,7 @@ export class StorageFilesController {
       new StorageFilesUploadFlowCommand<FileType>(
         file,
         this.configService.get<string>('STORAGE_PROVIDER')!,
+        folder,
       );
     await this.command.execute(storageFileUploadFlowCommand);
     return new SuccessResponseDto<null>(

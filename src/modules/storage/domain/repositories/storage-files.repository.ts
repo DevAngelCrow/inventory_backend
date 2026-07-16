@@ -8,6 +8,7 @@ import { StorageFileListDto } from '@/modules/storage/application/dtos/storage-f
 export abstract class StorageFilesRepository {
   abstract upload<T>(
     storage_file_content: StorageFilesContentFile<T>,
+    folder?: string,
   ): Promise<{
     content_file: StorageFilesContentFile<T>;
     path: StorageFilesPath;
