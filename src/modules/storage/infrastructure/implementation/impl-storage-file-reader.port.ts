@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { extname } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { StorageFileReaderPort } from '../../domain/ports/storage-file-reader.port';
@@ -10,6 +11,10 @@ const EXTENSION_TO_MIME: Readonly<Record<string, string>> = Object.fromEntries(
 
 @Injectable()
 export class ImplStorageFileReaderPort extends StorageFileReaderPort {
+  constructor(private readonly configService: ConfigService) {
+    super();
+  }
+
   async readFileAsBase64(filePath: string): Promise<string | null> {
     try {
       const buffer = await readFile(filePath);
@@ -19,5 +24,26 @@ export class ImplStorageFileReaderPort extends StorageFileReaderPort {
     } catch {
       return null;
     }
+  }
+
+  resolveUrl(filePath: string): string | null {
+    if (!filePath) return null;
+
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      return filePath;
+    }
+
+    if (filePath.startsWith('s3://')) {
+      const publicBaseUrl = this.configService.get<string>('S3_PUBLIC_BASE_URL');
+      if (!publicBaseUrl) {
+        return filePath;
+      }
+      const parts = filePath.replace('s3://', '').split('/');
+      parts.shift(); // remove bucket name
+      const key = parts.join('/');
+      return `${publicBaseUrl.replace(/\/+$/, '')}/${key}`;
+    }
+
+    return filePath;
   }
 }
