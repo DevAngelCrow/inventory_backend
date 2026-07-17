@@ -34,7 +34,7 @@ export class MeasurementUnitController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) { }
 
   @Get()
   @Permissions('listar-unidades-medida')
