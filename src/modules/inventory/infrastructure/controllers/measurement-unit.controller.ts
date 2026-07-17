@@ -7,6 +7,8 @@ import {
   Post,
   Put,
   Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -32,7 +34,7 @@ export class MeasurementUnitController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) { }
 
   @Get()
   @Permissions('listar-unidades-medida')
@@ -73,21 +75,24 @@ export class MeasurementUnitController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @Permissions('crear-unidad-medida')
   @ApiOperation({ summary: 'Create measurement unit' })
-  async create(@Body() body: CreateMeasurementUnitHttpDto): Promise<void> {
+  async create(@Body() body: CreateMeasurementUnitHttpDto): Promise<SuccessResponseDto<null>> {
     await this.commandBus.execute(
       new CreateMeasurementUnitCommand(body.name, body.abbreviation),
     );
+    return new SuccessResponseDto(null, HttpStatus.CREATED, 'Measurement unit created successfully');
   }
 
   @Put(':id')
+  @HttpCode(HttpStatus.OK)
   @Permissions('editar-unidad-medida')
   @ApiOperation({ summary: 'Update measurement unit' })
   async update(
     @Param('id') id: string,
     @Body() body: UpdateMeasurementUnitHttpDto,
-  ): Promise<void> {
+  ): Promise<SuccessResponseDto<null>> {
     await this.commandBus.execute(
       new UpdateMeasurementUnitCommand(
         id,
@@ -96,12 +101,15 @@ export class MeasurementUnitController {
         body.active,
       ),
     );
+    return new SuccessResponseDto(null, HttpStatus.OK, 'Measurement unit updated successfully');
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.OK)
   @Permissions('eliminar-unidad-medida')
   @ApiOperation({ summary: 'Delete measurement unit' })
-  async delete(@Param('id') id: string): Promise<void> {
+  async delete(@Param('id') id: string): Promise<SuccessResponseDto<null>> {
     await this.commandBus.execute(new DeleteMeasurementUnitCommand(id));
+    return new SuccessResponseDto(null, HttpStatus.OK, 'Measurement unit deleted successfully');
   }
 }
