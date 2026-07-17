@@ -317,6 +317,15 @@ export class ImplSecurityAuthorizationPort implements SecurityAuthorizationPort 
     });
     const imgPath = user?.mnt_people?.img_path ?? null;
     if (!imgPath) return null;
+
+    if (
+      imgPath.startsWith('http://') ||
+      imgPath.startsWith('https://') ||
+      imgPath.startsWith('s3://')
+    ) {
+      return this.fileReader.resolveUrl(imgPath);
+    }
+
     return this.fileReader.readFileAsBase64(imgPath);
   }
 }

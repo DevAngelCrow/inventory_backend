@@ -1,5 +1,12 @@
 import { GlobalStatusDto } from '@/modules/catalogs/application/dtos/global-status.dto';
 
+export interface DimensionValuesDto {
+  width: number;
+  height: number;
+  depth?: number | null;
+  unitId: string;
+}
+
 export class ProductDto {
   constructor(
     public readonly sku: string,
@@ -11,7 +18,7 @@ export class ProductDto {
     public readonly min_stock_alert: number,
     public readonly category_id: string,
     public readonly color: string | undefined,
-    public readonly dimensions: string | undefined,
+    public readonly dimensions: DimensionValuesDto | undefined | null,
     public readonly weight_lbs: number | undefined,
     public readonly image_url: string | undefined,
     public readonly notes: string | undefined,

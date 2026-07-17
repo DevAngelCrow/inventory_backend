@@ -221,6 +221,12 @@ export const seedRolPermissions = async (tx: PrismaClient) => {
       'ver-documentacion-api',
       // Auditoría
       'listar-audit-logs',
+      // Unidades de Medida
+      'crear-unidad-medida',
+      'listar-unidades-medida',
+      'editar-unidad-medida',
+      'ver-unidad-medida',
+      'eliminar-unidad-medida',
     ],
     supervisor: [
       // Seguridad - Rutas
@@ -412,6 +418,13 @@ export const seedRolPermissions = async (tx: PrismaClient) => {
     'ver-reporte-utilizacion-inventario',
     'ver-reporte-clientes',
     'ver-reporte-productos-top',
+
+    // Unidades de Medida
+    'crear-unidad-medida',
+    'listar-unidades-medida',
+    'editar-unidad-medida',
+    'ver-unidad-medida',
+    'eliminar-unidad-medida',
 
     //
     'listar-estados-globales'

@@ -6,7 +6,7 @@ import { ProductPrice } from '../value-objects/product-value-object/product-pric
 import { ProductStock } from '../value-objects/product-value-object/product-stock';
 import { ProductCategoryId } from '../value-objects/product-category-value-object/product-category-id';
 import { ProductColor } from '../value-objects/product-value-object/product-color';
-import { ProductDimensions } from '../value-objects/product-value-object/product-dimensions';
+import { ProductDimensions, DimensionValues } from '../value-objects/product-value-object/product-dimensions';
 import { ProductWeightLbs } from '../value-objects/product-value-object/product-weight-lbs';
 import { ProductImageUrl } from '../value-objects/product-value-object/product-image-url';
 import { ProductNotes } from '../value-objects/product-value-object/product-notes';
@@ -41,7 +41,7 @@ export class Product {
     min_stock_alert?: number;
     category_id: string;
     color?: string;
-    dimensions?: string;
+    dimensions?: DimensionValues | null;
     weight_lbs?: number;
     image_url?: string;
     notes?: string;

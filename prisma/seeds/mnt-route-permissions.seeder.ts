@@ -83,6 +83,10 @@ export const seedMntRoutePermissions = async (tx: PrismaClient) => {
       'inventory-parent': ['listar-productos'],
       'products': ['listar-productos'],
     },
+    'Unidades de Medida': {
+      'inventory-parent': ['listar-unidades-medida'],
+      'measurement-units': ['listar-unidades-medida'],
+    },
     'Mantenimiento de Productos': {
       'inventory-parent': ['listar-mantenimientos-producto'],
       'product-maintenance': ['listar-mantenimientos-producto', 'editar-mantenimiento-producto', 'ver-mantenimiento-producto'],

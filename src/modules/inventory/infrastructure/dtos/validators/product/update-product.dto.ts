@@ -1,16 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   IsUUID,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform, plainToInstance } from 'class-transformer';
+export { DimensionValuesDto } from './create-product.dto';
+import { DimensionValuesDto } from './create-product.dto';
 
 export class UpdateProductDto {
   @IsString()
@@ -68,11 +71,26 @@ export class UpdateProductDto {
   @ApiProperty({ example: 'Blanco', required: false })
   color?: string;
 
-  @IsString()
   @IsOptional()
-  @MaxLength(100)
-  @ApiProperty({ example: '40x40x90 cm', required: false })
-  dimensions?: string;
+  @ValidateNested()
+  @Type(() => DimensionValuesDto)
+  @Transform(({ value }) => {
+    if (value === null || value === undefined) return value;
+    let obj = value;
+    if (typeof value === 'string') {
+      try {
+        obj = JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    if (typeof obj === 'object') {
+      return plainToInstance(DimensionValuesDto, obj);
+    }
+    return obj;
+  })
+  @ApiProperty({ example: '{"width":40,"height":40,"depth":90,"unitId":"uuid"}', required: false })
+  dimensions?: DimensionValuesDto | null;
 
   @IsNumber()
   @IsOptional()
@@ -90,4 +108,14 @@ export class UpdateProductDto {
   @IsOptional()
   @ApiProperty({ example: 'Evitar dejar bajo la lluvia', required: false })
   notes?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
+  @ApiProperty({ example: true, required: false })
+  active?: boolean;
 }

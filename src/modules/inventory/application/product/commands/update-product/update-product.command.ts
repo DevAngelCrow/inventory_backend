@@ -1,3 +1,5 @@
+import { DimensionValuesDto } from '../../../../infrastructure/dtos/validators/product/update-product.dto';
+
 export class UpdateProductCommand {
   constructor(
     public readonly id: string,
@@ -10,7 +12,7 @@ export class UpdateProductCommand {
     public readonly replacement_cost?: number,
     public readonly min_stock_alert?: number,
     public readonly color?: string,
-    public readonly dimensions?: string,
+    public readonly dimensions?: DimensionValuesDto | null,
     public readonly weight_lbs?: number,
     public readonly image_url?: string,
     public readonly notes?: string,

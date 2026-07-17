@@ -4,13 +4,31 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   IsUUID,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform, plainToInstance } from 'class-transformer';
+
+export class DimensionValuesDto {
+  @IsNumber()
+  @Min(0)
+  width!: number;
+
+  @IsNumber()
+  @Min(0)
+  height!: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  depth?: number | null;
+
+  @IsUUID()
+  unitId!: string;
+}
 
 export class CreateProductDto {
   @IsString()
@@ -68,11 +86,26 @@ export class CreateProductDto {
   @ApiProperty({ example: 'Blanco', required: false })
   color?: string;
 
-  @IsString()
   @IsOptional()
-  @MaxLength(100)
-  @ApiProperty({ example: '40x40x90 cm', required: false })
-  dimensions?: string;
+  @ValidateNested()
+  @Type(() => DimensionValuesDto)
+  @Transform(({ value }) => {
+    if (value === null || value === undefined) return value;
+    let obj = value;
+    if (typeof value === 'string') {
+      try {
+        obj = JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    if (typeof obj === 'object') {
+      return plainToInstance(DimensionValuesDto, obj);
+    }
+    return obj;
+  })
+  @ApiProperty({ example: '{"width":40,"height":40,"depth":90,"unitId":"uuid"}', required: false })
+  dimensions?: DimensionValuesDto | null;
 
   @IsNumber()
   @IsOptional()
