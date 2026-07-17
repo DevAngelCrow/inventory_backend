@@ -11,6 +11,7 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permissions } from '@/modules/security/infrastructure/decorators/permissions.decorator';
+import { SuccessResponseDto } from '@/shared/infrastructure/http/dtos/http-success-response.dto';
 import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http-paginated-response.dto';
 import { PaginationParamsDto } from '@/shared/application/dtos/pagination.dto';
 import { GetAllMeasurementUnitsQuery } from '../../application/queries/measurement-unit/get-all-measurement-units/get-all-measurement-units.query';
@@ -38,7 +39,7 @@ export class MeasurementUnitController {
   @ApiOperation({ summary: 'Get all measurement units paginated' })
   async getAll(
     @Query() paginationHttpDto: PaginationParamsDto,
-  ): Promise<HttpPaginatedResponseDto<MeasurementUnitDto>> {
+  ): Promise<SuccessResponseDto<HttpPaginatedResponseDto<MeasurementUnitDto>>> {
     const { page, per_page } = paginationHttpDto;
     const paginationDto = new PaginationParamsDto(page, per_page);
 
@@ -49,12 +50,18 @@ export class MeasurementUnitController {
 
     const totalPages = Math.ceil(totalItems / per_page);
 
-    return new HttpPaginatedResponseDto(
+    const response = new HttpPaginatedResponseDto(
       items,
       totalItems,
       totalPages,
       page,
       per_page,
+    );
+
+    return new SuccessResponseDto(
+      response,
+      200,
+      'Measurement units retrieved successfully',
     );
   }
 

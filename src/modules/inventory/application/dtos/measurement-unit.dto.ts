@@ -1,8 +1,13 @@
+import { GlobalStatusDto } from '@/modules/catalogs/application/dtos/global-status.dto';
+
 export class MeasurementUnitDto {
-  id!: string;
-  name!: string;
-  abbreviation!: string;
-  active!: boolean;
-  created_at?: Date | null;
-  updated_at?: Date | null;
+  constructor(
+    public readonly id: string,
+    public readonly name: string,
+    public readonly abbreviation: string,
+    public readonly active: boolean,
+    public readonly created_at?: Date | null,
+    public readonly updated_at?: Date | null,
+    public readonly status?: GlobalStatusDto,
+  ) {}
 }
