@@ -1,4 +1,8 @@
 import { ProductCategoryRepository } from '../../domain/repositories/product-category-repository';
+import { MeasurementUnitRepository } from '../../domain/repositories/measurement-unit-repository';
+import { MeasurementUnitQueriesRepository } from '../../application/repositories/measurement-unit-read.repository';
+import { PrismaMeasurementUnitRepository } from '../repositories/prisma-measurement-unit.repository';
+import { PrismaMeasurementUnitQueriesRepository } from '../repositories/prisma-measurement-unit-queries.repository';
 import { ProductCategoryQueriesRepository } from '../../application/repositories/product-category-read.repository';
 import { ImplProductCategoryRepository } from '../implementation/product-category/impl-product-category.repository';
 import { ProductRepository } from '../../domain/repositories/product-repository';
@@ -28,4 +32,6 @@ export const repositories = [
     useClass: ImplMaintenanceQueriesRepository,
   },
   { provide: AVAILABILITY_REPOSITORY, useClass: PrismaAvailabilityRepository },
+  { provide: MeasurementUnitRepository, useClass: PrismaMeasurementUnitRepository },
+  { provide: MeasurementUnitQueriesRepository, useClass: PrismaMeasurementUnitQueriesRepository },
 ];

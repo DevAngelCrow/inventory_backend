@@ -445,6 +445,19 @@ export const seedMntRoute = async (tx: PrismaClient) => {
         required_auth: true,
         title: 'Mantenimiento',
       },
+      {
+        id: "00000000-0000-4000-8000-000000000208",
+        name: 'measurement-units',
+        description: 'Unidades de medida',
+        icon: 'pi pi-sort-numeric-up',
+        uri: '/inventory/measurement-units',
+        active: true,
+        show: true,
+        order: 4,
+        id_parent: "00000000-0000-4000-8000-000000000100",
+        required_auth: true,
+        title: 'Unidades de Medida',
+      },
       // CUSTOMERS CHILDREN
       {
         id: "00000000-0000-4000-8000-000000000203",

@@ -9,8 +9,27 @@ import {
   IsUUID,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
+
+export class DimensionValuesDto {
+  @IsNumber()
+  @Min(0)
+  width!: number;
+
+  @IsNumber()
+  @Min(0)
+  height!: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  depth?: number | null;
+
+  @IsUUID()
+  unitId!: string;
+}
 
 export class UpdateProductDto {
   @IsString()
@@ -68,11 +87,21 @@ export class UpdateProductDto {
   @ApiProperty({ example: 'Blanco', required: false })
   color?: string;
 
-  @IsString()
   @IsOptional()
-  @MaxLength(100)
-  @ApiProperty({ example: '40x40x90 cm', required: false })
-  dimensions?: string;
+  @ValidateNested()
+  @Type(() => DimensionValuesDto)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value;
+      }
+    }
+    return value;
+  })
+  @ApiProperty({ example: '{"width":40,"height":40,"depth":90,"unitId":"uuid"}', required: false })
+  dimensions?: DimensionValuesDto | null;
 
   @IsNumber()
   @IsOptional()

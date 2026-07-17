@@ -1,4 +1,7 @@
 import { CreateProductCategoryHandler } from '../../application/product-category/commands/create-product-category/create-product-category.handler';
+import { CreateMeasurementUnitHandler } from '../../application/commands/measurement-unit/create-measurement-unit/create-measurement-unit.handler';
+import { UpdateMeasurementUnitHandler } from '../../application/commands/measurement-unit/update-measurement-unit/update-measurement-unit.handler';
+import { DeleteMeasurementUnitHandler } from '../../application/commands/measurement-unit/delete-measurement-unit/delete-measurement-unit.handler';
 import { UpdateProductCategoryHandler } from '../../application/product-category/commands/update-product-category/update-product-category.handler';
 import { DeleteProductCategoryHandler } from '../../application/product-category/commands/delete-product-category/delete-product-category.handler';
 import { CreateProductHandler } from '../../application/product/commands/create-product/create-product.handler';
@@ -18,4 +21,7 @@ export const commandHandlerProviders = [
   CreateMaintenanceHandler,
   ResolveMaintenanceHandler,
   UpdateMaintenanceHandler,
+  CreateMeasurementUnitHandler,
+  UpdateMeasurementUnitHandler,
+  DeleteMeasurementUnitHandler,
 ];

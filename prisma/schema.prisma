@@ -486,6 +486,17 @@ model ctl_currency {
   mnt_reservation mnt_reservation[]
 }
 
+model ctl_measurement_unit {
+  id           String        @id @default(uuid()) @db.Uuid
+  name         String        @unique @db.VarChar(100)
+  abbreviation String        @db.VarChar(10)
+  active       Boolean       @default(true)
+  created_at   DateTime?     @db.Timestamp(0)
+  updated_at   DateTime?     @db.Timestamp(0)
+  deleted_at   DateTime?     @db.Timestamp(0)
+  mnt_product  mnt_product[]
+}
+
 model mnt_product {
   id                      String                    @id @default(uuid()) @db.Uuid
   name                    String                    @db.VarChar(200)
@@ -496,7 +507,9 @@ model mnt_product {
   total_stock             Int
   min_stock_alert         Int                       @default(0)
   color                   String?                   @db.VarChar(50)
-  dimensions              String?                   @db.VarChar(100)
+  dimension_width         Decimal?                  @db.Decimal(10, 2)
+  dimension_height        Decimal?                  @db.Decimal(10, 2)
+  dimension_depth         Decimal?                  @db.Decimal(10, 2)
   weight_lbs              Decimal?                  @db.Decimal(8, 2)
   image_url               String?                   @db.VarChar(500)
   notes                   String?
@@ -505,11 +518,14 @@ model mnt_product {
   updated_at              DateTime?                 @db.Timestamp(0)
   deleted_at              DateTime?                 @db.Timestamp(0)
   id_category             String                    @db.Uuid
+  id_measurement_unit     String?                   @db.Uuid
   ctl_product_category    ctl_product_category      @relation(fields: [id_category], references: [id])
+  ctl_measurement_unit    ctl_measurement_unit?     @relation(fields: [id_measurement_unit], references: [id])
   mnt_product_maintenance mnt_product_maintenance[]
   mnt_reservation_item    mnt_reservation_item[]
 
   @@index([id_category])
+  @@index([id_measurement_unit])
   @@index([sku])
   @@index([active])
 }

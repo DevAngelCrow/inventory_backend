@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { RouterModule } from '@nestjs/core';
 import { ProductCategoryController } from './infrastructure/controllers/product-category.controller';
 import { ProductController } from './infrastructure/controllers/product.controller';
+import { MeasurementUnitController } from './infrastructure/controllers/measurement-unit.controller';
 import { ProductMaintenanceController } from './infrastructure/controllers/product-maintenance.controller';
 import { repositories } from './infrastructure/config/repositories.config';
 import { commandHandlerProviders } from './infrastructure/config/commands-handlers.config';
@@ -20,6 +21,7 @@ import { StorageModule } from '../storage/storage.module';
     ProductCategoryController,
     ProductController,
     ProductMaintenanceController,
+    MeasurementUnitController,
   ],
   providers: [
     ...repositories,

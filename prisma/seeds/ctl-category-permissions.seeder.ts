@@ -279,6 +279,13 @@ export const seedCtlCategoryPermissions = async (tx: PrismaClient) => {
         active: true,
         created_at: new Date(),
       },
+      {
+        id: "00000000-0000-4000-8000-000000000029",
+        name: 'Unidades de Medida',
+        description: 'Para el mantenimiento de las unidades de medida',
+        active: true,
+        created_at: new Date(),
+      },
     ],
     skipDuplicates: true,
   });

@@ -1192,6 +1192,42 @@ export const seedCtlPermissions = async (tx: PrismaClient) => {
         created_at: new Date(),
         active: true,
       },
+      // PERMISOS DE UNIDADES DE MEDIDA
+      {
+        name: 'crear-unidad-medida',
+        description: 'Permite crear una unidad de medida',
+        id_category_permissions: categories[39].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        name: 'listar-unidades-medida',
+        description: 'Permite listar las unidades de medida',
+        id_category_permissions: categories[39].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        name: 'editar-unidad-medida',
+        description: 'Permite editar una unidad de medida',
+        id_category_permissions: categories[39].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        name: 'ver-unidad-medida',
+        description: 'Permite ver el detalle de una unidad de medida',
+        id_category_permissions: categories[39].id,
+        created_at: new Date(),
+        active: true,
+      },
+      {
+        name: 'eliminar-unidad-medida',
+        description: 'Permite eliminar una unidad de medida',
+        id_category_permissions: categories[39].id,
+        created_at: new Date(),
+        active: true,
+      },
     ],
     skipDuplicates: true,
   });
