@@ -381,7 +381,7 @@ export class AuthController {
 
     const updateProfileCommand = new UpdateProfileCommand(
       updateProfileDto,
-      'LOCAL',
+      this.config.get<string>('PROVIDER_STORAGE_CODE') ?? 'LOCAL',
     );
     await this.commandBus.execute(updateProfileCommand);
 

@@ -12,6 +12,13 @@ export const seedCtlProviderStorage = async (tx: PrismaClient) => {
         description: 'LOCAL',
         active: true,
       },
+      {
+        id: '00000000-0000-4000-8000-000000000002',
+        name: 'S3',
+        code: 'S3',
+        description: 'Cloudflare R2',
+        active: true,
+      },
     ],
     skipDuplicates: true,
   });
