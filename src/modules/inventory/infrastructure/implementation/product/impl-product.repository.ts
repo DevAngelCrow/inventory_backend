@@ -17,12 +17,16 @@ import { mnt_product } from 'generated/prisma/client';
 import { BooleanStatusData } from '@/shared/infrastructure/interfaces/boolean-status-data.interface';
 import { StatusMapperUtil } from '@/shared/infrastructure/utils/status-mapper.util';
 import { GetBooleanStatusCatalogService } from '@/shared/infrastructure/services/get-status-catalog.service';
+import { StorageFileReaderPort } from '@/modules/storage/domain/ports/storage-file-reader.port';
 
 @Injectable()
 export class ImplProductRepository
   implements ProductRepository, ProductQueriesRepository
 {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageFileReaderPort: StorageFileReaderPort,
+  ) {}
 
   async create(product: Product): Promise<void> {
     try {
@@ -190,7 +194,35 @@ export class ImplProductRepository
         where: { id },
       });
       if (!product) return null;
-      return this.mapToDto(product);
+      const dto = this.mapToDto(product);
+
+      if (product.image_url && dto.image_url && !dto.image_url.startsWith('http')) {
+        const base64 = await this.storageFileReaderPort.readFileAsBase64(product.image_url);
+        if (base64) {
+          return new ProductDto(
+            dto.sku,
+            dto.name,
+            dto.description,
+            dto.rental_price,
+            dto.replacement_cost,
+            dto.total_stock,
+            dto.min_stock_alert,
+            dto.category_id,
+            dto.color,
+            dto.dimensions,
+            dto.weight_lbs,
+            base64,
+            dto.notes,
+            dto.active,
+            dto.id,
+            dto.created_at,
+            dto.updated_at,
+            dto.status
+          );
+        }
+      }
+
+      return dto;
     } catch (error) {
       throw new DatabaseException('Error finding product', 'findById');
     }
@@ -251,7 +283,7 @@ export class ImplProductRepository
       p.color ?? undefined,
       p.dimensions ?? undefined,
       p.weight_lbs ? Number(p.weight_lbs) : undefined,
-      p.image_url ?? undefined,
+      p.image_url ? (this.storageFileReaderPort.resolveUrl(p.image_url) ?? p.image_url) : undefined,
       p.notes ?? undefined,
       p.active,
       p.id,

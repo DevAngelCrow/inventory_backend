@@ -10,6 +10,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateProductDto {
   @IsString()
@@ -26,11 +27,13 @@ export class UpdateProductDto {
 
   @IsNumber()
   @Min(0)
+  @Type(() => Number)
   @ApiProperty({ example: 10.5 })
   rental_price!: number;
 
   @IsInt()
   @Min(0)
+  @Type(() => Number)
   @ApiProperty({ example: 100 })
   total_stock!: number;
 
@@ -48,12 +51,14 @@ export class UpdateProductDto {
   @IsNumber()
   @Min(0)
   @IsOptional()
+  @Type(() => Number)
   @ApiProperty({ example: 50.0, required: false })
   replacement_cost?: number;
 
   @IsInt()
   @Min(0)
   @IsOptional()
+  @Type(() => Number)
   @ApiProperty({ example: 10, required: false })
   min_stock_alert?: number;
 
@@ -71,6 +76,7 @@ export class UpdateProductDto {
 
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   @ApiProperty({ example: 4.5, required: false })
   weight_lbs?: number;
 

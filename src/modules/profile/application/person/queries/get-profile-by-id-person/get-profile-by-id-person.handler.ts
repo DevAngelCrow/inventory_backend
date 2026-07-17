@@ -9,7 +9,6 @@ export class GetProfileByIdPersonHandler implements IQueryHandler<GetProfileById
   constructor(
     private readonly repository: PersonReadRepository,
     private readonly storageFileReader: StorageFileReaderPort,
-    //Esto es una prueba
   ) { }
   async execute(query: GetProfileByIdPersonQuery) {
     const dto = await this.repository.getOneByIdProfile(query.id);
