@@ -262,6 +262,32 @@ export class ImplInvoiceRepository
     }
   }
 
+  async markInvoicesAsPaidByReservation(reservationId: string): Promise<void> {
+    try {
+      const paidStatus = await this.prisma.client.ctl_status.findFirstOrThrow({
+        where: { code: 'PAID', ctl_category_status: { code: 'INV' } },
+      });
+
+      const voidStatus = await this.prisma.client.ctl_status.findFirstOrThrow({
+        where: { code: 'VOIDED', ctl_category_status: { code: 'INV' } },
+      });
+
+      await this.prisma.client.mnt_invoice.updateMany({
+        where: {
+          id_reservation: reservationId,
+          id_status: { not: voidStatus.id },
+        },
+        data: {
+          id_status: paidStatus.id,
+          updated_at: new Date(),
+        },
+      });
+    } catch (error) {
+      console.log('DB ERROR INVOICE MARK PAID:', error);
+      throw new DatabaseException('Error marking invoices as paid', 'markInvoicesAsPaidByReservation');
+    }
+  }
+
   private mapToDomain(i: InvoiceModel): Invoice {
     return Invoice.create({
       id: i.id,
