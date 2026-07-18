@@ -6,6 +6,7 @@ import { invoiceRepositories } from './infrastructure/config/repositories.config
 import { invoiceCommandHandlerProviders } from './infrastructure/config/commands-handlers.config';
 import { invoiceQueryHandlerProviders } from './infrastructure/config/queries-handlers.config';
 import { invoiceProvidersConfig } from './infrastructure/config/providers.config';
+import { invoiceEventHandlerProviders } from './infrastructure/config/events-handlers.config';
 
 @Module({
   imports: [
@@ -17,11 +18,13 @@ import { invoiceProvidersConfig } from './infrastructure/config/providers.config
     ...invoiceRepositories,
     ...invoiceCommandHandlerProviders,
     ...invoiceQueryHandlerProviders,
+    ...invoiceEventHandlerProviders,
     ...invoiceProvidersConfig,
   ],
   exports: [
     ...invoiceCommandHandlerProviders,
     ...invoiceQueryHandlerProviders,
+    ...invoiceEventHandlerProviders,
     ...invoiceProvidersConfig,
   ],
 })

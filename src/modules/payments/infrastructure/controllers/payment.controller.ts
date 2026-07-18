@@ -54,6 +54,7 @@ export class PaymentController {
       dto.reference_number,
       dto.notes,
       dto.id_received_by,
+      dto.id_invoice,
     );
     const result: Payment = await this.commandBus.execute(command);
 

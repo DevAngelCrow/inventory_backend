@@ -68,6 +68,7 @@ export class ReservationHttpDto {
       phone?: string | null;
       full_address?: string;
     },
+    public readonly mnt_invoice?: any[],
   ) {}
 
   public static fromDto(dto: ReservationDto): ReservationHttpDto {
@@ -105,6 +106,18 @@ export class ReservationHttpDto {
             phone: dto.mnt_customer.phone,
             full_address: dto.mnt_customer.full_address,
           }
+        : undefined,
+      dto.mnt_invoice
+        ? dto.mnt_invoice.map((inv: any) => ({
+            ...inv,
+            subtotal: inv.subtotal != null ? Number(inv.subtotal) : undefined,
+            tax_rate: inv.tax_rate != null ? Number(inv.tax_rate) : undefined,
+            tax_amount: inv.tax_amount != null ? Number(inv.tax_amount) : undefined,
+            discount_amount: inv.discount_amount != null ? Number(inv.discount_amount) : undefined,
+            delivery_fee: inv.delivery_fee != null ? Number(inv.delivery_fee) : undefined,
+            damage_charges: inv.damage_charges != null ? Number(inv.damage_charges) : undefined,
+            total: inv.total != null ? Number(inv.total) : undefined,
+          }))
         : undefined,
     );
   }

@@ -2,10 +2,14 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RecordInspectionCommand } from './record-inspection.command';
 import { InspectionRepository } from '@/modules/inspections/domain/repositories/inspection-repository';
 import { Inspection } from '@/modules/inspections/domain/entities/inspection';
+import { EventDispatcherPort } from '@/shared/domain/ports/event-dispatcher.port';
 
 @CommandHandler(RecordInspectionCommand)
 export class RecordInspectionHandler implements ICommandHandler<RecordInspectionCommand> {
-  constructor(private readonly repository: InspectionRepository) {}
+  constructor(
+    private readonly repository: InspectionRepository,
+    private readonly dispatcher: EventDispatcherPort,
+  ) {}
 
   async execute(command: RecordInspectionCommand): Promise<void> {
     const inspection = Inspection.create({
@@ -27,5 +31,10 @@ export class RecordInspectionHandler implements ICommandHandler<RecordInspection
     });
 
     await this.repository.save(inspection);
+
+    const events = inspection.getDomainEvents();
+    console.log(`[RecordInspectionHandler] Dispatching ${events.length} domain events via EventDispatcherPort`);
+    await this.dispatcher.dispatch(events);
+    inspection.clearDomainEvents();
   }
 }

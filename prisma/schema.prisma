@@ -97,25 +97,25 @@ model ctl_provider_storage {
 }
 
 model ctl_status {
-  code                String              @db.VarChar(255)
-  name                String              @db.VarChar(255)
-  description         String              @db.VarChar(255)
-  active              Boolean             @default(true)
-  deleted_at          DateTime?           @db.Timestamp(0)
-  created_at          DateTime?           @db.Timestamp(0)
-  updated_at          DateTime?           @db.Timestamp(0)
-  state_color         String              @default("#9b9b9b") @db.VarChar(10)
-  text_color          String              @default("#FFFFFF") @db.VarChar(10)
-  id                  String              @id @default(uuid()) @db.Uuid
-  id_category_status  String              @db.Uuid
-  ctl_category_status ctl_category_status @relation(fields: [id_category_status], references: [id], onDelete: Cascade, map: "ctl_status_ctl_category_status_fk")
-  mnt_people          mnt_people[]
-  mnt_role            mnt_role[]
-  mnt_user            mnt_user[]
-  mnt_reservation            mnt_reservation[]
-  mnt_payment                mnt_payment[]
+  code                       String                       @db.VarChar(255)
+  name                       String                       @db.VarChar(255)
+  description                String                       @db.VarChar(255)
+  active                     Boolean                      @default(true)
+  deleted_at                 DateTime?                    @db.Timestamp(0)
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  state_color                String                       @default("#9b9b9b") @db.VarChar(10)
+  text_color                 String                       @default("#FFFFFF") @db.VarChar(10)
+  id                         String                       @id @default(uuid()) @db.Uuid
+  id_category_status         String                       @db.Uuid
+  ctl_category_status        ctl_category_status          @relation(fields: [id_category_status], references: [id], onDelete: Cascade, map: "ctl_status_ctl_category_status_fk")
   mnt_invoice                mnt_invoice[]
+  mnt_payment                mnt_payment[]
+  mnt_people                 mnt_people[]
+  mnt_reservation            mnt_reservation[]
   mnt_reservation_inspection mnt_reservation_inspection[]
+  mnt_role                   mnt_role[]
+  mnt_user                   mnt_user[]
 
   @@unique([code, id_category_status], map: "ctl_status_code_category_unique")
   @@index([id_category_status])
@@ -507,9 +507,6 @@ model mnt_product {
   total_stock             Int
   min_stock_alert         Int                       @default(0)
   color                   String?                   @db.VarChar(50)
-  dimension_width         Decimal?                  @db.Decimal(10, 2)
-  dimension_height        Decimal?                  @db.Decimal(10, 2)
-  dimension_depth         Decimal?                  @db.Decimal(10, 2)
   weight_lbs              Decimal?                  @db.Decimal(8, 2)
   image_url               String?                   @db.VarChar(500)
   notes                   String?
@@ -518,6 +515,9 @@ model mnt_product {
   updated_at              DateTime?                 @db.Timestamp(0)
   deleted_at              DateTime?                 @db.Timestamp(0)
   id_category             String                    @db.Uuid
+  dimension_depth         Decimal?                  @db.Decimal(10, 2)
+  dimension_height        Decimal?                  @db.Decimal(10, 2)
+  dimension_width         Decimal?                  @db.Decimal(10, 2)
   id_measurement_unit     String?                   @db.Uuid
   ctl_product_category    ctl_product_category      @relation(fields: [id_category], references: [id])
   ctl_measurement_unit    ctl_measurement_unit?     @relation(fields: [id_measurement_unit], references: [id])
@@ -549,25 +549,25 @@ model mnt_product_maintenance {
 }
 
 model mnt_customer {
-  id              String            @id @default(uuid()) @db.Uuid
-  first_name      String            @db.VarChar(150)
-  middle_name     String?           @db.VarChar(150)
-  last_name       String            @db.VarChar(150)
-  email           String?           @db.VarChar(150)
-  phone           String            @db.VarChar(20)
-  phone_secondary String?           @db.VarChar(20)
-  company_name    String?           @db.VarChar(200)
-  tax_id          String?           @db.VarChar(50)
-  notes           String?
-  active          Boolean           @default(true)
-  created_at      DateTime?         @db.Timestamp(0)
-  updated_at      DateTime?         @db.Timestamp(0)
-  deleted_at      DateTime?         @db.Timestamp(0)
-  id_country      String            @db.Uuid
-  ctl_country     ctl_country       @relation(fields: [id_country], references: [id])
+  id                   String                 @id @default(uuid()) @db.Uuid
+  first_name           String                 @db.VarChar(150)
+  last_name            String                 @db.VarChar(150)
+  email                String?                @db.VarChar(150)
+  phone                String                 @db.VarChar(20)
+  phone_secondary      String?                @db.VarChar(20)
+  company_name         String?                @db.VarChar(200)
+  tax_id               String?                @db.VarChar(50)
+  notes                String?
+  active               Boolean                @default(true)
+  created_at           DateTime?              @db.Timestamp(0)
+  updated_at           DateTime?              @db.Timestamp(0)
+  deleted_at           DateTime?              @db.Timestamp(0)
+  id_country           String                 @db.Uuid
+  middle_name          String?                @db.VarChar(150)
+  ctl_country          ctl_country            @relation(fields: [id_country], references: [id])
   mnt_customer_address mnt_customer_address[]
-  mnt_invoice     mnt_invoice[]
-  mnt_reservation mnt_reservation[]
+  mnt_invoice          mnt_invoice[]
+  mnt_reservation      mnt_reservation[]
 
   @@index([id_country])
   @@index([phone])
@@ -607,7 +607,6 @@ model mnt_reservation {
   pickup_datetime            DateTime?                    @db.Timestamptz(0)
   transit_time_minutes       Int                          @default(0)
   delivery_address           String?                      @db.VarChar(500)
-  delivery_address_line2     String?                      @db.VarChar(255)
   delivery_zip               String?                      @db.VarChar(20)
   delivery_notes             String?
   delivery_contact_name      String?                      @db.VarChar(200)
@@ -625,7 +624,6 @@ model mnt_reservation {
   balance_due                Decimal                      @db.Decimal(10, 2)
   notes                      String?
   internal_notes             String?
-  id_status                  String                       @db.Uuid
   created_at                 DateTime?                    @db.Timestamp(0)
   updated_at                 DateTime?                    @db.Timestamp(0)
   deleted_at                 DateTime?                    @db.Timestamp(0)
@@ -635,16 +633,19 @@ model mnt_reservation {
   id_customer                String                       @db.Uuid
   id_currency                String                       @db.Uuid
   id_created_by              String?                      @db.Uuid
+  id_status                  String                       @db.Uuid
+  delivery_address_line2     String?                      @db.VarChar(255)
   id_customer_address        String?                      @db.Uuid
   id_geographic_division     String?                      @db.Uuid
   mnt_payment                mnt_payment[]
   ctl_currency               ctl_currency                 @relation(fields: [id_currency], references: [id])
-  mnt_customer               mnt_customer                 @relation(fields: [id_customer], references: [id])
-  ctl_status                 ctl_status                   @relation(fields: [id_status], references: [id], onDelete: NoAction)
   mnt_customer_address       mnt_customer_address?        @relation(fields: [id_customer_address], references: [id])
+  mnt_customer               mnt_customer                 @relation(fields: [id_customer], references: [id])
   ctl_geographic_division    ctl_geographic_division?     @relation(fields: [id_geographic_division], references: [id])
+  ctl_status                 ctl_status                   @relation(fields: [id_status], references: [id], onDelete: NoAction)
   mnt_reservation_inspection mnt_reservation_inspection[]
   mnt_reservation_item       mnt_reservation_item[]
+  mnt_invoice                mnt_invoice[]
 
   @@index([id_customer])
   @@index([event_start])
@@ -692,7 +693,6 @@ model mnt_payment {
   payment_date       DateTime           @db.Timestamptz(0)
   reference_number   String?            @db.VarChar(100)
   notes              String?            @db.VarChar(500)
-  id_status          String             @db.Uuid
   gateway_provider   String?            @db.VarChar(50)
   gateway_tx_id      String?            @db.VarChar(200)
   gateway_response   Json?
@@ -701,6 +701,7 @@ model mnt_payment {
   id_reservation     String             @db.Uuid
   id_payment_method  String             @db.Uuid
   id_received_by     String?            @db.Uuid
+  id_status          String             @db.Uuid
   ctl_payment_method ctl_payment_method @relation(fields: [id_payment_method], references: [id], onDelete: NoAction)
   mnt_reservation    mnt_reservation    @relation(fields: [id_reservation], references: [id], onDelete: Cascade)
   ctl_status         ctl_status         @relation(fields: [id_status], references: [id], onDelete: NoAction)
@@ -716,17 +717,16 @@ model mnt_reservation_inspection {
   general_notes     String?
   overall_condition String            @db.VarChar(50)
   total_charges     Decimal           @default(0) @db.Decimal(10, 2)
-  id_status         String            @db.Uuid
   created_at        DateTime?         @db.Timestamp(0)
   updated_at        DateTime?         @db.Timestamp(0)
   id_reservation    String            @db.Uuid
   id_inspected_by   String?           @db.Uuid
+  id_status         String            @db.Uuid
   mnt_damage_item   mnt_damage_item[]
   mnt_reservation   mnt_reservation   @relation(fields: [id_reservation], references: [id])
-  ctl_status        ctl_status?       @relation(fields: [id_status], references: [id], onDelete: NoAction)
+  ctl_status        ctl_status        @relation(fields: [id_status], references: [id], onDelete: NoAction)
 
   @@index([id_reservation])
-
   @@index([id_status])
 }
 
@@ -758,7 +758,6 @@ model mnt_invoice {
   delivery_fee     Decimal            @default(0) @db.Decimal(10, 2)
   damage_charges   Decimal            @default(0) @db.Decimal(10, 2)
   total            Decimal            @db.Decimal(10, 2)
-  id_status        String             @db.Uuid
   notes            String?
   fiscal_provider  String?            @db.VarChar(50)
   fiscal_id        String?            @db.VarChar(100)
@@ -767,13 +766,15 @@ model mnt_invoice {
   pdf_path         String?            @db.VarChar(500)
   created_at       DateTime?          @db.Timestamp(0)
   updated_at       DateTime?          @db.Timestamp(0)
-  id_reservation   String             @unique @db.Uuid
+  id_reservation   String             @db.Uuid
   id_customer      String             @db.Uuid
   id_currency      String             @db.Uuid
   id_created_by    String?            @db.Uuid
+  id_status        String             @db.Uuid
   ctl_currency     ctl_currency       @relation(fields: [id_currency], references: [id])
   mnt_customer     mnt_customer       @relation(fields: [id_customer], references: [id])
   ctl_status       ctl_status         @relation(fields: [id_status], references: [id], onDelete: NoAction)
+  mnt_reservation  mnt_reservation    @relation(fields: [id_reservation], references: [id], onDelete: NoAction)
   mnt_invoice_line mnt_invoice_line[]
 
   @@index([invoice_number])

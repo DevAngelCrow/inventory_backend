@@ -2,7 +2,10 @@ import { InspectionId } from '../value-objects/inspection-id';
 import { InspectionStatus } from '../value-objects/inspection-status';
 import { DamageItem } from './damage-item';
 
-export class Inspection {
+import { AggregateRoot } from '@/shared/domain/aggregate-root';
+import { InspectionRecordedEvent } from '../events/inspection-recorded.event';
+
+export class Inspection extends AggregateRoot {
   constructor(
     private readonly id_reservation: string,
     private readonly inspection_date: Date,
@@ -13,7 +16,9 @@ export class Inspection {
     private readonly id_inspected_by?: string,
     private readonly damage_items: DamageItem[] = [],
     private readonly id?: InspectionId,
-  ) {}
+  ) {
+    super();
+  }
 
   static create(data: {
     id_reservation: string;
@@ -34,19 +39,33 @@ export class Inspection {
     }[];
     id?: string;
   }): Inspection {
-    return new Inspection(
+    const computedTotalCharges = data.total_charges ?? 
+      (data.damage_items?.reduce((sum, item) => sum + Number(item.charge_amount), 0) ?? 0);
+
+    const inspection = new Inspection(
       data.id_reservation,
       data.inspection_date,
       data.overall_condition,
       new InspectionStatus(data.status),
       data.general_notes,
-      data.total_charges ?? 0,
+      computedTotalCharges,
       data.id_inspected_by,
       data.damage_items?.map((item) =>
         DamageItem.create({ ...item, id_inspection: data.id }),
       ) ?? [],
       data.id ? new InspectionId(data.id) : undefined,
     );
+
+    if (inspection.getTotalCharges() > 0) {
+      inspection.apply(
+        new InspectionRecordedEvent(
+          inspection.getIdReservation(),
+          inspection.getTotalCharges(),
+        ),
+      );
+    }
+
+    return inspection;
   }
 
   public getId(): InspectionId | undefined {

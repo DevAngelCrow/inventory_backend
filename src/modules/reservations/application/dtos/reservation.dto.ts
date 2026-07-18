@@ -53,5 +53,6 @@ export class ReservationDto {
       phone?: string | null;
       full_address?: string;
     },
+    public readonly mnt_invoice?: any[],
   ) {}
 }

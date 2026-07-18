@@ -184,7 +184,14 @@ export class ImplInvoiceRepository
       const where: Prisma.mnt_invoiceWhereInput = {};
 
       if (filter_reservation) {
-        where.id_reservation = filter_reservation;
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(filter_reservation);
+        if (isUuid) {
+          where.id_reservation = filter_reservation;
+        } else {
+          where.mnt_reservation = {
+            reservation_number: { contains: filter_reservation, mode: 'insensitive' },
+          };
+        }
       }
       if (filter_customer) {
         where.id_customer = filter_customer;
@@ -259,6 +266,32 @@ export class ImplInvoiceRepository
       return this.mapToDto(invoice);
     } catch (error) {
       throw new DatabaseException('Error finding invoice', 'findById');
+    }
+  }
+
+  async markInvoicesAsPaidByReservation(reservationId: string): Promise<void> {
+    try {
+      const paidStatus = await this.prisma.client.ctl_status.findFirstOrThrow({
+        where: { code: 'PAID', ctl_category_status: { code: 'INV' } },
+      });
+
+      const voidStatus = await this.prisma.client.ctl_status.findFirstOrThrow({
+        where: { code: 'VOIDED', ctl_category_status: { code: 'INV' } },
+      });
+
+      await this.prisma.client.mnt_invoice.updateMany({
+        where: {
+          id_reservation: reservationId,
+          id_status: { not: voidStatus.id },
+        },
+        data: {
+          id_status: paidStatus.id,
+          updated_at: new Date(),
+        },
+      });
+    } catch (error) {
+      console.log('DB ERROR INVOICE MARK PAID:', error);
+      throw new DatabaseException('Error marking invoices as paid', 'markInvoicesAsPaidByReservation');
     }
   }
 
