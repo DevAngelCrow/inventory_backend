@@ -184,7 +184,14 @@ export class ImplInvoiceRepository
       const where: Prisma.mnt_invoiceWhereInput = {};
 
       if (filter_reservation) {
-        where.id_reservation = filter_reservation;
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(filter_reservation);
+        if (isUuid) {
+          where.id_reservation = filter_reservation;
+        } else {
+          where.mnt_reservation = {
+            reservation_number: { contains: filter_reservation, mode: 'insensitive' },
+          };
+        }
       }
       if (filter_customer) {
         where.id_customer = filter_customer;
