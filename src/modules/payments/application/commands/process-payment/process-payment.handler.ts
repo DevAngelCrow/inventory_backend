@@ -4,6 +4,7 @@ import { PaymentRepository } from '@/modules/payments/domain/repositories/paymen
 import { PaymentGatewayPort } from '@/modules/payments/application/ports/payment-gateway.port';
 import { Payment } from '@/modules/payments/domain/entities/payment';
 import { UpdateReservationBalanceCommand } from '@/modules/reservations/application/commands/update-reservation-balance/update-reservation-balance.command';
+import { UpdateInvoiceStatusCommand } from '@/modules/billing/application/commands/update-invoice-status/update-invoice-status.command';
 
 @CommandHandler(ProcessPaymentCommand)
 export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentCommand> {
@@ -19,7 +20,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       amount: command.amount,
       currency: command.id_currency, // En un sistema real buscaríamos el código ISO de la moneda
       paymentMethodCode: command.payment_method_code,
-      referenceNumber: command.reference_number,
+      referenceNumber: command.id_invoice || command.reference_number,
     });
 
     // 2. Create Domain Entity
@@ -29,7 +30,7 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
       amount: command.amount,
       payment_date: command.payment_date,
       status: result.status,
-      reference_number: command.reference_number,
+      reference_number: command.id_invoice || command.reference_number,
       notes: command.notes,
       gateway_provider: result.gatewayProvider,
       gateway_tx_id: result.gatewayTxId,
@@ -40,15 +41,21 @@ export class ProcessPaymentHandler implements ICommandHandler<ProcessPaymentComm
     // 3. Save to repository
     const savedPayment = await this.repository.save(payment);
 
-    // 4. Update Reservation Balance via CommandBus
+    // 4. Update Balance or Invoice Status via CommandBus
     if (result.status === 'COMPLETED') {
-      await this.commandBus.execute(
-        new UpdateReservationBalanceCommand(
-          command.id_reservation,
-          -command.amount, // balance_due_delta (decrement)
-          command.amount, // deposit_amount_delta (increment)
-        ),
-      );
+      if (command.id_invoice) {
+        await this.commandBus.execute(
+          new UpdateInvoiceStatusCommand(command.id_invoice, 'PAID'),
+        );
+      } else {
+        await this.commandBus.execute(
+          new UpdateReservationBalanceCommand(
+            command.id_reservation,
+            -command.amount, // balance_due_delta (decrement)
+            command.amount, // deposit_amount_delta (increment)
+          ),
+        );
+      }
     }
 
     return savedPayment;

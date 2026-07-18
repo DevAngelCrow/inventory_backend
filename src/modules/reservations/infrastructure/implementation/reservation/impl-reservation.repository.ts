@@ -15,6 +15,7 @@ type ReservationModel = Prisma.mnt_reservationGetPayload<{
     };
     ctl_status: true;
     ctl_geographic_division: true;
+    mnt_invoice: { include: { ctl_status: true } };
   };
 }>;
 
@@ -245,6 +246,7 @@ export class ImplReservationRepository
           },
           ctl_status: true,
           ctl_geographic_division: true,
+          mnt_invoice: { include: { ctl_status: true } },
         },
       });
       return this.mapToDomain(updated);
@@ -332,6 +334,7 @@ export class ImplReservationRepository
             },
             ctl_status: true,
             ctl_geographic_division: true,
+            mnt_invoice: { include: { ctl_status: true } },
           },
           orderBy: { created_at: 'desc' },
         }),
@@ -386,6 +389,7 @@ export class ImplReservationRepository
           },
           ctl_status: true,
           ctl_geographic_division: true,
+          mnt_invoice: { include: { ctl_status: true } },
         },
       });
       if (!reservation) return null;
@@ -570,6 +574,7 @@ export class ImplReservationRepository
                 : undefined,
           }
         : undefined,
+      r.mnt_invoice,
     );
   }
 }

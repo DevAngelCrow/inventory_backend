@@ -9,5 +9,6 @@ export class ProcessPaymentCommand {
     public readonly reference_number?: string,
     public readonly notes?: string,
     public readonly id_received_by?: string,
+    public readonly id_invoice?: string,
   ) {}
 }

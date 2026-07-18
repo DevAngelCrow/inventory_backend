@@ -4,6 +4,9 @@ import { InspectionController } from './infrastructure/controllers/inspection.co
 import { inspectionRepositories } from './infrastructure/config/repositories.config';
 import { inspectionCommandHandlerProviders } from './infrastructure/config/commands-handlers.config';
 import { inspectionQueryHandlerProviders } from './infrastructure/config/queries-handlers.config';
+import { EventDispatcherPort } from '@/shared/domain/ports/event-dispatcher.port';
+import { NestEventDispatcherAdapter } from '@/shared/infrastructure/event-dispatcher/nest-event-dispatcher.adapter';
+import { InspectionRecordedHandler } from '@/modules/billing/application/events/inspection-recorded.handler';
 
 @Module({
   imports: [CqrsModule],
@@ -12,6 +15,11 @@ import { inspectionQueryHandlerProviders } from './infrastructure/config/queries
     ...inspectionRepositories,
     ...inspectionCommandHandlerProviders,
     ...inspectionQueryHandlerProviders,
+    InspectionRecordedHandler,
+    {
+      provide: EventDispatcherPort,
+      useClass: NestEventDispatcherAdapter,
+    },
   ],
   exports: [
     ...inspectionCommandHandlerProviders,

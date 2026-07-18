@@ -47,6 +47,7 @@ import { AuditableInterceptor } from './modules/audit/infrastructure/interceptor
 import { DateModule } from './shared/infrastructure/services/date.module';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { ExpressAdapter } from '@bull-board/express';
     PrismaModule,
     DateModule,
     QueuesModule,
+    CqrsModule,
     CatalogsModule,
     ProfileModule,
     StorageModule,
