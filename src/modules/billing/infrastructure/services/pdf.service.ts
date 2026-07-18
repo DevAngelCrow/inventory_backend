@@ -25,17 +25,17 @@ export class PdfService {
           .text(`Fecha: ${invoice.issue_date.toLocaleDateString()}`, {
             align: 'right',
           })
-          .text(
-            `Vencimiento: ${invoice.due_date?.toLocaleDateString() || '-'}`,
-            { align: 'right' },
-          )
+          // .text(
+          //   `Vencimiento: ${invoice.due_date?.toLocaleDateString() || '-'}`,
+          //   { align: 'right' },
+          // )
           .moveDown();
 
         doc
           .fontSize(10)
-          .text('Empresa Alquileres S.A.', 50, 57)
-          .text('123 Calle Falsa')
-          .text('Ciudad, País, 12345')
+          .text('G&V Rentals', 50, 57)
+          //.text('123 Calle Falsa')
+          .text('Carrolton')
           .moveDown();
 
         // Customer Info
