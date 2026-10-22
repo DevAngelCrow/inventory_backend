@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1.7
 
 # ---------- 1) deps: instala dependencias reproducibles ----------
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json ./
 RUN npm ci --include=dev
 
 # ---------- 1.5) development: stage para desarrollo local ----------
-FROM node:20-alpine AS development
+FROM node:22-alpine AS development
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY --from=deps /app/node_modules ./node_modules
@@ -18,7 +18,7 @@ EXPOSE 3000
 CMD ["npm", "run", "start:dev"]
 
 # ---------- 2) build: compila TypeScript + assets + Prisma client ----------
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY --from=deps /app/node_modules ./node_modules
@@ -28,7 +28,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # ---------- 3) runner: imagen final mínima ----------
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
