@@ -22,6 +22,7 @@ import { HttpPaginatedResponseDto } from '@/shared/infrastructure/http/dtos/http
 import { NotFoundException } from '@/shared/domain/exceptions/not-found.exception';
 import { Pagination } from '@/shared/domain/value-object/pagination';
 import { PaginationParams } from '@/shared/domain/value-object/pagination-params';
+import { SkipAuth } from '@/modules/auth/infrastructure/decorators/public-route.decorator';
 
 import { CreateProductDto } from '../dtos/validators/product/create-product.dto';
 import { UpdateProductDto } from '../dtos/validators/product/update-product.dto';
@@ -162,6 +163,52 @@ export class ProductController {
       response,
       HttpStatus.OK,
       'Products retrieved successfully',
+    );
+  }
+
+  @SkipAuth()
+  @Get('public/catalog')
+  @HttpCode(HttpStatus.OK)
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'per_page', required: false, type: Number })
+  @ApiQuery({ name: 'filter_name', required: false, type: String })
+  @ApiQuery({ name: 'filter_category', required: false, type: String })
+  async getPublicCatalog(
+    @Query() query: GetProductsQueryDto,
+  ): Promise<SuccessResponseDto<HttpPaginatedResponseDto<ProductHttpDto>>> {
+    // Force active=true for public catalog
+    query.active = true;
+    const appQuery = new GetProductsQuery(
+      query,
+      query.filter_name,
+      undefined, // no sku filter for public
+      query.filter_category,
+      true, // force active status
+    );
+    const result = await this.queryBus.execute<
+      GetProductsQuery,
+      Pagination<ProductDto> | ProductDto[]
+    >(appQuery);
+
+    const items =
+      result instanceof Pagination ? result.getEntityList() : result;
+    const totalItems =
+      result instanceof Pagination ? result.getTotalItems() : items.length;
+    const totalPages =
+      result instanceof Pagination ? result.getTotalPages() : 1;
+
+    const httpDtos = items.map((c: ProductDto) => ProductHttpDto.fromDto(c));
+    const response = new HttpPaginatedResponseDto<ProductHttpDto>(
+      httpDtos,
+      totalItems,
+      totalPages,
+      query.page,
+      query.per_page,
+    );
+    return new SuccessResponseDto(
+      response,
+      HttpStatus.OK,
+      'Public catalog retrieved successfully',
     );
   }
 
